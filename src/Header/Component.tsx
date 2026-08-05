@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, LogIn } from 'lucide-react'
 
 export async function Header() {
   return (
@@ -10,7 +10,12 @@ export async function Header() {
           <span className="text-lg font-black tracking-[-.03em]">NEXT SHOT<span className="text-[#1677ff]">.</span></span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-bold text-[#405d7d] md:flex"><Link href="/#programs">Programs</Link><Link href="/#assessment">Assessment</Link><Link href="/#contact">How it works</Link></nav>
-        <Link href="/#contact" className="flex items-center gap-2 rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white">Get started <ArrowUpRight className="h-4 w-4" /></Link>
+        <div className="flex items-center gap-2">
+          <Link href="/login?redirect=/dashboard/student" className="flex items-center gap-2 rounded-full border border-[#092c59]/20 bg-white px-4 py-3 text-sm font-bold text-[#092c59] transition hover:border-[#1677ff] hover:text-[#1677ff]">
+            <LogIn className="h-4 w-4" /><span className="hidden sm:inline">Student login</span><span className="sm:hidden">Login</span>
+          </Link>
+          <Link href="/#contact" className="hidden items-center gap-2 rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white sm:flex">Get started <ArrowUpRight className="h-4 w-4" /></Link>
+        </div>
       </div>
     </header>
   )

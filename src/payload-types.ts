@@ -72,6 +72,14 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    programs: Program;
+    skills: Skill;
+    drills: Drill;
+    'student-profiles': StudentProfile;
+    'training-sessions': TrainingSession;
+    'skill-progress': SkillProgress;
+    assignments: Assignment;
+    'coaching-events': CoachingEvent;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +102,14 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    skills: SkillsSelect<false> | SkillsSelect<true>;
+    drills: DrillsSelect<false> | DrillsSelect<true>;
+    'student-profiles': StudentProfilesSelect<false> | StudentProfilesSelect<true>;
+    'training-sessions': TrainingSessionsSelect<false> | TrainingSessionsSelect<true>;
+    'skill-progress': SkillProgressSelect<false> | SkillProgressSelect<true>;
+    assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
+    'coaching-events': CoachingEventsSelect<false> | CoachingEventsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -434,6 +450,7 @@ export interface Category {
 export interface User {
   id: string;
   name?: string | null;
+  roles: ('admin' | 'coach' | 'student')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -979,6 +996,166 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs".
+ */
+export interface Program {
+  id: string;
+  name: string;
+  level: 'foundations' | 'development' | 'competitive';
+  description: string;
+  durationWeeks?: number | null;
+  phases?:
+    | {
+        name: string;
+        description?: string | null;
+        order: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills".
+ */
+export interface Skill {
+  id: string;
+  name: string;
+  category:
+    | 'stroke-technique'
+    | 'footwork'
+    | 'consistency'
+    | 'tactical-decisions'
+    | 'match-performance'
+    | 'physical-readiness'
+    | 'training-habits';
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drills".
+ */
+export interface Drill {
+  id: string;
+  name: string;
+  skill: string | Skill;
+  level: 'foundations' | 'development' | 'competitive';
+  eventType: 'general' | 'singles' | 'doubles';
+  equipment: string;
+  numberOfPlayers: number;
+  durationMinutes: number;
+  instructions: string;
+  coachingPoints: string;
+  commonMistakes?: string | null;
+  difficulty: 'easy' | 'moderate' | 'challenging';
+  videoURL?: string | null;
+  successTarget: string;
+  easierVariation?: string | null;
+  harderProgression?: string | null;
+  completionRequirement?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student-profiles".
+ */
+export interface StudentProfile {
+  id: string;
+  displayName: string;
+  user: string | User;
+  coach?: (string | null) | User;
+  program?: (string | null) | Program;
+  currentPhase: string;
+  weeklyFocus: string;
+  focusExplanation: string;
+  packageName: string;
+  packageSessions: number;
+  sessionsRemaining: number;
+  attendanceRate: number;
+  assessmentStatus: 'required' | 'scheduled' | 'current';
+  lastTrainingAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-sessions".
+ */
+export interface TrainingSession {
+  id: string;
+  title: string;
+  student: string | StudentProfile;
+  scheduledAt: string;
+  location?: string | null;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'missed';
+  attendance?: ('pending' | 'present' | 'late' | 'absent' | 'excused') | null;
+  plan?: {
+    warmUp?: string | null;
+    movementPreparation?: string | null;
+    technicalDrill?: (string | null) | Drill;
+    progressiveDrill?: (string | null) | Drill;
+    conditionedGame?: string | null;
+    matchPlay?: string | null;
+    cooldownAndFeedback?: string | null;
+  };
+  coachNotes?: string | null;
+  studentSummary?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skill-progress".
+ */
+export interface SkillProgress {
+  id: string;
+  label: string;
+  student: string | StudentProfile;
+  skill: string | Skill;
+  stage: 'not-introduced' | 'learning' | 'controlled' | 'game-ready' | 'pressure-ready';
+  progress: number;
+  previousProgress?: number | null;
+  coachFeedback?: string | null;
+  updatedAtAssessment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assignments".
+ */
+export interface Assignment {
+  id: string;
+  title: string;
+  student: string | StudentProfile;
+  drill: string | Drill;
+  status: 'assigned' | 'in-progress' | 'completed';
+  dueAt?: string | null;
+  coachFeedback?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coaching-events".
+ */
+export interface CoachingEvent {
+  id: string;
+  title: string;
+  student: string | StudentProfile;
+  eventType: 'assessment' | 'tournament' | 'other';
+  startsAt: string;
+  location?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1186,6 +1363,38 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'programs';
+        value: string | Program;
+      } | null)
+    | ({
+        relationTo: 'skills';
+        value: string | Skill;
+      } | null)
+    | ({
+        relationTo: 'drills';
+        value: string | Drill;
+      } | null)
+    | ({
+        relationTo: 'student-profiles';
+        value: string | StudentProfile;
+      } | null)
+    | ({
+        relationTo: 'training-sessions';
+        value: string | TrainingSession;
+      } | null)
+    | ({
+        relationTo: 'skill-progress';
+        value: string | SkillProgress;
+      } | null)
+    | ({
+        relationTo: 'assignments';
+        value: string | Assignment;
+      } | null)
+    | ({
+        relationTo: 'coaching-events';
+        value: string | CoachingEvent;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1736,6 +1945,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1752,6 +1962,153 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs_select".
+ */
+export interface ProgramsSelect<T extends boolean = true> {
+  name?: T;
+  level?: T;
+  description?: T;
+  durationWeeks?: T;
+  phases?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        order?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills_select".
+ */
+export interface SkillsSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drills_select".
+ */
+export interface DrillsSelect<T extends boolean = true> {
+  name?: T;
+  skill?: T;
+  level?: T;
+  eventType?: T;
+  equipment?: T;
+  numberOfPlayers?: T;
+  durationMinutes?: T;
+  instructions?: T;
+  coachingPoints?: T;
+  commonMistakes?: T;
+  difficulty?: T;
+  videoURL?: T;
+  successTarget?: T;
+  easierVariation?: T;
+  harderProgression?: T;
+  completionRequirement?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student-profiles_select".
+ */
+export interface StudentProfilesSelect<T extends boolean = true> {
+  displayName?: T;
+  user?: T;
+  coach?: T;
+  program?: T;
+  currentPhase?: T;
+  weeklyFocus?: T;
+  focusExplanation?: T;
+  packageName?: T;
+  packageSessions?: T;
+  sessionsRemaining?: T;
+  attendanceRate?: T;
+  assessmentStatus?: T;
+  lastTrainingAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-sessions_select".
+ */
+export interface TrainingSessionsSelect<T extends boolean = true> {
+  title?: T;
+  student?: T;
+  scheduledAt?: T;
+  location?: T;
+  status?: T;
+  attendance?: T;
+  plan?:
+    | T
+    | {
+        warmUp?: T;
+        movementPreparation?: T;
+        technicalDrill?: T;
+        progressiveDrill?: T;
+        conditionedGame?: T;
+        matchPlay?: T;
+        cooldownAndFeedback?: T;
+      };
+  coachNotes?: T;
+  studentSummary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skill-progress_select".
+ */
+export interface SkillProgressSelect<T extends boolean = true> {
+  label?: T;
+  student?: T;
+  skill?: T;
+  stage?: T;
+  progress?: T;
+  previousProgress?: T;
+  coachFeedback?: T;
+  updatedAtAssessment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assignments_select".
+ */
+export interface AssignmentsSelect<T extends boolean = true> {
+  title?: T;
+  student?: T;
+  drill?: T;
+  status?: T;
+  dueAt?: T;
+  coachFeedback?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coaching-events_select".
+ */
+export interface CoachingEventsSelect<T extends boolean = true> {
+  title?: T;
+  student?: T;
+  eventType?: T;
+  startsAt?: T;
+  location?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
