@@ -77,7 +77,7 @@ export default async function StudentDashboardPage() {
   return (
     <DashboardShell eyebrow="Student dashboard" title={`Hi, ${profile.displayName}`} description="Everything you need for your next session and the clearest view of where your game is improving.">
       <div className="grid gap-5 lg:grid-cols-12">
-        <Panel className="bg-[#092c59] text-white lg:col-span-8" title="Your next focus" subtitle="This week's coaching priority" icon={Target}>
+        <Panel tone="dark" className="lg:col-span-8" title="Your next focus" subtitle="This week's coaching priority" icon={Target}>
           <p className="text-3xl font-black tracking-tight text-[#4cc9ff]">{profile.weeklyFocus}</p>
           <p className="mt-3 max-w-3xl leading-7 text-white/75">{profile.focusExplanation}</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3"><Stat label="Current program" value={program?.name || 'Program'} detail={profile.currentPhase} /><Stat label="Attendance" value={`${profile.attendanceRate}%`} detail="Current training cycle" /><Stat label="Package balance" value={profile.sessionsRemaining} detail={`${profile.packageName} · ${profile.packageSessions} sessions`} /></div>
