@@ -209,10 +209,36 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
   }
 }
+
+html { scroll-behavior: smooth; }
+
+::selection { background: #4cc9ff; color: #071f42; }
+
+.court-grid {
+  background-image: linear-gradient(rgba(9,44,89,.075) 1px, transparent 1px), linear-gradient(90deg, rgba(9,44,89,.075) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black 20%, transparent 93%);
+}
+
+.coach-section { @apply px-5 py-24 md:px-10 md:py-32; }
+.coach-hero { @apply relative min-h-[760px] overflow-hidden border-b border-[#092c59]/10 bg-[#f7faff] px-5 pb-16 pt-16 text-[#071f42] md:px-10 md:pt-24; }
+.coach-pill { @apply mb-7 inline-flex items-center gap-2 rounded-full border border-[#092c59]/20 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[.18em] text-[#092c59] backdrop-blur; }
+.coach-hero-title { @apply max-w-[800px] text-[clamp(3.75rem,8vw,6rem)] font-black leading-[.84] tracking-[-.075em]; }
+.coach-hero-title span { @apply relative inline-block text-[#1268d6]; }
+.coach-hero-title span::after { content: ''; @apply absolute -bottom-2 left-1 h-3 w-full -rotate-1 rounded-full bg-[#4cc9ff]; }
+.coach-lead { @apply mt-9 max-w-xl text-lg leading-8 text-[#50657c] md:text-xl; }
+.coach-button-primary { @apply inline-flex items-center justify-center gap-3 rounded-full bg-[#092c59] px-7 py-4 font-bold text-white transition hover:bg-[#124a8e]; }
+.coach-button-secondary { @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#092c59]/25 bg-white/60 px-7 py-4 font-bold text-[#092c59] backdrop-blur transition hover:bg-white; }
+.coach-eyebrow { @apply text-xs font-black uppercase tracking-[.2em] text-[#1677ff]; }
+.coach-title { @apply mt-4 text-[clamp(2.8rem,5.5vw,5.4rem)] font-black leading-[.93] tracking-[-.055em]; }
+.program-card { @apply relative overflow-hidden rounded-[2rem] p-7 transition duration-300 hover:-translate-y-2 md:p-9; }
+.program-sky { @apply bg-[#dff5ff] text-[#07496a]; }
+.program-blue { @apply bg-[#cfe2ff] text-[#103e78]; }
+.program-navy { @apply bg-[#092c59] text-white; }
 
 html {
   opacity: 0;

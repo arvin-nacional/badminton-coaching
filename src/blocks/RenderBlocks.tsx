@@ -7,13 +7,31 @@ import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import {
+  AssessmentStepsBlock,
+  CoachHeroBlock,
+  CoachingCTABlock,
+  CoachingQuoteBlock,
+  DevelopmentLoopBlock,
+  ProgramsGridBlock,
+  ProgressProfileBlock,
+  TrainingCycleBlock,
+} from '@/blocks/CoachHome/Components'
 
 const blockComponents = {
+  assessmentSteps: AssessmentStepsBlock,
   archive: ArchiveBlock,
+  coachHero: CoachHeroBlock,
+  coachingCTA: CoachingCTABlock,
+  coachingQuote: CoachingQuoteBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
+  developmentLoop: DevelopmentLoopBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  programsGrid: ProgramsGridBlock,
+  progressProfile: ProgressProfileBlock,
+  trainingCycle: TrainingCycleBlock,
 }
 
 export const RenderBlocks: React.FC<{
@@ -33,11 +51,26 @@ export const RenderBlocks: React.FC<{
             const Block = blockComponents[blockType]
 
             if (Block) {
-              return (
-                <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
-                </div>
+              const isCoachBlock = [
+                'assessmentSteps',
+                'coachHero',
+                'coachingCTA',
+                'coachingQuote',
+                'developmentLoop',
+                'programsGrid',
+                'progressProfile',
+                'trainingCycle',
+              ].includes(blockType)
+
+              const renderedBlock = (
+                // @ts-expect-error block props are narrowed by blockType at runtime
+                <Block {...block} disableInnerContainer />
+              )
+
+              return isCoachBlock ? (
+                <React.Fragment key={index}>{renderedBlock}</React.Fragment>
+              ) : (
+                <div className="my-16" key={index}>{renderedBlock}</div>
               )
             }
           }

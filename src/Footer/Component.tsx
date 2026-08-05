@@ -1,31 +1,12 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
-import React from 'react'
-
-import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
-import { CMSLink } from '@/components/Link'
-import { Logo } from '@/components/Logo/Logo'
 
 export async function Footer() {
-  const footerData = await getCachedGlobal('footer', 1)()
-
-  const navItems = footerData?.navItems || []
-
   return (
-    <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
-      <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
-          <Logo />
-        </Link>
-
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
-          <ThemeSelector />
-          <nav className="flex flex-col md:flex-row gap-4">
-            {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
-            })}
-          </nav>
-        </div>
+    <footer className="bg-[#071f42] px-5 py-10 text-white md:px-10">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-7 md:flex-row md:items-center md:justify-between">
+        <Link href="/" className="text-lg font-black">NEXT SHOT<span className="text-[#4cc9ff]">.</span></Link>
+        <p className="text-sm text-white/50">Structured badminton coaching. Personal progress.</p>
+        <div className="flex gap-6 text-sm font-bold"><Link href="/#programs">Programs</Link><Link href="/#assessment">Assessment</Link><Link href="/admin">Coach login</Link></div>
       </div>
     </footer>
   )

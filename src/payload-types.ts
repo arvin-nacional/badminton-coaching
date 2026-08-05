@@ -201,7 +201,21 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CoachHeroBlock
+    | DevelopmentLoopBlock
+    | ProgramsGridBlock
+    | AssessmentStepsBlock
+    | TrainingCycleBlock
+    | ProgressProfileBlock
+    | CoachingQuoteBlock
+    | CoachingCTABlock
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -438,6 +452,197 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachHeroBlock".
+ */
+export interface CoachHeroBlock {
+  eyebrow: string;
+  heading: string;
+  highlight: string;
+  description: string;
+  primaryButton: {
+    label: string;
+    url: string;
+  };
+  secondaryButton: {
+    label: string;
+    url: string;
+  };
+  benefits?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  dashboard: {
+    label: string;
+    title: string;
+    status: string;
+    stage: string;
+    skill: string;
+    feedback: string;
+    progress: number;
+    drillLabel: string;
+    stats?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coachHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DevelopmentLoopBlock".
+ */
+export interface DevelopmentLoopBlock {
+  label: string;
+  steps?:
+    | {
+        title: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'developmentLoop';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramsGridBlock".
+ */
+export interface ProgramsGridBlock {
+  anchor?: string | null;
+  eyebrow: string;
+  heading: string;
+  description: string;
+  programs?:
+    | {
+        number: string;
+        audience: string;
+        name: string;
+        description: string;
+        skills?:
+          | {
+              skill: string;
+              id?: string | null;
+            }[]
+          | null;
+        linkLabel: string;
+        linkURL: string;
+        accent: 'sky' | 'blue' | 'navy';
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'programsGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AssessmentStepsBlock".
+ */
+export interface AssessmentStepsBlock {
+  anchor?: string | null;
+  eyebrow: string;
+  heading: string;
+  description: string;
+  stepLabel: string;
+  button: {
+    label: string;
+    url: string;
+  };
+  steps?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'assessmentSteps';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrainingCycleBlock".
+ */
+export interface TrainingCycleBlock {
+  eyebrow: string;
+  heading: string;
+  note?: string | null;
+  sessions?:
+    | {
+        number: string;
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'trainingCycle';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgressProfileBlock".
+ */
+export interface ProgressProfileBlock {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  stages?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  profileTitle: string;
+  profileLabel: string;
+  skills?:
+    | {
+        name: string;
+        stage: string;
+        progress: number;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'progressProfile';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingQuoteBlock".
+ */
+export interface CoachingQuoteBlock {
+  quote: string;
+  attribution: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coachingQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingCTABlock".
+ */
+export interface CoachingCTABlock {
+  anchor?: string | null;
+  eyebrow: string;
+  heading: string;
+  button: {
+    label: string;
+    url: string;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coachingCTA';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -724,9 +929,6 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -746,9 +948,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -757,9 +956,6 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
@@ -1084,6 +1280,14 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        coachHero?: T | CoachHeroBlockSelect<T>;
+        developmentLoop?: T | DevelopmentLoopBlockSelect<T>;
+        programsGrid?: T | ProgramsGridBlockSelect<T>;
+        assessmentSteps?: T | AssessmentStepsBlockSelect<T>;
+        trainingCycle?: T | TrainingCycleBlockSelect<T>;
+        progressProfile?: T | ProgressProfileBlockSelect<T>;
+        coachingQuote?: T | CoachingQuoteBlockSelect<T>;
+        coachingCTA?: T | CoachingCTABlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1103,6 +1307,199 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachHeroBlock_select".
+ */
+export interface CoachHeroBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  highlight?: T;
+  description?: T;
+  primaryButton?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  secondaryButton?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  dashboard?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        status?: T;
+        stage?: T;
+        skill?: T;
+        feedback?: T;
+        progress?: T;
+        drillLabel?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DevelopmentLoopBlock_select".
+ */
+export interface DevelopmentLoopBlockSelect<T extends boolean = true> {
+  label?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramsGridBlock_select".
+ */
+export interface ProgramsGridBlockSelect<T extends boolean = true> {
+  anchor?: T;
+  eyebrow?: T;
+  heading?: T;
+  description?: T;
+  programs?:
+    | T
+    | {
+        number?: T;
+        audience?: T;
+        name?: T;
+        description?: T;
+        skills?:
+          | T
+          | {
+              skill?: T;
+              id?: T;
+            };
+        linkLabel?: T;
+        linkURL?: T;
+        accent?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AssessmentStepsBlock_select".
+ */
+export interface AssessmentStepsBlockSelect<T extends boolean = true> {
+  anchor?: T;
+  eyebrow?: T;
+  heading?: T;
+  description?: T;
+  stepLabel?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  steps?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrainingCycleBlock_select".
+ */
+export interface TrainingCycleBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  note?: T;
+  sessions?:
+    | T
+    | {
+        number?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgressProfileBlock_select".
+ */
+export interface ProgressProfileBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  description?: T;
+  stages?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  profileTitle?: T;
+  profileLabel?: T;
+  skills?:
+    | T
+    | {
+        name?: T;
+        stage?: T;
+        progress?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingQuoteBlock_select".
+ */
+export interface CoachingQuoteBlockSelect<T extends boolean = true> {
+  quote?: T;
+  attribution?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoachingCTABlock_select".
+ */
+export interface CoachingCTABlockSelect<T extends boolean = true> {
+  anchor?: T;
+  eyebrow?: T;
+  heading?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
