@@ -10,23 +10,82 @@ type SkillCategory =
   | 'physical-readiness'
   | 'training-habits'
 
-const programs: Array<{
+type LessonType = 'technical' | 'movement' | 'tactical' | 'match-play' | 'assessment'
+type LessonSeed = {
+  week: number
+  title: string
+  lessonType: LessonType
+  objective: string
+  durationMinutes: number
+  drills: string[]
+  independentPractice: string
+  successCriteria: string
+}
+type PhaseSeed = {
+  name: string
+  description: string
+  order: number
+  startWeek: number
+  endWeek: number
+  lessons: LessonSeed[]
+}
+type ProgramSeed = {
   name: string
   level: Level
   description: string
   durationWeeks: number
-  phases: Array<{ name: string; description: string; order: number }>
-}> = [
+  phases: PhaseSeed[]
+}
+
+const lesson = (
+  week: number,
+  title: string,
+  lessonType: LessonType,
+  objective: string,
+  drills: string[],
+  independentPractice: string,
+  successCriteria: string,
+): LessonSeed => ({ week, title, lessonType, objective, durationMinutes: 90, drills, independentPractice, successCriteria })
+
+const programs: ProgramSeed[] = [
   {
     name: 'Badminton Foundations',
     level: 'foundations',
     description: 'Build dependable movement, grips, preparation and core strokes before adding speed and pressure.',
     durationWeeks: 12,
     phases: [
-      { name: 'Movement and racket basics', description: 'Athletic posture, grips, split step and safe court movement.', order: 1 },
-      { name: 'Core stroke patterns', description: 'Serve, lift, clear, net shot and recovery to base.', order: 2 },
-      { name: 'Controlled rallies', description: 'Link movement and strokes with repeatable placement.', order: 3 },
-      { name: 'Ready for development', description: 'Apply the foundations in conditioned games and assessment.', order: 4 },
+      {
+        name: 'Movement and racket basics', description: 'Athletic posture, grips, split step and safe court movement.', order: 1, startWeek: 1, endWeek: 3,
+        lessons: [
+          lesson(1, 'Starting profile and court orientation', 'assessment', 'Establish a safe movement and racket-control baseline.', ['Grip Change Tap-Ups', 'Four-Corner Shadow Rhythm'], 'Complete 3 x 20 tap-ups and rehearse each corner slowly.', 'Uses a suitable grip and reaches four corners without losing balance.'),
+          lesson(2, 'Grip changes and ready position', 'technical', 'Change grip with the fingers while keeping the racket available for the next shot.', ['Grip Change Tap-Ups', 'Low Serve Gate'], 'Complete 50 alternating contacts and 20 low serves.', 'Changes grip without looking at the handle in 8 of 10 attempts.'),
+          lesson(3, 'Split, move and recover', 'movement', 'Introduce a repeatable split-step and recovery rhythm.', ['Four-Corner Shadow Rhythm', 'Lunge, Net and Recover'], 'Perform four controlled 30-second shadow rounds.', 'Returns to a balanced base after 8 of 10 movements.'),
+        ],
+      },
+      {
+        name: 'Core stroke patterns', description: 'Serve, lift, clear, net shot and recovery to base.', order: 2, startWeek: 4, endWeek: 7,
+        lessons: [
+          lesson(4, 'Overhead clear foundations', 'technical', 'Create safe height and length using early preparation and overhead contact.', ['Clear to Targets', 'Grip Change Tap-Ups'], 'Shadow 30 overhead actions, then record 20 target attempts.', 'Places 8 of 10 clears beyond the doubles service line.'),
+          lesson(5, 'Clear and rear-court recovery', 'movement', 'Link the overhead clear to an immediate balanced recovery.', ['Rear-Court Clear and Recovery', 'Clear to Targets'], 'Complete 3 x 8 clear-and-recover shadow repetitions.', 'Recovers before the feeder begins the next action in 8 of 10 feeds.'),
+          lesson(6, 'Reliable service starts', 'technical', 'Develop a repeatable low serve and understand legal service preparation.', ['Low Serve Gate', 'Twenty-Shot Cooperative Rally'], 'Serve 5 sets of 10 to alternating targets.', 'Achieves at least 80% legal serves with controlled height.'),
+          lesson(7, 'Lift for time and length', 'technical', 'Use the lift to move the opponent back and regain court position.', ['Lift for Length', 'Lunge, Net and Recover'], 'Complete 30 shadow lunges and 30 controlled lift actions.', 'Reaches the rear target and recovers on 8 of 10 feeds.'),
+        ],
+      },
+      {
+        name: 'Controlled rallies', description: 'Link movement and strokes with repeatable placement.', order: 3, startWeek: 8, endWeek: 10,
+        lessons: [
+          lesson(8, 'Forecourt control', 'technical', 'Approach, play and recover from the forecourt with a stable lunge.', ['Lunge, Net and Recover', 'Lift for Length'], 'Alternate 20 shadow net shots and lifts from each side.', 'Selects net or lift appropriately and finishes balanced in 8 of 10 feeds.'),
+          lesson(9, 'Serve, return and first recovery', 'tactical', 'Start the rally with a clear serve, return and recovery intention.', ['Low Serve Gate', 'Lift for Length'], 'Practise 20 serves and visualise the likely return after each one.', 'Completes the first three actions without an unforced error in 7 of 10 rallies.'),
+          lesson(10, 'Build a controlled rally', 'match-play', 'Sustain a rally using safe height, length and recovery.', ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'], 'Record the longest rally from three 10-minute practices.', 'Completes three rallies of at least 20 shots with functional recovery.'),
+        ],
+      },
+      {
+        name: 'Ready for development', description: 'Apply the foundations in conditioned games and assessment.', order: 4, startWeek: 11, endWeek: 12,
+        lessons: [
+          lesson(11, 'Connect the full court', 'match-play', 'Move between forecourt and rear court while selecting a safe response.', ['Four-Corner Shadow Rhythm', 'Rear-Court Clear and Recovery', 'Lunge, Net and Recover'], 'Complete a six-corner shadow sequence twice and note the least stable corner.', 'Maintains balance and returns to a suitable base in 8 of 10 rallies.'),
+          lesson(12, 'Foundations progress assessment', 'assessment', 'Demonstrate the core movement, serve, clear, lift and rally standards.', ['Low Serve Gate', 'Clear to Targets', 'Twenty-Shot Cooperative Rally'], 'Review personal targets and complete one short practice for the weakest area.', 'Meets the completion target for at least three drills and identifies the next priority.'),
+        ],
+      },
     ],
   },
   {
@@ -35,10 +94,42 @@ const programs: Array<{
     description: 'Improve movement efficiency, shot quality, consistency and tactical choices in realistic rallies.',
     durationWeeks: 16,
     phases: [
-      { name: 'Movement efficiency', description: 'Earlier preparation, balanced recovery and efficient court coverage.', order: 1 },
-      { name: 'Building pressure', description: 'Use length, pace and the net to create weak replies.', order: 2 },
-      { name: 'Rally construction', description: 'Recognise space and select shots with purpose.', order: 3 },
-      { name: 'Match transfer', description: 'Apply skills consistently in games, scoring and assessment.', order: 4 },
+      {
+        name: 'Movement efficiency', description: 'Earlier preparation, balanced recovery and efficient court coverage.', order: 1, startWeek: 1, endWeek: 4,
+        lessons: [
+          lesson(1, 'Development movement baseline', 'assessment', 'Measure split-step timing, corner efficiency and recovery quality.', ['Random Six-Corner Feeding', 'Twenty-Shot Cooperative Rally'], 'Film one minute of shadow movement and identify one repeated issue.', 'Completes 10 of 12 random feeds with a balanced recovery.'),
+          lesson(2, 'Reactive split-step timing', 'movement', 'Time the split from opponent contact rather than guessing direction.', ['Random Six-Corner Feeding', 'Four-Corner Shadow Rhythm'], 'Perform 5 x 30-second reactive split-step rounds with a partner cue.', 'Responds correctly without pre-moving on 10 of 12 feeds.'),
+          lesson(3, 'Efficient rear-court recovery', 'movement', 'Use an economical turn, landing and recovery under increasing feed speed.', ['Rear-Court Clear and Recovery', 'Clear to Targets'], 'Complete 3 x 10 shadow recoveries from both rear corners.', 'Maintains clear length and recovers before 8 of 10 follow-up feeds.'),
+          lesson(4, 'Forecourt transition and balance', 'movement', 'Move forward quickly, control the lunge and recover for the next direction.', ['Lunge, Net and Recover', 'Net-Lift-Kill Progression'], 'Complete 20 lunges per side with a two-second balance hold.', 'Handles both forecourt corners with correct recovery in 8 of 10 feeds.'),
+        ],
+      },
+      {
+        name: 'Building pressure', description: 'Use length, pace and the net to create weak replies.', order: 2, startWeek: 5, endWeek: 8,
+        lessons: [
+          lesson(5, 'Clear and drop from one preparation', 'technical', 'Disguise clear and drop while preserving balance and recovery.', ['Clear-Drop Decision Rally', 'Clear to Targets'], 'Shadow alternating clears and drops in 5 sets of 8.', 'Uses the same preparation and reaches the intended zone in 8 of 10 shots.'),
+          lesson(6, 'Smash and second attack', 'technical', 'Carry attacking pressure from the smash into the next shot.', ['Three-Shot Attack Pattern', 'Rear-Court Clear and Recovery'], 'Perform 4 x 6 controlled smash-and-recover shadows.', 'Completes 7 of 10 three-shot attacks without losing balance.'),
+          lesson(7, 'Flat exchanges and front-court follow-up', 'technical', 'Control drives, protect the body and recognise the chance to move forward.', ['Drive Channel Exchange', 'Low Serve Gate'], 'Complete three cooperative sets of 30 compact drives.', 'Sustains 20 drives and responds correctly to 4 of 5 blocks.'),
+          lesson(8, 'Mid-program technical review', 'assessment', 'Check whether improved technique remains stable in a rally.', ['Random Six-Corner Feeding', 'Three-Shot Attack Pattern', 'Drive Channel Exchange'], 'Review coach feedback and repeat the lowest-scoring drill once.', 'Improves at least one baseline measure without reducing movement quality.'),
+        ],
+      },
+      {
+        name: 'Rally construction', description: 'Recognise space and select shots with purpose.', order: 3, startWeek: 9, endWeek: 12,
+        lessons: [
+          lesson(9, 'Create space through the forecourt', 'tactical', 'Use net pressure and the lift to change opponent position.', ['Net-Lift-Kill Progression', 'Lunge, Net and Recover'], 'Write one cue for recognising when to stay at the net and when to lift.', 'Creates a clear attacking chance in 6 of 10 rallies.'),
+          lesson(10, 'Singles clear-drop construction', 'tactical', 'Move the opponent deep before using the forecourt with purpose.', ['Clear-Drop Decision Rally', 'Twenty-Shot Cooperative Rally'], 'Play three half-court games where every attack must follow a deep shot.', 'Makes the correct clear-or-drop choice in 8 of 10 reviewed rallies.'),
+          lesson(11, 'Defend, neutralise and counter', 'tactical', 'Select a block, drive or lift according to balance and available space.', ['Defence Choice Under Pressure', 'Drive Channel Exchange'], 'Shadow 10 blocks, 10 drives and 10 lifts from a defensive base.', 'Chooses an effective defensive response on 12 of 15 attacks.'),
+          lesson(12, 'Doubles formation and rotation', 'tactical', 'Transition between front-back and side-side formations as a pair.', ['Attack-Defence Rotation', 'Drive Channel Exchange'], 'Walk through five attack-to-defence transitions with a partner.', 'Uses the correct formation after 8 of 10 transitions.'),
+        ],
+      },
+      {
+        name: 'Match transfer', description: 'Apply skills consistently in games, scoring and assessment.', order: 4, startWeek: 13, endWeek: 16,
+        lessons: [
+          lesson(13, 'Consistency under direction change', 'match-play', 'Maintain shot quality while moving the shuttle between front and rear court.', ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'], 'Complete three target rallies and record errors by type.', 'Sustains a 20-shot rally while including four controlled changes of direction.'),
+          lesson(14, 'Pressure score decisions', 'match-play', 'Use high-percentage patterns and a reset routine at critical scores.', ['Pressure Score: 18-All', 'Tournament Interval Simulation'], 'Write a serve plan and return plan for 18-all.', 'Follows the stated plan in 8 of 10 pressure rallies.'),
+          lesson(15, 'Personal match plan', 'match-play', 'Connect one reliable rally pattern to one attacking pattern.', ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'], 'Write a three-point match plan and rehearse the opening pattern.', 'Starts at least 7 of 10 rallies with the intended tactical pattern.'),
+          lesson(16, 'Development progress assessment', 'assessment', 'Demonstrate technical, movement and tactical progress in match conditions.', ['Random Six-Corner Feeding', 'Net-Lift-Kill Progression', 'Pressure Score: 18-All'], 'Review the full program and identify one independent-practice priority.', 'Meets two drill targets under pressure and explains the next training priority.'),
+        ],
+      },
     ],
   },
   {
@@ -47,10 +138,46 @@ const programs: Array<{
     description: 'Develop an individual competition plan, pressure-ready skills and repeatable tournament routines.',
     durationWeeks: 20,
     phases: [
-      { name: 'Performance profile', description: 'Assess strengths, limiting factors and match identity.', order: 1 },
-      { name: 'Weapon development', description: 'Sharpen high-value patterns for singles or doubles.', order: 2 },
-      { name: 'Pressure training', description: 'Execute decisions and techniques under score and time pressure.', order: 3 },
-      { name: 'Competition readiness', description: 'Practise tournament routines, review and performance planning.', order: 4 },
+      {
+        name: 'Performance profile', description: 'Assess strengths, limiting factors and match identity.', order: 1, startWeek: 1, endWeek: 5,
+        lessons: [
+          lesson(1, 'Competition performance profile', 'assessment', 'Establish technical, movement, tactical and pressure baselines.', ['Random Six-Corner Feeding', 'Pressure Score: 18-All', 'Repeat Movement Quality Intervals'], 'Review one recent match and record three recurring rally outcomes.', 'Produces a clear strength, limiting factor and first training priority.'),
+          lesson(2, 'Movement quality under load', 'movement', 'Preserve timing, posture and recovery through repeated efforts.', ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'], 'Complete 4 x 30-second quality movement intervals.', 'Maintains a 4/5 movement-quality rating through the final interval.'),
+          lesson(3, 'Rear-court recovery at match pace', 'movement', 'Recover according to shot quality while feeds become less predictable.', ['Rear-Court Clear and Recovery', 'Random Six-Corner Feeding'], 'Film 20 rear-court recoveries and review the first recovery step.', 'Reaches an effective base before 10 of 12 follow-up shots.'),
+          lesson(4, 'Serve and return pressure', 'tactical', 'Use placement and the third shot to gain the first advantage.', ['Low Serve Gate', 'Drive Channel Exchange', 'Pressure Score: 18-All'], 'Complete 30 serves to match-specific targets and note the expected return.', 'Wins or neutralises the first three shots in 7 of 10 rallies.'),
+          lesson(5, 'Confirm the performance plan', 'assessment', 'Translate baseline evidence into two measurable competition priorities.', ['Tournament Interval Simulation', 'Twenty-Shot Cooperative Rally'], 'Write two process goals and one result-neutral tournament cue.', 'Can state, demonstrate and measure both selected priorities.'),
+        ],
+      },
+      {
+        name: 'Weapon development', description: 'Sharpen high-value patterns for singles or doubles.', order: 2, startWeek: 6, endWeek: 10,
+        lessons: [
+          lesson(6, 'Primary attacking pattern', 'technical', 'Increase the repeatability of the player’s highest-value attack.', ['Three-Shot Attack Pattern', 'Clear-Drop Decision Rally'], 'Rehearse the first three actions of the attack for 30 quality repetitions.', 'Completes 8 of 10 attack patterns with balance and intended placement.'),
+          lesson(7, 'Second-shot continuation', 'technical', 'Maintain pressure when the first attack does not finish the rally.', ['Three-Shot Attack Pattern', 'Drive Channel Exchange'], 'Complete 4 x 8 compact follow-up actions after a shadow smash.', 'Keeps the initiative through three shots in 7 of 10 sequences.'),
+          lesson(8, 'Front-court creation and finish', 'tactical', 'Use tight net pressure to force a lift or loose reply.', ['Net-Lift-Kill Progression', 'Lunge, Net and Recover'], 'Practise 20 net approaches with the racket held above net height.', 'Creates or finishes 7 of 10 forecourt attacking opportunities.'),
+          lesson(9, 'Counterattack from defence', 'tactical', 'Turn a stable defensive contact into neutral or attacking position.', ['Defence Choice Under Pressure', 'Drive Channel Exchange'], 'Complete three sets of 12 compact defensive contacts.', 'Neutralises or counterattacks 12 of 15 quality attacks.'),
+          lesson(10, 'Weapon test in conditioned games', 'assessment', 'Apply the selected weapon without forcing it from poor situations.', ['Pressure Score: 18-All', 'Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'], 'Review video from one conditioned game and tag each attempted pattern.', 'Creates the intended pattern in at least 6 of 10 suitable rallies.'),
+        ],
+      },
+      {
+        name: 'Pressure training', description: 'Execute decisions and techniques under score and time pressure.', order: 3, startWeek: 11, endWeek: 15,
+        lessons: [
+          lesson(11, 'Mid-cycle match review', 'assessment', 'Identify which improvements are transferring into scored games.', ['Tournament Interval Simulation', 'Pressure Score: 18-All'], 'Write what improved, what is limiting performance and what comes next.', 'Supports the next priority with evidence from at least three rallies.'),
+          lesson(12, 'Critical-score execution', 'match-play', 'Commit to a clear plan and appropriate risk at deuce scores.', ['Pressure Score: 18-All', 'Low Serve Gate'], 'Rehearse a breathing cue and first-three-shot plan before 20 serves.', 'Follows the plan in 8 of 10 critical-score rallies.'),
+          lesson(13, 'Between-rally reset', 'match-play', 'Use a short physical and mental reset after both wins and errors.', ['Tournament Interval Simulation', 'Pressure Score: 18-All'], 'Practise the reset routine between 20 visualised rallies.', 'Completes the routine independently before 9 of 10 rallies.'),
+          lesson(14, 'Physical quality under fatigue', 'movement', 'Protect movement mechanics while fatigue and decision demands increase.', ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'], 'Complete a short interval set and record when movement quality changes.', 'Maintains technical movement standards through the final interval.'),
+          lesson(15, 'Defence under scoreboard pressure', 'match-play', 'Make stable defensive choices when the opponent attacks at a critical score.', ['Defence Choice Under Pressure', 'Pressure Score: 18-All'], 'Rehearse three defensive intentions: neutralise, counter and reset.', 'Makes an effective choice in 12 of 15 pressure attacks.'),
+        ],
+      },
+      {
+        name: 'Competition readiness', description: 'Practise tournament routines, review and performance planning.', order: 4, startWeek: 16, endWeek: 20,
+        lessons: [
+          lesson(16, 'Tournament simulation', 'match-play', 'Rehearse warm-up, intervals, coaching cues and post-match review.', ['Tournament Interval Simulation', 'Pressure Score: 18-All', 'Repeat Movement Quality Intervals'], 'Prepare the exact equipment, warm-up and cue card planned for competition.', 'Completes the simulation using the planned routine without coach reminders.'),
+          lesson(17, 'Primary game plan', 'tactical', 'Apply the preferred game plan against a suitable opponent style.', ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'], 'Write the opening, adjustment and closing pattern for game plan A.', 'Recognises and uses the planned pattern in 7 of 10 suitable rallies.'),
+          lesson(18, 'Alternative game plan', 'tactical', 'Adjust when the primary pattern is being neutralised.', ['Defence Choice Under Pressure', 'Attack-Defence Rotation', 'Net-Lift-Kill Progression'], 'Write two match signals that should trigger the alternative plan.', 'Changes plan for a clear reason and improves rally control in conditioned play.'),
+          lesson(19, 'Taper and confidence rehearsal', 'match-play', 'Reduce volume while preserving sharpness, confidence and routine quality.', ['Low Serve Gate', 'Three-Shot Attack Pattern', 'Tournament Interval Simulation'], 'Complete a short high-quality rehearsal and stop before technical quality drops.', 'Meets key targets with low volume and finishes physically fresh.'),
+          lesson(20, 'Competition readiness assessment', 'assessment', 'Confirm progress, readiness, next priorities and independent practice.', ['Random Six-Corner Feeding', 'Pressure Score: 18-All', 'Tournament Interval Simulation'], 'Complete the written self-review before the final coach conversation.', 'Explains what improved, the current limiter, the next focus and readiness to compete.'),
+        ],
+      },
     ],
   },
 ]
@@ -125,12 +252,6 @@ const drills: DrillSeed[] = [
 export async function seedCoachingLibrary(payload: Payload) {
   payload.logger.info('Seeding coaching programs, skills and drills...')
 
-  for (const program of programs) {
-    const existing = await payload.find({ collection: 'programs', depth: 0, limit: 1, where: { name: { equals: program.name } } })
-    if (existing.docs[0]) await payload.update({ collection: 'programs', id: existing.docs[0].id, depth: 0, data: program })
-    else await payload.create({ collection: 'programs', depth: 0, data: program })
-  }
-
   const skillIDs = new Map<string, string>()
   for (const skill of skills) {
     const existing = await payload.find({ collection: 'skills', depth: 0, limit: 1, where: { name: { equals: skill.name } } })
@@ -140,16 +261,83 @@ export async function seedCoachingLibrary(payload: Payload) {
     skillIDs.set(skill.name, document.id)
   }
 
+  const drillIDs = new Map<string, string>()
   for (const drill of drills) {
     const skill = skillIDs.get(drill.skill)
     if (!skill) throw new Error(`Missing skill for drill: ${drill.name}`)
     const { skill: _skillName, ...data } = drill
     const existing = await payload.find({ collection: 'drills', depth: 0, limit: 1, where: { name: { equals: drill.name } } })
     const drillData = { ...data, skill }
-    if (existing.docs[0]) await payload.update({ collection: 'drills', id: existing.docs[0].id, depth: 0, data: drillData })
-    else await payload.create({ collection: 'drills', depth: 0, data: drillData })
+    const document = existing.docs[0]
+      ? await payload.update({ collection: 'drills', id: existing.docs[0].id, depth: 0, data: drillData })
+      : await payload.create({ collection: 'drills', depth: 0, data: drillData })
+    drillIDs.set(drill.name, document.id)
   }
 
-  payload.logger.info(`Coaching library ready: ${programs.length} programs, ${skills.length} skills, ${drills.length} drills.`)
-  return { programs: programs.length, skills: skills.length, drills: drills.length }
+  const practiceLibraryIDs = new Map<string, string>()
+  for (const program of programs) {
+    for (const phase of program.phases) {
+      for (const programLesson of phase.lessons) {
+        const practiceName = `${program.name} · Week ${programLesson.week}: ${programLesson.title}`
+        const practiceDrills = programLesson.drills.map((drillName) => {
+          const drillID = drillIDs.get(drillName)
+          if (!drillID) throw new Error(`Missing drill for independent practice ${practiceName}: ${drillName}`)
+          return drillID
+        })
+        const practiceData = {
+          name: practiceName,
+          level: program.level,
+          instructions: programLesson.independentPractice,
+          drills: practiceDrills,
+          durationMinutes: programLesson.durationMinutes,
+          successCriteria: programLesson.successCriteria,
+        }
+        const existing = await payload.find({ collection: 'practice-library', depth: 0, limit: 1, where: { name: { equals: practiceName } } })
+        const document = existing.docs[0]
+          ? await payload.update({ collection: 'practice-library', id: existing.docs[0].id, depth: 0, data: practiceData })
+          : await payload.create({ collection: 'practice-library', depth: 0, data: practiceData })
+        practiceLibraryIDs.set(`${program.name}:${programLesson.week}`, document.id)
+      }
+    }
+  }
+
+  for (const program of programs) {
+    const phases = program.phases.map((phase) => ({
+      ...phase,
+      lessons: phase.lessons.map((programLesson) => {
+        const practiceID = practiceLibraryIDs.get(`${program.name}:${programLesson.week}`)
+        if (!practiceID) throw new Error(`Missing independent practice for ${program.name}, week ${programLesson.week}`)
+        return {
+          ...programLesson,
+          independentPractice: practiceID,
+          drills: programLesson.drills.map((drillName) => {
+          const drillID = drillIDs.get(drillName)
+          if (!drillID) throw new Error(`Missing drill for ${program.name}, week ${programLesson.week}: ${drillName}`)
+          return drillID
+        }),
+        }
+      }),
+    }))
+    const programData = { ...program, phases }
+    const existing = await payload.find({ collection: 'programs', depth: 0, limit: 1, where: { name: { equals: program.name } } })
+    if (existing.docs[0]) await payload.update({ collection: 'programs', id: existing.docs[0].id, depth: 0, data: programData })
+    else await payload.create({ collection: 'programs', depth: 0, data: programData })
+  }
+
+  const studentProfiles = await payload.find({ collection: 'student-profiles', depth: 0, limit: 1000 })
+  for (const profile of studentProfiles.docs) {
+    if (!profile.program) continue
+    await payload.update({
+      collection: 'student-profiles',
+      id: profile.id,
+      depth: 0,
+      data: { currentProgramWeek: profile.currentProgramWeek || 1 },
+    })
+  }
+
+  const independentPractices = await payload.find({ collection: 'independent-practices', depth: 0, limit: 1 })
+
+  const lessons = programs.reduce((total, program) => total + program.phases.reduce((phaseTotal, phase) => phaseTotal + phase.lessons.length, 0), 0)
+  payload.logger.info(`Coaching library ready: ${programs.length} programs, ${lessons} lessons, ${skills.length} skills, ${drills.length} drills, ${practiceLibraryIDs.size} practice templates, ${independentPractices.totalDocs} student practices.`)
+  return { programs: programs.length, lessons, skills: skills.length, drills: drills.length, practiceTemplates: practiceLibraryIDs.size, independentPractices: independentPractices.totalDocs }
 }

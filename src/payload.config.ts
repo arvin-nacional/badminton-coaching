@@ -3,7 +3,7 @@ import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
-
+import { s3Storage } from '@payloadcms/storage-s3'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -64,7 +64,33 @@ export default buildConfig({
   collections: [Pages, Posts, Media, Categories, Users, ...coachingCollections],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
-  plugins,
+  plugins: [
+    ...plugins,
+    s3Storage({
+      collections: {
+        media: {
+          // Enable direct uploads to S3
+          // This bypasses the Vercel serverless function size limits
+          disableLocalStorage: true,
+          // Enable signed downloads for better performance with large files
+          signedDownloads: true,
+        },
+      },
+      // Enable client uploads directly to S3
+      // This is configured at the plugin level
+      clientUploads: true,
+      bucket: process.env.S3_BUCKET || '',
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+        },
+        region: process.env.S3_REGION || '',
+        forcePathStyle: true,
+      },
+    }),
+    // storage-adapter-placeholder
+  ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

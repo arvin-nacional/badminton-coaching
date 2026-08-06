@@ -75,10 +75,12 @@ export interface Config {
     programs: Program;
     skills: Skill;
     drills: Drill;
+    'practice-library': PracticeLibrary;
     'student-profiles': StudentProfile;
     'training-sessions': TrainingSession;
     'skill-progress': SkillProgress;
     assignments: Assignment;
+    'independent-practices': IndependentPractice;
     'coaching-events': CoachingEvent;
     redirects: Redirect;
     forms: Form;
@@ -92,6 +94,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    programs: {
+      independentPractices: 'independent-practices';
+    };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
     };
@@ -105,10 +110,12 @@ export interface Config {
     programs: ProgramsSelect<false> | ProgramsSelect<true>;
     skills: SkillsSelect<false> | SkillsSelect<true>;
     drills: DrillsSelect<false> | DrillsSelect<true>;
+    'practice-library': PracticeLibrarySelect<false> | PracticeLibrarySelect<true>;
     'student-profiles': StudentProfilesSelect<false> | StudentProfilesSelect<true>;
     'training-sessions': TrainingSessionsSelect<false> | TrainingSessionsSelect<true>;
     'skill-progress': SkillProgressSelect<false> | SkillProgressSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
+    'independent-practices': IndependentPracticesSelect<false> | IndependentPracticesSelect<true>;
     'coaching-events': CoachingEventsSelect<false> | CoachingEventsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1003,34 +1010,31 @@ export interface Program {
   name: string;
   level: 'foundations' | 'development' | 'competitive';
   description: string;
-  durationWeeks?: number | null;
-  phases?:
-    | {
-        name: string;
-        description?: string | null;
-        order: number;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "skills".
- */
-export interface Skill {
-  id: string;
-  name: string;
-  category:
-    | 'stroke-technique'
-    | 'footwork'
-    | 'consistency'
-    | 'tactical-decisions'
-    | 'match-performance'
-    | 'physical-readiness'
-    | 'training-habits';
-  description?: string | null;
+  durationWeeks: number;
+  phases: {
+    name: string;
+    description?: string | null;
+    order: number;
+    startWeek: number;
+    endWeek: number;
+    lessons: {
+      week: number;
+      title: string;
+      lessonType: 'technical' | 'movement' | 'tactical' | 'match-play' | 'assessment';
+      objective: string;
+      durationMinutes: number;
+      drills: (string | Drill)[];
+      independentPractice: string | PracticeLibrary;
+      successCriteria: string;
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  independentPractices?: {
+    docs?: (string | IndependentPractice)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1061,6 +1065,62 @@ export interface Drill {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills".
+ */
+export interface Skill {
+  id: string;
+  name: string;
+  category:
+    | 'stroke-technique'
+    | 'footwork'
+    | 'consistency'
+    | 'tactical-decisions'
+    | 'match-performance'
+    | 'physical-readiness'
+    | 'training-habits';
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-library".
+ */
+export interface PracticeLibrary {
+  id: string;
+  name: string;
+  level: 'foundations' | 'development' | 'competitive';
+  instructions: string;
+  drills: (string | Drill)[];
+  durationMinutes: number;
+  successCriteria: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "independent-practices".
+ */
+export interface IndependentPractice {
+  id: string;
+  practiceKey: string;
+  title: string;
+  practice: string | PracticeLibrary;
+  student: string | StudentProfile;
+  program: string | Program;
+  phase: string;
+  lessonWeek: number;
+  instructions: string;
+  drills: (string | Drill)[];
+  successCriteria: string;
+  status: 'assigned' | 'completed';
+  completedAt?: string | null;
+  coachFeedback?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "student-profiles".
  */
 export interface StudentProfile {
@@ -1069,6 +1129,10 @@ export interface StudentProfile {
   user: string | User;
   coach?: (string | null) | User;
   program?: (string | null) | Program;
+  /**
+   * Controls which weekly lesson appears on the student dashboard.
+   */
+  currentProgramWeek: number;
   currentPhase: string;
   weeklyFocus: string;
   focusExplanation: string;
@@ -1377,6 +1441,10 @@ export interface PayloadLockedDocument {
         value: string | Drill;
       } | null)
     | ({
+        relationTo: 'practice-library';
+        value: string | PracticeLibrary;
+      } | null)
+    | ({
         relationTo: 'student-profiles';
         value: string | StudentProfile;
       } | null)
@@ -1391,6 +1459,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'assignments';
         value: string | Assignment;
+      } | null)
+    | ({
+        relationTo: 'independent-practices';
+        value: string | IndependentPractice;
       } | null)
     | ({
         relationTo: 'coaching-events';
@@ -1978,8 +2050,24 @@ export interface ProgramsSelect<T extends boolean = true> {
         name?: T;
         description?: T;
         order?: T;
+        startWeek?: T;
+        endWeek?: T;
+        lessons?:
+          | T
+          | {
+              week?: T;
+              title?: T;
+              lessonType?: T;
+              objective?: T;
+              durationMinutes?: T;
+              drills?: T;
+              independentPractice?: T;
+              successCriteria?: T;
+              id?: T;
+            };
         id?: T;
       };
+  independentPractices?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2020,6 +2108,20 @@ export interface DrillsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-library_select".
+ */
+export interface PracticeLibrarySelect<T extends boolean = true> {
+  name?: T;
+  level?: T;
+  instructions?: T;
+  drills?: T;
+  durationMinutes?: T;
+  successCriteria?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "student-profiles_select".
  */
 export interface StudentProfilesSelect<T extends boolean = true> {
@@ -2027,6 +2129,7 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   user?: T;
   coach?: T;
   program?: T;
+  currentProgramWeek?: T;
   currentPhase?: T;
   weeklyFocus?: T;
   focusExplanation?: T;
@@ -2092,6 +2195,27 @@ export interface AssignmentsSelect<T extends boolean = true> {
   drill?: T;
   status?: T;
   dueAt?: T;
+  coachFeedback?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "independent-practices_select".
+ */
+export interface IndependentPracticesSelect<T extends boolean = true> {
+  practiceKey?: T;
+  title?: T;
+  practice?: T;
+  student?: T;
+  program?: T;
+  phase?: T;
+  lessonWeek?: T;
+  instructions?: T;
+  drills?: T;
+  successCriteria?: T;
+  status?: T;
+  completedAt?: T;
   coachFeedback?: T;
   updatedAt?: T;
   createdAt?: T;

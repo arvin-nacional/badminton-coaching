@@ -40,9 +40,24 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
-    staticDir: path.resolve(dirname, '../../public/media'),
-    adminThumbnail: 'thumbnail',
+    // Using S3 storage instead of local storage
+    disableLocalStorage: true,
+    // Function-based admin thumbnail for S3
+    adminThumbnail: ({
+      doc,
+    }: {
+      doc: { sizes?: { thumbnail?: { url: string } }; filename?: string }
+    }) => {
+      // Check if the document has sizes with a thumbnail URL
+      if (doc?.sizes?.thumbnail?.url) {
+        return doc.sizes.thumbnail.url
+      }
+      // Fall back to constructing the S3 URL directly
+      if (doc?.filename) {
+        return `https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION}.amazonaws.com/${doc.filename}`
+      }
+      return null
+    },
     focalPoint: true,
     imageSizes: [
       {

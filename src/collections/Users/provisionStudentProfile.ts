@@ -23,6 +23,7 @@ export async function provisionStudentProfile(user: User, req: PayloadRequest) {
       assessmentStatus: 'required',
       attendanceRate: 100,
       currentPhase: 'Awaiting initial assessment',
+      currentProgramWeek: 1,
       displayName: user.name || user.email,
       focusExplanation: 'Complete your initial assessment so your coach can identify your priorities and build your first training plan.',
       packageName: 'Assessment',
