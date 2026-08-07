@@ -220,6 +220,7 @@ const programs: ProgramSeed[] = [
 ]
 
 const skills: Array<{ name: string; category: SkillCategory; description: string }> = [
+  { name: 'Grip changes and racket readiness', category: 'stroke-technique', description: 'Change efficiently between forehand, backhand and thumb grips while keeping the racket available for the next shot.' },
   { name: 'Forehand overhead clear', category: 'stroke-technique', description: 'Create length with early preparation, overhead contact and a relaxed throwing action.' },
   { name: 'Backhand short serve', category: 'stroke-technique', description: 'Deliver a repeatable low serve that crosses tightly and lands near the service line.' },
   { name: 'Forehand high serve', category: 'stroke-technique', description: 'Serve high and deep with balance, control and consistent placement.' },
@@ -266,7 +267,7 @@ type DrillSeed = {
 }
 
 const drills: DrillSeed[] = [
-  { name: 'Grip Change Tap-Ups', skill: 'Forehand overhead clear', level: 'foundations', eventType: 'general', equipment: 'Racket and shuttle', numberOfPlayers: 1, durationMinutes: 8, instructions: 'Alternate forehand and backhand tap-ups while changing grip with the fingers.', coachingPoints: 'Relax the hand, rotate with the fingers and keep the racket in front.', commonMistakes: 'Panhandle grip, tight fist and large arm swings.', difficulty: 'easy', successTarget: 'Three sets of 20 controlled contacts without losing the correct grip.', easierVariation: 'Catch the shuttle after each contact and reset the grip.', harderProgression: 'Move while alternating low and high contacts.', completionRequirement: 'Changes grip automatically while maintaining control.' },
+  { name: 'Grip Change Tap-Ups', skill: 'Grip changes and racket readiness', level: 'foundations', eventType: 'general', equipment: 'Racket and shuttle', numberOfPlayers: 1, durationMinutes: 8, instructions: 'Alternate forehand and backhand tap-ups while changing grip with the fingers.', coachingPoints: 'Relax the hand, rotate with the fingers and keep the racket in front.', commonMistakes: 'Panhandle grip, tight fist and large arm swings.', difficulty: 'easy', successTarget: 'Three sets of 20 controlled contacts without losing the correct grip.', easierVariation: 'Catch the shuttle after each contact and reset the grip.', harderProgression: 'Move while alternating low and high contacts.', completionRequirement: 'Changes grip automatically while maintaining control.' },
   { name: 'Clear to Targets', skill: 'Forehand overhead clear', level: 'foundations', eventType: 'general', equipment: 'Rackets, shuttles and two rear-court targets', numberOfPlayers: 2, durationMinutes: 12, instructions: 'A feeder sends comfortable shuttles to the rear court. The player clears toward alternating deep targets.', coachingPoints: 'Turn side-on, prepare early, contact overhead and finish balanced.', commonMistakes: 'Contact behind the body, excessive force and falling sideways.', difficulty: 'moderate', successTarget: '8 of 10 clears land beyond the doubles service line.', easierVariation: 'Use hand feeds and one large central target.', harderProgression: 'Randomise feeds between the two rear corners.', completionRequirement: 'Maintains length and balance in a cooperative rally.' },
   { name: 'Rear-Court Clear and Recovery', skill: 'Rear-court recovery', level: 'foundations', eventType: 'general', equipment: 'Rackets, shuttles and a base marker', numberOfPlayers: 2, durationMinutes: 12, instructions: 'Move from base to a fed rear-court shuttle, clear, land balanced and recover to the marker immediately.', coachingPoints: 'Split as the feeder strikes, turn early, contact overhead, land balanced and recover immediately.', commonMistakes: 'Waiting flat-footed, crossing under the shuttle and watching the shot before recovering.', difficulty: 'moderate', successTarget: '8 successful clear-and-recovery repetitions out of 10.', easierVariation: 'Shadow the pattern without a shuttle.', harderProgression: 'Use a random clear or drop feed after the recovery.', completionRequirement: 'Applies the correct recovery in a conditioned rally.' },
   { name: 'Four-Corner Shadow Rhythm', skill: 'Six-corner movement', level: 'foundations', eventType: 'general', equipment: 'Four court markers', numberOfPlayers: 1, durationMinutes: 10, instructions: 'Move from base to four called corners, shadow the appropriate stroke and recover with steady rhythm.', coachingPoints: 'Stay tall, use a split step, lead with the correct leg and return under control.', commonMistakes: 'Rushing, clicking heels together and standing upright during direction changes.', difficulty: 'easy', successTarget: 'Complete 4 rounds of 45 seconds with correct movement shape.', easierVariation: 'Walk each pattern before increasing speed.', harderProgression: 'Use six corners with unpredictable calls.', completionRequirement: 'Maintains balance and a consistent base throughout the sequence.' },
@@ -344,9 +345,16 @@ export async function seedCoachingLibrary(payload: Payload) {
       lessons: phase.lessons.map((programLesson) => {
         const practiceID = practiceLibraryIDs.get(`${program.name}:${programLesson.week}`)
         if (!practiceID) throw new Error(`Missing independent practice for ${program.name}, week ${programLesson.week}`)
+        const lessonSkillIDs = Array.from(new Set(programLesson.drills.map((drillName) => {
+          const drill = drills.find((item) => item.name === drillName)
+          const skillID = drill ? skillIDs.get(drill.skill) : null
+          if (!skillID) throw new Error(`Missing skill for ${program.name}, week ${programLesson.week}: ${drillName}`)
+          return skillID
+        })))
         return {
           ...programLesson,
           independentPractice: practiceID,
+          skills: lessonSkillIDs,
           drills: programLesson.drills.map((drillName) => {
           const drillID = drillIDs.get(drillName)
           if (!drillID) throw new Error(`Missing drill for ${program.name}, week ${programLesson.week}: ${drillName}`)

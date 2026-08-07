@@ -3,7 +3,9 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 import { CoachSessionPlan } from '@/components/Dashboard/CoachSessionPlan'
+import { CompleteSession } from '@/components/Dashboard/CompleteSession'
 import { DashboardShell, Empty, formatDate, Panel, ProgressBar, relationName, Stat } from '@/components/Dashboard/UI'
+import { SessionSkillScoring, type SkillScoreRow } from '@/components/Dashboard/SessionSkillScoring'
 import type { Drill, Skill, TrainingSession } from '@/payload-types'
 import { isAdmin, isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 
@@ -36,10 +38,11 @@ export default async function CoachStudentWorkspace({ params }: { params: Promis
   const profile = profileResult.docs[0]
   if (!profile) notFound()
 
-  const [sessions, practices, progress] = await Promise.all([
+  const [sessions, practices, progress, sessionScores] = await Promise.all([
     payload.find({ collection: 'training-sessions', depth: 2, limit: 200, sort: 'lessonWeek', overrideAccess: false, user, where: { student: { equals: profile.id } } }),
     payload.find({ collection: 'independent-practices', depth: 2, limit: 100, sort: 'lessonWeek', overrideAccess: false, user, where: { student: { equals: profile.id } } }),
     payload.find({ collection: 'skill-progress', depth: 2, limit: 100, sort: '-updatedAt', overrideAccess: false, user, where: { student: { equals: profile.id } } }),
+    payload.find({ collection: 'session-skill-scores', depth: 2, limit: 500, sort: 'createdAt', overrideAccess: false, user, where: { student: { equals: profile.id } } }),
   ])
   const programSessions = sessions.docs.filter((session) => session.source === 'program')
   const currentSession = programSessions.find((session) => session.lessonWeek === profile.currentProgramWeek && session.status !== 'cancelled')
@@ -49,6 +52,21 @@ export default async function CoachStudentWorkspace({ params }: { params: Promis
   const completedSessions = programSessions.filter((session) => session.status === 'completed').length
   const scheduledSessions = programSessions.filter((session) => session.status === 'scheduled').length
   const currentDrills = [currentSession?.plan?.technicalDrill, currentSession?.plan?.progressiveDrill].filter((drill): drill is Drill => Boolean(drill) && typeof drill === 'object')
+  const currentScoreRows: SkillScoreRow[] = currentSession ? sessionScores.docs.filter((score) => {
+    const sessionID = typeof score.session === 'object' ? score.session.id : score.session
+    return sessionID === currentSession.id && score.status !== 'not-assessed'
+  }).map((score) => {
+    const skill = typeof score.skill === 'object' ? score.skill : null
+    return {
+      category: skill?.category || 'skill-development',
+      evidence: score.evidence,
+      id: score.id,
+      nextFocus: score.nextFocus,
+      score: score.score,
+      skillName: skill?.name || 'Skill',
+      status: score.status,
+    }
+  }) : []
   const phases = Array.from(new Set(programSessions.map((session) => session.phase || 'Program lessons')))
 
   return (
@@ -71,6 +89,12 @@ export default async function CoachStudentWorkspace({ params }: { params: Promis
         </Panel>
 
         {currentSession ? <Panel className="lg:col-span-12" title="Complete session plan" subtitle="The exact coaching sequence for this player" icon={ClipboardList}><CoachSessionPlan session={currentSession as TrainingSession} /></Panel> : null}
+
+        <Panel className="lg:col-span-12" title="Assess this lesson's skills" subtitle="One observation updates the student's long-term development profile" icon={TrendingUp}>
+          {currentScoreRows.length ? <SessionSkillScoring rows={currentScoreRows} /> : <Empty text="Skill scoring records are being prepared from the lesson drills." />}
+        </Panel>
+
+        {currentSession && currentSession.status !== 'completed' ? <div className="lg:col-span-12"><CompleteSession sessionID={currentSession.id} assessedSkills={currentScoreRows.filter((score) => score.status === 'scored').length} totalSkills={currentScoreRows.length} sessionsRemaining={profile.sessionsRemaining} /></div> : null}
 
         <Panel className="lg:col-span-7" title="Current drills" subtitle="Technical and progressive work for this lesson" icon={Target}>
           <div className="grid gap-4 md:grid-cols-2">{currentDrills.length ? currentDrills.map((drill) => <div key={drill.id} className="rounded-2xl border border-[#092c59]/10 p-5"><div className="flex items-start justify-between gap-3"><h3 className="font-black">{drill.name}</h3><span className="rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[10px] font-black uppercase text-[#1677ff]">{drill.difficulty}</span></div><p className="mt-3 text-sm leading-6 text-[#607286]">{drill.instructions}</p><div className="mt-4 rounded-xl bg-[#f3f7fc] p-3 text-xs leading-5"><strong>Coach for:</strong> {drill.coachingPoints}</div><p className="mt-3 text-xs font-bold text-[#1677ff]">Target: {drill.successTarget}</p></div>) : <div className="md:col-span-2"><Empty text="No drills are attached to the current lesson." /></div>}</div>

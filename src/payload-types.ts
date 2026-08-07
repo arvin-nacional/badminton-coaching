@@ -79,6 +79,7 @@ export interface Config {
     'student-profiles': StudentProfile;
     'training-sessions': TrainingSession;
     'skill-progress': SkillProgress;
+    'session-skill-scores': SessionSkillScore;
     assignments: Assignment;
     'independent-practices': IndependentPractice;
     'coaching-events': CoachingEvent;
@@ -97,6 +98,11 @@ export interface Config {
     programs: {
       independentPractices: 'independent-practices';
     };
+    'student-profiles': {
+      trainingSessions: 'training-sessions';
+      skillDevelopment: 'skill-progress';
+      independentPracticeProgress: 'independent-practices';
+    };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
     };
@@ -114,6 +120,7 @@ export interface Config {
     'student-profiles': StudentProfilesSelect<false> | StudentProfilesSelect<true>;
     'training-sessions': TrainingSessionsSelect<false> | TrainingSessionsSelect<true>;
     'skill-progress': SkillProgressSelect<false> | SkillProgressSelect<true>;
+    'session-skill-scores': SessionSkillScoresSelect<false> | SessionSkillScoresSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'independent-practices': IndependentPracticesSelect<false> | IndependentPracticesSelect<true>;
     'coaching-events': CoachingEventsSelect<false> | CoachingEventsSelect<true>;
@@ -1023,6 +1030,10 @@ export interface Program {
       lessonType: 'technical' | 'movement' | 'tactical' | 'match-play' | 'assessment';
       objective: string;
       durationMinutes: number;
+      /**
+       * Automatically derived from the lesson drills. Generated sessions and coach scorecards use this exact list.
+       */
+      skills: (string | Skill)[];
       drills: (string | Drill)[];
       independentPractice: string | PracticeLibrary;
       successCriteria: string;
@@ -1042,6 +1053,25 @@ export interface Program {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills".
+ */
+export interface Skill {
+  id: string;
+  name: string;
+  category:
+    | 'stroke-technique'
+    | 'footwork'
+    | 'consistency'
+    | 'tactical-decisions'
+    | 'match-performance'
+    | 'physical-readiness'
+    | 'training-habits';
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1067,25 +1097,6 @@ export interface Drill {
   easierVariation?: string | null;
   harderProgression?: string | null;
   completionRequirement?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "skills".
- */
-export interface Skill {
-  id: string;
-  name: string;
-  category:
-    | 'stroke-technique'
-    | 'footwork'
-    | 'consistency'
-    | 'tactical-decisions'
-    | 'match-performance'
-    | 'physical-readiness'
-    | 'training-habits';
-  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1137,18 +1148,51 @@ export interface StudentProfile {
   coach?: (string | null) | User;
   program?: (string | null) | Program;
   /**
-   * Controls which weekly lesson appears on the student dashboard.
+   * Automatically points to the first program lesson that has not been completed.
    */
   currentProgramWeek: number;
+  /**
+   * Automatically derived from the current program lesson.
+   */
   currentPhase: string;
+  /**
+   * Automatically derived from the current program lesson.
+   */
   weeklyFocus: string;
+  /**
+   * Automatically derived from the current program lesson objective.
+   */
   focusExplanation: string;
+  /**
+   * Automatically uses the assigned program name.
+   */
   packageName: string;
+  /**
+   * Automatically uses the number of lessons in the assigned program.
+   */
   packageSessions: number;
+  /**
+   * Automatically recalculated from completed program sessions.
+   */
   sessionsRemaining: number;
   attendanceRate: number;
   assessmentStatus: 'required' | 'scheduled' | 'current';
   lastTrainingAt?: string | null;
+  trainingSessions?: {
+    docs?: (string | TrainingSession)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  skillDevelopment?: {
+    docs?: (string | SkillProgress)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  independentPracticeProgress?: {
+    docs?: (string | IndependentPractice)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1170,11 +1214,16 @@ export interface TrainingSession {
   successCriteria?: string | null;
   durationMinutes?: number | null;
   /**
+   * The session plan and coach scorecards share this list. Program sessions copy it from the program lesson.
+   */
+  skills?: (string | Skill)[] | null;
+  /**
    * Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.
    */
   scheduledAt?: string | null;
   location?: string | null;
   status: 'planned' | 'scheduled' | 'completed' | 'cancelled' | 'missed';
+  completedAt?: string | null;
   attendance?: ('pending' | 'present' | 'late' | 'absent' | 'excused') | null;
   plan?: {
     warmUp?: string | null;
@@ -1196,6 +1245,7 @@ export interface TrainingSession {
  */
 export interface SkillProgress {
   id: string;
+  progressKey?: string | null;
   label: string;
   student: string | StudentProfile;
   skill: string | Skill;
@@ -1203,7 +1253,37 @@ export interface SkillProgress {
   progress: number;
   previousProgress?: number | null;
   coachFeedback?: string | null;
+  latestSession?: (string | null) | TrainingSession;
+  latestScore?: number | null;
   updatedAtAssessment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "session-skill-scores".
+ */
+export interface SessionSkillScore {
+  id: string;
+  scoreKey: string;
+  label: string;
+  session: string | TrainingSession;
+  student: string | StudentProfile;
+  coach?: (string | null) | User;
+  program?: (string | null) | Program;
+  lessonWeek?: number | null;
+  skill: string | Skill;
+  status: 'pending' | 'scored' | 'not-assessed';
+  score?: number | null;
+  /**
+   * What the player demonstrated in this session.
+   */
+  evidence?: string | null;
+  /**
+   * The next coaching priority for this skill.
+   */
+  nextFocus?: string | null;
+  scoredAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1474,6 +1554,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'skill-progress';
         value: string | SkillProgress;
+      } | null)
+    | ({
+        relationTo: 'session-skill-scores';
+        value: string | SessionSkillScore;
       } | null)
     | ({
         relationTo: 'assignments';
@@ -2079,6 +2163,7 @@ export interface ProgramsSelect<T extends boolean = true> {
               lessonType?: T;
               objective?: T;
               durationMinutes?: T;
+              skills?: T;
               drills?: T;
               independentPractice?: T;
               successCriteria?: T;
@@ -2167,6 +2252,9 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   attendanceRate?: T;
   assessmentStatus?: T;
   lastTrainingAt?: T;
+  trainingSessions?: T;
+  skillDevelopment?: T;
+  independentPracticeProgress?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2186,9 +2274,11 @@ export interface TrainingSessionsSelect<T extends boolean = true> {
   objective?: T;
   successCriteria?: T;
   durationMinutes?: T;
+  skills?: T;
   scheduledAt?: T;
   location?: T;
   status?: T;
+  completedAt?: T;
   attendance?: T;
   plan?:
     | T
@@ -2211,6 +2301,7 @@ export interface TrainingSessionsSelect<T extends boolean = true> {
  * via the `definition` "skill-progress_select".
  */
 export interface SkillProgressSelect<T extends boolean = true> {
+  progressKey?: T;
   label?: T;
   student?: T;
   skill?: T;
@@ -2218,7 +2309,30 @@ export interface SkillProgressSelect<T extends boolean = true> {
   progress?: T;
   previousProgress?: T;
   coachFeedback?: T;
+  latestSession?: T;
+  latestScore?: T;
   updatedAtAssessment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "session-skill-scores_select".
+ */
+export interface SessionSkillScoresSelect<T extends boolean = true> {
+  scoreKey?: T;
+  label?: T;
+  session?: T;
+  student?: T;
+  coach?: T;
+  program?: T;
+  lessonWeek?: T;
+  skill?: T;
+  status?: T;
+  score?: T;
+  evidence?: T;
+  nextFocus?: T;
+  scoredAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

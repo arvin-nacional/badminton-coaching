@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import type { Program, StudentProfile } from '@/payload-types'
+import type { Drill, Program, StudentProfile } from '@/payload-types'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
@@ -49,10 +49,18 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
     req,
   }) as Program
   const validSessionKeys = new Set<string>()
+  const programDrillIDs = Array.from(new Set(program.phases.flatMap((phase) => phase.lessons || []).flatMap((lesson) => lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id)))))
+  const programDrills = programDrillIDs.length
+    ? await req.payload.find({ collection: 'drills', depth: 1, limit: programDrillIDs.length, overrideAccess: true, req, where: { id: { in: programDrillIDs } } })
+    : null
+  const drillsByID = new Map((programDrills?.docs || []).map((drill) => [drill.id, drill as Drill]))
 
   for (const phase of program.phases.slice().sort((a, b) => a.order - b.order)) {
     for (const lesson of (phase.lessons || []).slice().sort((a, b) => a.week - b.week)) {
       const drillIDs = lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id))
+      const plannedSkillIDs = (lesson.skills || []).map(relationshipID).filter((id): id is string => Boolean(id))
+      const drillSkillIDs = drillIDs.map((drillID) => relationshipID(drillsByID.get(drillID)?.skill)).filter((id): id is string => Boolean(id))
+      const skillIDs = Array.from(new Set(plannedSkillIDs.length ? plannedSkillIDs : drillSkillIDs))
       const sessionKey = `${doc.id}:${program.id}:${lesson.week}`
       validSessionKeys.add(sessionKey)
 
@@ -73,6 +81,7 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
         },
         program: program.id,
         sessionKey,
+        skills: skillIDs,
         source: 'program' as const,
         student: doc.id,
         successCriteria: lesson.successCriteria,
@@ -81,16 +90,14 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
       const existing = existingSessions.docs.find((session) => session.sessionKey === sessionKey)
 
       if (existing) {
-        if (existing.status !== 'completed') {
-          await req.payload.update({
-            collection: 'training-sessions',
-            id: existing.id,
-            data: sessionData,
-            depth: 0,
-            overrideAccess: true,
-            req,
-          })
-        }
+        await req.payload.update({
+          collection: 'training-sessions',
+          id: existing.id,
+          data: existing.status === 'completed' ? { skills: skillIDs } : sessionData,
+          depth: 0,
+          overrideAccess: true,
+          req,
+        })
       } else {
         await req.payload.create({
           collection: 'training-sessions',

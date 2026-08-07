@@ -24,6 +24,10 @@ const stageLabels = {
   'pressure-ready': 'Pressure ready',
 }
 
+const displayedStage = (progress: number, stage: keyof typeof stageLabels): keyof typeof stageLabels => (
+  progress <= 0 ? 'not-introduced' : stage
+)
+
 const categoryLabels: Record<string, string> = {
   'stroke-technique': 'Stroke technique',
   footwork: 'Footwork',
@@ -111,8 +115,8 @@ export default async function StudentDashboardPage() {
   const upcomingLessons = programLessons.filter((programLesson) => programLesson.week > programWeek).slice(0, 3)
   const nextSession = sessions.docs[0]
   const completedSkills = skillProgress.docs.filter((item) => ['game-ready', 'pressure-ready'].includes(item.stage))
-  const developingSkills = skillProgress.docs.filter((item) => ['learning', 'controlled'].includes(item.stage))
-  const latestFeedback = completedSessions.docs[0]?.studentSummary || completedSessions.docs[0]?.coachNotes || currentPractice?.coachFeedback
+  const developingSkills = skillProgress.docs.filter((item) => ['not-introduced', 'learning', 'controlled'].includes(item.stage))
+  const latestFeedback = completedSessions.docs[0]?.studentSummary || currentPractice?.coachFeedback
 
   const categoryProgress = Object.entries(categoryLabels).map(([category, label]) => {
     const values = skillProgress.docs
@@ -260,12 +264,12 @@ export default async function StudentDashboardPage() {
           {latestFeedback ? <blockquote className="rounded-2xl bg-[#eaf3ff] p-5 text-lg font-semibold leading-8">“{latestFeedback}”</blockquote> : <Empty text="Feedback will appear after your coach completes a session review." />}
         </Panel>
 
-        <Panel className="lg:col-span-7" title="Progress by development area" subtitle="Separate categories show what is really changing" icon={Trophy}>
+        <Panel className="lg:col-span-6" title="Progress by development area" subtitle="Separate categories show what is really changing" icon={Trophy}>
           <div className="grid gap-5 sm:grid-cols-2">{categoryProgress.map((category) => <ProgressBar key={category.label} label={category.label} value={category.value} />)}</div>
         </Panel>
 
-        <Panel className="lg:col-span-5" title="Skills in development" icon={Target}>
-          <div className="space-y-4">{developingSkills.length ? developingSkills.slice(0, 6).map((item) => <ProgressBar key={item.id} label={relationName(item.skill as Skill)} value={item.progress} trailing={stageLabels[item.stage]} />) : <Empty text="No skills are currently marked as learning or controlled." />}</div>
+        <Panel className="lg:col-span-6" title="Skills in development" subtitle={`${developingSkills.length} ${developingSkills.length === 1 ? 'skill' : 'skills'} in this program`} icon={Target}>
+          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">{developingSkills.length ? developingSkills.map((item) => <div key={item.id}><ProgressBar label={relationName(item.skill as Skill)} value={item.progress} trailing={stageLabels[displayedStage(item.progress, item.stage)]} />{item.coachFeedback ? <p className="mt-2 whitespace-pre-line rounded-xl bg-[#f3f7fc] p-3 text-xs leading-5 text-[#607286]">{item.coachFeedback}</p> : null}</div>) : <div className="sm:col-span-2"><Empty text="Skills from your current program lessons will appear here automatically." /></div>}</div>
           <div className="mt-6 border-t border-[#092c59]/10 pt-5"><p className="mb-3 flex items-center gap-2 text-sm font-black"><CheckCircle2 className="h-4 w-4 text-[#1677ff]" /> Skills completed</p><div className="flex flex-wrap gap-2">{completedSkills.length ? completedSkills.map((item) => <span key={item.id} className="rounded-full bg-[#eaf3ff] px-3 py-2 text-xs font-bold">{relationName(item.skill as Skill)}</span>) : <span className="text-sm text-[#718399]">Completed skills will appear here.</span>}</div></div>
         </Panel>
 
