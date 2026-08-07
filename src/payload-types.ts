@@ -1026,6 +1026,13 @@ export interface Program {
       drills: (string | Drill)[];
       independentPractice: string | PracticeLibrary;
       successCriteria: string;
+      sessionPlan: {
+        warmUp: string;
+        movementPreparation: string;
+        conditionedGame: string;
+        matchPlay: string;
+        cooldownAndFeedback: string;
+      };
       id?: string | null;
     }[];
     id?: string | null;
@@ -1151,11 +1158,23 @@ export interface StudentProfile {
  */
 export interface TrainingSession {
   id: string;
+  sessionKey?: string | null;
+  source: 'manual' | 'program';
   title: string;
   student: string | StudentProfile;
-  scheduledAt: string;
+  coach?: (string | null) | User;
+  program?: (string | null) | Program;
+  phase?: string | null;
+  lessonWeek?: number | null;
+  objective?: string | null;
+  successCriteria?: string | null;
+  durationMinutes?: number | null;
+  /**
+   * Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.
+   */
+  scheduledAt?: string | null;
   location?: string | null;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'missed';
+  status: 'planned' | 'scheduled' | 'completed' | 'cancelled' | 'missed';
   attendance?: ('pending' | 'present' | 'late' | 'absent' | 'excused') | null;
   plan?: {
     warmUp?: string | null;
@@ -2063,6 +2082,15 @@ export interface ProgramsSelect<T extends boolean = true> {
               drills?: T;
               independentPractice?: T;
               successCriteria?: T;
+              sessionPlan?:
+                | T
+                | {
+                    warmUp?: T;
+                    movementPreparation?: T;
+                    conditionedGame?: T;
+                    matchPlay?: T;
+                    cooldownAndFeedback?: T;
+                  };
               id?: T;
             };
         id?: T;
@@ -2147,8 +2175,17 @@ export interface StudentProfilesSelect<T extends boolean = true> {
  * via the `definition` "training-sessions_select".
  */
 export interface TrainingSessionsSelect<T extends boolean = true> {
+  sessionKey?: T;
+  source?: T;
   title?: T;
   student?: T;
+  coach?: T;
+  program?: T;
+  phase?: T;
+  lessonWeek?: T;
+  objective?: T;
+  successCriteria?: T;
+  durationMinutes?: T;
   scheduledAt?: T;
   location?: T;
   status?: T;

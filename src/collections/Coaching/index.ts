@@ -9,6 +9,7 @@ import {
 import { syncIndependentPractice } from './syncIndependentPractice'
 import { syncPracticeLibraryInstances } from './syncPracticeLibraryInstances'
 import { syncProgramIndependentPractices } from './syncProgramIndependentPractices'
+import { syncProgramTrainingSessions } from './syncProgramTrainingSessions'
 
 const staffManagedAccess = {
   create: staffOnly,
@@ -75,6 +76,17 @@ export const Programs: CollectionConfig = {
             },
             { name: 'independentPractice', type: 'relationship', relationTo: 'practice-library', required: true, maxDepth: 1 },
             { name: 'successCriteria', type: 'textarea', required: true },
+            {
+              name: 'sessionPlan',
+              type: 'group',
+              fields: [
+                { name: 'warmUp', type: 'textarea', required: true },
+                { name: 'movementPreparation', type: 'textarea', required: true },
+                { name: 'conditionedGame', type: 'textarea', required: true },
+                { name: 'matchPlay', type: 'textarea', required: true },
+                { name: 'cooldownAndFeedback', type: 'textarea', required: true },
+              ],
+            },
           ],
         },
       ],
@@ -199,7 +211,7 @@ export const StudentProfiles: CollectionConfig = {
         return data
       },
     ],
-    afterChange: [syncIndependentPractice],
+    afterChange: [syncIndependentPractice, syncProgramTrainingSessions],
   },
   fields: [
     { name: 'displayName', type: 'text', required: true, index: true },
@@ -222,13 +234,35 @@ export const StudentProfiles: CollectionConfig = {
 export const TrainingSessions: CollectionConfig = {
   slug: 'training-sessions',
   access: studentRecordAccess,
-  admin: { group: 'Training', useAsTitle: 'title', defaultColumns: ['title', 'student', 'scheduledAt', 'status'] },
+  admin: { group: 'Training', useAsTitle: 'title', defaultColumns: ['title', 'student', 'coach', 'program', 'lessonWeek', 'scheduledAt', 'status'] },
+  hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        const scheduledAt = data.scheduledAt !== undefined ? data.scheduledAt : originalDoc?.scheduledAt
+        const status = data.status || originalDoc?.status
+
+        if (scheduledAt && (!status || status === 'planned')) data.status = 'scheduled'
+        if (!scheduledAt && status === 'scheduled') data.status = 'planned'
+
+        return data
+      },
+    ],
+  },
   fields: [
+    { name: 'sessionKey', type: 'text', unique: true, index: true, admin: { hidden: true } },
+    { name: 'source', type: 'select', required: true, defaultValue: 'manual', options: ['manual', 'program'] },
     { name: 'title', type: 'text', required: true },
     { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
-    { name: 'scheduledAt', type: 'date', required: true, index: true, admin: { date: { pickerAppearance: 'dayAndTime' } } },
+    { name: 'coach', type: 'relationship', relationTo: 'users', index: true, maxDepth: 1 },
+    { name: 'program', type: 'relationship', relationTo: 'programs', index: true, maxDepth: 1 },
+    { name: 'phase', type: 'text' },
+    { name: 'lessonWeek', type: 'number', min: 1, index: true },
+    { name: 'objective', type: 'textarea' },
+    { name: 'successCriteria', type: 'textarea' },
+    { name: 'durationMinutes', type: 'number', min: 1, defaultValue: 90 },
+    { name: 'scheduledAt', type: 'date', index: true, admin: { description: 'Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.', date: { pickerAppearance: 'dayAndTime' } } },
     { name: 'location', type: 'text' },
-    { name: 'status', type: 'select', required: true, defaultValue: 'scheduled', options: ['scheduled', 'completed', 'cancelled', 'missed'] },
+    { name: 'status', type: 'select', required: true, defaultValue: 'planned', options: ['planned', 'scheduled', 'completed', 'cancelled', 'missed'] },
     { name: 'attendance', type: 'select', defaultValue: 'pending', options: ['pending', 'present', 'late', 'absent', 'excused'] },
     {
       name: 'plan', type: 'group', fields: [

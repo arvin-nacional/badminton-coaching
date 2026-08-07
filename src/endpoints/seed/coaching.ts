@@ -20,6 +20,13 @@ type LessonSeed = {
   drills: string[]
   independentPractice: string
   successCriteria: string
+  sessionPlan: {
+    warmUp: string
+    movementPreparation: string
+    conditionedGame: string
+    matchPlay: string
+    cooldownAndFeedback: string
+  }
 }
 type PhaseSeed = {
   name: string
@@ -45,7 +52,37 @@ const lesson = (
   drills: string[],
   independentPractice: string,
   successCriteria: string,
-): LessonSeed => ({ week, title, lessonType, objective, durationMinutes: 90, drills, independentPractice, successCriteria })
+): LessonSeed => {
+  const primaryDrill = drills[0]
+  const progressiveDrill = drills[1] || drills[0]
+  const warmUpByType: Record<LessonType, string> = {
+    assessment: '10 min — Raise body temperature, mobilise ankles, hips and shoulders, then complete familiar racket contacts without corrective coaching so the starting level is observable.',
+    technical: '10 min — Use light court movement, shoulder mobility and relaxed racket contacts. Gradually increase range while keeping grip changes and preparation clean.',
+    movement: '10 min — Raise body temperature, mobilise ankles and hips, then rehearse split steps, directional pushes and controlled lunges at increasing speed.',
+    tactical: '10 min — Combine dynamic movement with cooperative rallying. Call the intended target before each shot to connect preparation with decision-making.',
+    'match-play': '10 min — Complete a match-ready dynamic warm-up followed by cooperative length, net and flat exchanges. Finish with serve and return rehearsal.',
+  }
+
+  return {
+    week,
+    title,
+    lessonType,
+    objective,
+    durationMinutes: 90,
+    drills,
+    independentPractice,
+    successCriteria,
+    sessionPlan: {
+      warmUp: warmUpByType[lessonType],
+      movementPreparation: `10 min — Rehearse the movement pattern needed for ${primaryDrill}. Begin without a shuttle, add a partner cue, then increase speed only while balance and recovery remain controlled.`,
+      conditionedGame: `15 min — Use ${progressiveDrill} as the starting pattern, then play the rally out. Award a bonus point when the player demonstrates the session objective: ${objective}`,
+      matchPlay: lessonType === 'assessment'
+        ? `20 min — Play scored rallies with minimal intervention. Record evidence against this standard: ${successCriteria}`
+        : `20 min — Play a scored game with one process goal linked to the session objective. Coach only at agreed intervals and record whether the trained pattern transfers without prompting.`,
+      cooldownAndFeedback: `10 min — Reduce intensity with easy movement and mobility. Ask the player what improved, what limited performance and what should be practised next. Record progress against: ${successCriteria}`,
+    },
+  }
+}
 
 const programs: ProgramSeed[] = [
   {

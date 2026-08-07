@@ -17,3 +17,5 @@ export async function requireDashboardUser() {
 
 export const isCoach = (user: User) =>
   !user.roles?.length || user.roles.includes('admin') || user.roles.includes('coach')
+
+export const isAdmin = (user: User) => !user.roles?.length || user.roles.includes('admin')
