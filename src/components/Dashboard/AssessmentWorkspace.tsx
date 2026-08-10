@@ -188,9 +188,12 @@ export function AssessmentWorkspace({ bookingID, initial }: WorkspaceProps) {
           coachSummary,
         }),
       }).catch(() => null)
-      const result = (await response?.json().catch(() => null)) as { error?: string } | null
+      const result = (await response?.json().catch(() => null)) as {
+        error?: string
+        message?: string
+      } | null
       if (!response?.ok) return setMessage(result?.error || 'The assessment could not be saved.')
-      setMessage('Assessment completed and recommendation saved.')
+      setMessage(result?.message || 'Assessment completed and recommendation saved.')
       router.refresh()
     })
   }

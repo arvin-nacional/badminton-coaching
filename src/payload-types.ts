@@ -1377,6 +1377,8 @@ export interface CoachAvailabilityRule {
 export interface AssessmentBooking {
   id: string;
   bookingKey: string;
+  source?: ('scheduled' | 'direct') | null;
+  student?: (string | null) | StudentProfile;
   slot?: (string | null) | CoachAvailability;
   availabilityRule?: (string | null) | CoachAvailabilityRule;
   coach: string | User;
@@ -2564,6 +2566,8 @@ export interface CoachAvailabilityRulesSelect<T extends boolean = true> {
  */
 export interface AssessmentBookingsSelect<T extends boolean = true> {
   bookingKey?: T;
+  source?: T;
+  student?: T;
   slot?: T;
   availabilityRule?: T;
   coach?: T;

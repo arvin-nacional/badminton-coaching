@@ -18,7 +18,8 @@ import { syncStudentProfileFromTrainingSession } from './syncStudentProfileFromT
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
-  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string') return value.id
+  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string')
+    return value.id
   return null
 }
 
@@ -39,18 +40,32 @@ const studentRecordAccess = {
 export const Programs: CollectionConfig = {
   slug: 'programs',
   access: staffManagedAccess,
-  admin: { group: 'Coaching', useAsTitle: 'name', defaultColumns: ['name', 'level', 'durationWeeks'] },
+  admin: {
+    group: 'Coaching',
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'level', 'durationWeeks'],
+  },
   hooks: {
     beforeValidate: [syncProgramLessonSkills],
     afterChange: [syncProgramIndependentPractices],
   },
   fields: [
     { name: 'name', type: 'text', required: true, unique: true },
-    { name: 'level', type: 'select', required: true, options: ['foundations', 'development', 'competitive'] },
+    {
+      name: 'level',
+      type: 'select',
+      required: true,
+      options: ['foundations', 'development', 'competitive'],
+    },
     { name: 'description', type: 'textarea', required: true },
     { name: 'durationWeeks', type: 'number', min: 1, required: true },
     {
-      name: 'phases', type: 'array', minRows: 1, required: true, admin: { initCollapsed: true }, fields: [
+      name: 'phases',
+      type: 'array',
+      minRows: 1,
+      required: true,
+      admin: { initCollapsed: true },
+      fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'description', type: 'textarea' },
         { name: 'order', type: 'number', required: true, min: 1 },
@@ -90,7 +105,8 @@ export const Programs: CollectionConfig = {
               maxDepth: 1,
               admin: {
                 readOnly: true,
-                description: 'Automatically derived from the lesson drills. Generated sessions and coach scorecards use this exact list.',
+                description:
+                  'Automatically derived from the lesson drills. Generated sessions and coach scorecards use this exact list.',
               },
             },
             {
@@ -102,7 +118,13 @@ export const Programs: CollectionConfig = {
               minRows: 1,
               maxDepth: 1,
             },
-            { name: 'independentPractice', type: 'relationship', relationTo: 'practice-library', required: true, maxDepth: 1 },
+            {
+              name: 'independentPractice',
+              type: 'relationship',
+              relationTo: 'practice-library',
+              required: true,
+              maxDepth: 1,
+            },
             { name: 'successCriteria', type: 'textarea', required: true },
             {
               name: 'sessionPlan',
@@ -139,7 +161,10 @@ export const Skills: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true, unique: true },
     {
-      name: 'category', type: 'select', required: true, options: [
+      name: 'category',
+      type: 'select',
+      required: true,
+      options: [
         { label: 'Stroke technique', value: 'stroke-technique' },
         { label: 'Footwork', value: 'footwork' },
         { label: 'Consistency', value: 'consistency' },
@@ -156,19 +181,39 @@ export const Skills: CollectionConfig = {
 export const Drills: CollectionConfig = {
   slug: 'drills',
   access: staffManagedAccess,
-  admin: { group: 'Coaching', useAsTitle: 'name', defaultColumns: ['name', 'level', 'difficulty', 'durationMinutes'] },
+  admin: {
+    group: 'Coaching',
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'level', 'difficulty', 'durationMinutes'],
+  },
   fields: [
     { name: 'name', type: 'text', required: true, index: true },
     { name: 'skill', type: 'relationship', relationTo: 'skills', required: true, maxDepth: 1 },
-    { name: 'level', type: 'select', required: true, options: ['foundations', 'development', 'competitive'] },
-    { name: 'eventType', type: 'select', required: true, defaultValue: 'general', options: ['general', 'singles', 'doubles'] },
+    {
+      name: 'level',
+      type: 'select',
+      required: true,
+      options: ['foundations', 'development', 'competitive'],
+    },
+    {
+      name: 'eventType',
+      type: 'select',
+      required: true,
+      defaultValue: 'general',
+      options: ['general', 'singles', 'doubles'],
+    },
     { name: 'equipment', type: 'text', required: true },
     { name: 'numberOfPlayers', type: 'number', min: 1, required: true },
     { name: 'durationMinutes', type: 'number', min: 1, required: true },
     { name: 'instructions', type: 'textarea', required: true },
     { name: 'coachingPoints', type: 'textarea', required: true },
     { name: 'commonMistakes', type: 'textarea' },
-    { name: 'difficulty', type: 'select', required: true, options: ['easy', 'moderate', 'challenging'] },
+    {
+      name: 'difficulty',
+      type: 'select',
+      required: true,
+      options: ['easy', 'moderate', 'challenging'],
+    },
     { name: 'videoURL', type: 'text' },
     { name: 'successTarget', type: 'text', required: true },
     { name: 'easierVariation', type: 'textarea' },
@@ -189,9 +234,22 @@ export const PracticeLibrary: CollectionConfig = {
   },
   fields: [
     { name: 'name', type: 'text', required: true, unique: true, index: true },
-    { name: 'level', type: 'select', required: true, options: ['foundations', 'development', 'competitive'] },
+    {
+      name: 'level',
+      type: 'select',
+      required: true,
+      options: ['foundations', 'development', 'competitive'],
+    },
     { name: 'instructions', type: 'textarea', required: true },
-    { name: 'drills', type: 'relationship', relationTo: 'drills', hasMany: true, required: true, minRows: 1, maxDepth: 1 },
+    {
+      name: 'drills',
+      type: 'relationship',
+      relationTo: 'drills',
+      hasMany: true,
+      required: true,
+      minRows: 1,
+      maxDepth: 1,
+    },
     { name: 'durationMinutes', type: 'number', required: true, min: 1 },
     { name: 'successCriteria', type: 'textarea', required: true },
   ],
@@ -200,7 +258,17 @@ export const PracticeLibrary: CollectionConfig = {
 export const StudentProfiles: CollectionConfig = {
   slug: 'student-profiles',
   access: { create: staffOnly, delete: staffOnly, read: ownStudentProfile, update: staffOnly },
-  admin: { group: 'Players', useAsTitle: 'displayName', defaultColumns: ['displayName', 'program', 'currentPhase', 'sessionsRemaining', 'assessmentStatus'] },
+  admin: {
+    group: 'Players',
+    useAsTitle: 'displayName',
+    defaultColumns: [
+      'displayName',
+      'program',
+      'currentPhase',
+      'sessionsRemaining',
+      'assessmentStatus',
+    ],
+  },
   hooks: {
     beforeChange: [
       async ({ data, operation, originalDoc, req }) => {
@@ -208,7 +276,8 @@ export const StudentProfiles: CollectionConfig = {
         const selectedProgramID = programWasProvided ? relationshipID(data.program) : null
         const previousProgramID = relationshipID(originalDoc?.program)
         const programID = programWasProvided ? selectedProgramID : previousProgramID
-        const programChanged = operation === 'update' && programWasProvided && selectedProgramID !== previousProgramID
+        const programChanged =
+          operation === 'update' && programWasProvided && selectedProgramID !== previousProgramID
 
         if (!programID) {
           if (programWasProvided) {
@@ -254,14 +323,17 @@ export const StudentProfiles: CollectionConfig = {
         }
 
         const phases = program.phases?.slice().sort((a, b) => a.order - b.order) || []
-        const lessonWeeks = Array.from(new Set(
-          phases.flatMap((phase) => phase.lessons || []).map((lesson) => lesson.week),
-        )).sort((a, b) => a - b)
-        const currentWeek = lessonWeeks.find((week) => !completedWeeks.has(week))
-          || lessonWeeks.at(-1)
-          || 1
-        const activePhase = phases.find((phase) => currentWeek >= phase.startWeek && currentWeek <= phase.endWeek) || phases[0]
-        const activeLesson = phases.flatMap((phase) => phase.lessons || []).find((lesson) => lesson.week === currentWeek)
+        const lessonWeeks = Array.from(
+          new Set(phases.flatMap((phase) => phase.lessons || []).map((lesson) => lesson.week)),
+        ).sort((a, b) => a - b)
+        const currentWeek =
+          lessonWeeks.find((week) => !completedWeeks.has(week)) || lessonWeeks.at(-1) || 1
+        const activePhase =
+          phases.find((phase) => currentWeek >= phase.startWeek && currentWeek <= phase.endWeek) ||
+          phases[0]
+        const activeLesson = phases
+          .flatMap((phase) => phase.lessons || [])
+          .find((lesson) => lesson.week === currentWeek)
 
         data.currentProgramWeek = currentWeek
         data.currentPhase = activePhase?.name || 'Program assigned'
@@ -269,7 +341,10 @@ export const StudentProfiles: CollectionConfig = {
         data.focusExplanation = activeLesson?.objective || program.description
         data.packageName = program.name
         data.packageSessions = lessonWeeks.length || program.durationWeeks
-        data.sessionsRemaining = Math.max(0, (lessonWeeks.length || program.durationWeeks) - completedWeeks.size)
+        data.sessionsRemaining = Math.max(
+          0,
+          (lessonWeeks.length || program.durationWeeks) - completedWeeks.size,
+        )
 
         return data
       },
@@ -278,25 +353,106 @@ export const StudentProfiles: CollectionConfig = {
   },
   fields: [
     { name: 'displayName', type: 'text', required: true, index: true },
-    { name: 'user', type: 'relationship', relationTo: 'users', required: true, unique: true, maxDepth: 1 },
+    {
+      name: 'user',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      unique: true,
+      maxDepth: 1,
+    },
     { name: 'coach', type: 'relationship', relationTo: 'users', maxDepth: 1 },
     { name: 'program', type: 'relationship', relationTo: 'programs', maxDepth: 1 },
-    { name: 'currentProgramWeek', type: 'number', required: true, min: 1, defaultValue: 1, admin: { readOnly: true, description: 'Automatically points to the first program lesson that has not been completed.' } },
-    { name: 'currentPhase', type: 'text', required: true, defaultValue: 'Awaiting initial assessment', admin: { readOnly: true, description: 'Automatically derived from the current program lesson.' } },
-    { name: 'weeklyFocus', type: 'text', required: true, defaultValue: 'Initial player assessment', admin: { readOnly: true, description: 'Automatically derived from the current program lesson.' } },
-    { name: 'focusExplanation', type: 'textarea', required: true, defaultValue: 'Complete your initial assessment so your coach can identify your priorities and build your first training plan.', admin: { readOnly: true, description: 'Automatically derived from the current program lesson objective.' } },
-    { name: 'packageName', type: 'text', required: true, defaultValue: 'Assessment', admin: { readOnly: true, description: 'Automatically uses the assigned program name.' } },
-    { name: 'packageSessions', type: 'number', min: 0, required: true, defaultValue: 0, admin: { readOnly: true, description: 'Automatically uses the number of lessons in the assigned program.' } },
-    { name: 'sessionsRemaining', type: 'number', min: 0, required: true, defaultValue: 0, admin: { readOnly: true, description: 'Automatically recalculated from completed program sessions.' } },
+    {
+      name: 'currentProgramWeek',
+      type: 'number',
+      required: true,
+      min: 1,
+      defaultValue: 1,
+      admin: {
+        readOnly: true,
+        description:
+          'Automatically points to the first program lesson that has not been completed.',
+      },
+    },
+    {
+      name: 'currentPhase',
+      type: 'text',
+      required: true,
+      defaultValue: 'Awaiting initial assessment',
+      admin: {
+        readOnly: true,
+        description: 'Automatically derived from the current program lesson.',
+      },
+    },
+    {
+      name: 'weeklyFocus',
+      type: 'text',
+      required: true,
+      defaultValue: 'Initial player assessment',
+      admin: {
+        readOnly: true,
+        description: 'Automatically derived from the current program lesson.',
+      },
+    },
+    {
+      name: 'focusExplanation',
+      type: 'textarea',
+      required: true,
+      defaultValue:
+        'Complete your initial assessment so your coach can identify your priorities and build your first training plan.',
+      admin: {
+        readOnly: true,
+        description: 'Automatically derived from the current program lesson objective.',
+      },
+    },
+    {
+      name: 'packageName',
+      type: 'text',
+      required: true,
+      defaultValue: 'Assessment',
+      admin: { readOnly: true, description: 'Automatically uses the assigned program name.' },
+    },
+    {
+      name: 'packageSessions',
+      type: 'number',
+      min: 0,
+      required: true,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Automatically uses the number of lessons in the assigned program.',
+      },
+    },
+    {
+      name: 'sessionsRemaining',
+      type: 'number',
+      min: 0,
+      required: true,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Automatically recalculated from completed program sessions.',
+      },
+    },
     { name: 'attendanceRate', type: 'number', min: 0, max: 100, defaultValue: 100, required: true },
-    { name: 'assessmentStatus', type: 'select', defaultValue: 'current', required: true, options: ['required', 'scheduled', 'current'] },
+    {
+      name: 'assessmentStatus',
+      type: 'select',
+      defaultValue: 'current',
+      required: true,
+      options: ['required', 'scheduled', 'current'],
+    },
     { name: 'lastTrainingAt', type: 'date' },
     {
       name: 'trainingSessions',
       type: 'join',
       collection: 'training-sessions',
       on: 'student',
-      admin: { allowCreate: false, defaultColumns: ['title', 'coach', 'lessonWeek', 'scheduledAt', 'status', 'attendance'] },
+      admin: {
+        allowCreate: false,
+        defaultColumns: ['title', 'coach', 'lessonWeek', 'scheduledAt', 'status', 'attendance'],
+      },
     },
     {
       name: 'skillDevelopment',
@@ -310,7 +466,10 @@ export const StudentProfiles: CollectionConfig = {
       type: 'join',
       collection: 'independent-practices',
       on: 'student',
-      admin: { allowCreate: false, defaultColumns: ['title', 'lessonWeek', 'status', 'completedAt'] },
+      admin: {
+        allowCreate: false,
+        defaultColumns: ['title', 'lessonWeek', 'status', 'completedAt'],
+      },
     },
   ],
 }
@@ -318,11 +477,16 @@ export const StudentProfiles: CollectionConfig = {
 export const TrainingSessions: CollectionConfig = {
   slug: 'training-sessions',
   access: studentRecordAccess,
-  admin: { group: 'Training', useAsTitle: 'title', defaultColumns: ['title', 'student', 'coach', 'program', 'lessonWeek', 'scheduledAt', 'status'] },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'student', 'coach', 'program', 'lessonWeek', 'scheduledAt', 'status'],
+  },
   hooks: {
     beforeChange: [
       ({ data, originalDoc }) => {
-        const scheduledAt = data.scheduledAt !== undefined ? data.scheduledAt : originalDoc?.scheduledAt
+        const scheduledAt =
+          data.scheduledAt !== undefined ? data.scheduledAt : originalDoc?.scheduledAt
         const status = data.status || originalDoc?.status
 
         if (scheduledAt && (!status || status === 'planned')) data.status = 'scheduled'
@@ -331,7 +495,8 @@ export const TrainingSessions: CollectionConfig = {
           data.completedAt = data.completedAt || new Date().toISOString()
           if (!data.attendance || data.attendance === 'pending') data.attendance = 'present'
         }
-        if (originalDoc?.status === 'completed' && data.status && data.status !== 'completed') data.completedAt = null
+        if (originalDoc?.status === 'completed' && data.status && data.status !== 'completed')
+          data.completedAt = null
 
         return data
       },
@@ -340,9 +505,22 @@ export const TrainingSessions: CollectionConfig = {
   },
   fields: [
     { name: 'sessionKey', type: 'text', unique: true, index: true, admin: { hidden: true } },
-    { name: 'source', type: 'select', required: true, defaultValue: 'manual', options: ['manual', 'program'] },
+    {
+      name: 'source',
+      type: 'select',
+      required: true,
+      defaultValue: 'manual',
+      options: ['manual', 'program'],
+    },
     { name: 'title', type: 'text', required: true },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 2,
+    },
     { name: 'coach', type: 'relationship', relationTo: 'users', index: true, maxDepth: 1 },
     { name: 'program', type: 'relationship', relationTo: 'programs', index: true, maxDepth: 1 },
     { name: 'phase', type: 'text' },
@@ -350,14 +528,51 @@ export const TrainingSessions: CollectionConfig = {
     { name: 'objective', type: 'textarea' },
     { name: 'successCriteria', type: 'textarea' },
     { name: 'durationMinutes', type: 'number', min: 1, defaultValue: 90 },
-    { name: 'skills', label: 'Skills developed and scored', type: 'relationship', relationTo: 'skills', hasMany: true, maxDepth: 1, admin: { description: 'The session plan and coach scorecards share this list. Program sessions copy it from the program lesson.' } },
-    { name: 'scheduledAt', type: 'date', index: true, admin: { description: 'Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.', date: { pickerAppearance: 'dayAndTime' } } },
-    { name: 'location', type: 'text' },
-    { name: 'status', type: 'select', required: true, defaultValue: 'planned', options: ['planned', 'scheduled', 'completed', 'cancelled', 'missed'] },
-    { name: 'completedAt', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
-    { name: 'attendance', type: 'select', defaultValue: 'pending', options: ['pending', 'present', 'late', 'absent', 'excused'] },
     {
-      name: 'plan', type: 'group', fields: [
+      name: 'skills',
+      label: 'Skills developed and scored',
+      type: 'relationship',
+      relationTo: 'skills',
+      hasMany: true,
+      maxDepth: 1,
+      admin: {
+        description:
+          'The session plan and coach scorecards share this list. Program sessions copy it from the program lesson.',
+      },
+    },
+    {
+      name: 'scheduledAt',
+      type: 'date',
+      index: true,
+      admin: {
+        description:
+          'Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.',
+        date: { pickerAppearance: 'dayAndTime' },
+      },
+    },
+    { name: 'location', type: 'text' },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'planned',
+      options: ['planned', 'scheduled', 'completed', 'cancelled', 'missed'],
+    },
+    {
+      name: 'completedAt',
+      type: 'date',
+      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+    },
+    {
+      name: 'attendance',
+      type: 'select',
+      defaultValue: 'pending',
+      options: ['pending', 'present', 'late', 'absent', 'excused'],
+    },
+    {
+      name: 'plan',
+      type: 'group',
+      fields: [
         { name: 'warmUp', type: 'textarea' },
         { name: 'movementPreparation', type: 'textarea' },
         { name: 'technicalDrill', type: 'relationship', relationTo: 'drills', maxDepth: 1 },
@@ -375,14 +590,30 @@ export const TrainingSessions: CollectionConfig = {
 export const SkillProgress: CollectionConfig = {
   slug: 'skill-progress',
   access: studentRecordAccess,
-  admin: { group: 'Players', useAsTitle: 'label', defaultColumns: ['label', 'student', 'skill', 'stage', 'progress'] },
+  admin: {
+    group: 'Players',
+    useAsTitle: 'label',
+    defaultColumns: ['label', 'student', 'skill', 'stage', 'progress'],
+  },
   hooks: { beforeChange: [normalizeSkillProgressStage] },
   fields: [
     { name: 'progressKey', type: 'text', unique: true, index: true, admin: { hidden: true } },
     { name: 'label', type: 'text', required: true },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 2,
+    },
     { name: 'skill', type: 'relationship', relationTo: 'skills', required: true, maxDepth: 1 },
-    { name: 'stage', type: 'select', required: true, options: ['not-introduced', 'learning', 'controlled', 'game-ready', 'pressure-ready'] },
+    {
+      name: 'stage',
+      type: 'select',
+      required: true,
+      options: ['not-introduced', 'learning', 'controlled', 'game-ready', 'pressure-ready'],
+    },
     { name: 'progress', type: 'number', min: 0, max: 100, required: true },
     { name: 'previousProgress', type: 'number', min: 0, max: 100, defaultValue: 0 },
     { name: 'coachFeedback', type: 'textarea' },
@@ -408,18 +639,60 @@ export const SessionSkillScores: CollectionConfig = {
   },
   hooks: { afterChange: [syncSkillProgressFromScore] },
   fields: [
-    { name: 'scoreKey', type: 'text', required: true, unique: true, index: true, admin: { hidden: true } },
+    {
+      name: 'scoreKey',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+    },
     { name: 'label', type: 'text', required: true },
-    { name: 'session', type: 'relationship', relationTo: 'training-sessions', required: true, index: true, maxDepth: 1 },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 1 },
+    {
+      name: 'session',
+      type: 'relationship',
+      relationTo: 'training-sessions',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
     { name: 'coach', type: 'relationship', relationTo: 'users', index: true, maxDepth: 1 },
     { name: 'program', type: 'relationship', relationTo: 'programs', maxDepth: 1 },
     { name: 'lessonWeek', type: 'number', min: 1, index: true },
-    { name: 'skill', type: 'relationship', relationTo: 'skills', required: true, index: true, maxDepth: 1 },
-    { name: 'status', type: 'select', required: true, defaultValue: 'pending', options: ['pending', 'scored', 'not-assessed'] },
+    {
+      name: 'skill',
+      type: 'relationship',
+      relationTo: 'skills',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'pending',
+      options: ['pending', 'scored', 'not-assessed'],
+    },
     { name: 'score', type: 'number', min: 0, max: 5 },
-    { name: 'evidence', type: 'textarea', admin: { description: 'What the player demonstrated in this session.' } },
-    { name: 'nextFocus', type: 'textarea', admin: { description: 'The next coaching priority for this skill.' } },
+    {
+      name: 'evidence',
+      type: 'textarea',
+      admin: { description: 'What the player demonstrated in this session.' },
+    },
+    {
+      name: 'nextFocus',
+      type: 'textarea',
+      admin: { description: 'The next coaching priority for this skill.' },
+    },
     { name: 'scoredAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
   ],
 }
@@ -427,12 +700,29 @@ export const SessionSkillScores: CollectionConfig = {
 export const Assignments: CollectionConfig = {
   slug: 'assignments',
   access: studentRecordAccess,
-  admin: { group: 'Training', useAsTitle: 'title', defaultColumns: ['title', 'student', 'drill', 'status', 'dueAt'] },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'student', 'drill', 'status', 'dueAt'],
+  },
   fields: [
     { name: 'title', type: 'text', required: true },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 2,
+    },
     { name: 'drill', type: 'relationship', relationTo: 'drills', required: true, maxDepth: 2 },
-    { name: 'status', type: 'select', required: true, defaultValue: 'assigned', options: ['assigned', 'in-progress', 'completed'] },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'assigned',
+      options: ['assigned', 'in-progress', 'completed'],
+    },
     { name: 'dueAt', type: 'date' },
     { name: 'coachFeedback', type: 'textarea' },
   ],
@@ -453,17 +743,51 @@ export const IndependentPractices: CollectionConfig = {
     defaultColumns: ['title', 'student', 'program', 'lessonWeek', 'status', 'completedAt'],
   },
   fields: [
-    { name: 'practiceKey', type: 'text', required: true, unique: true, index: true, admin: { hidden: true } },
+    {
+      name: 'practiceKey',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+    },
     { name: 'title', type: 'text', required: true },
-    { name: 'practice', type: 'relationship', relationTo: 'practice-library', required: true, maxDepth: 2 },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
+    {
+      name: 'practice',
+      type: 'relationship',
+      relationTo: 'practice-library',
+      required: true,
+      maxDepth: 2,
+    },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 2,
+    },
     { name: 'program', type: 'relationship', relationTo: 'programs', required: true, maxDepth: 1 },
     { name: 'phase', type: 'text', required: true },
     { name: 'lessonWeek', type: 'number', required: true, min: 1, index: true },
     { name: 'instructions', type: 'textarea', required: true },
-    { name: 'drills', type: 'relationship', relationTo: 'drills', hasMany: true, required: true, minRows: 1, maxDepth: 1 },
+    {
+      name: 'drills',
+      type: 'relationship',
+      relationTo: 'drills',
+      hasMany: true,
+      required: true,
+      minRows: 1,
+      maxDepth: 1,
+    },
     { name: 'successCriteria', type: 'textarea', required: true },
-    { name: 'status', type: 'select', required: true, defaultValue: 'assigned', options: ['assigned', 'completed'] },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'assigned',
+      options: ['assigned', 'completed'],
+    },
     { name: 'completedAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
     { name: 'coachFeedback', type: 'textarea' },
   ],
@@ -472,11 +796,27 @@ export const IndependentPractices: CollectionConfig = {
 export const CoachingEvents: CollectionConfig = {
   slug: 'coaching-events',
   access: studentRecordAccess,
-  admin: { group: 'Training', useAsTitle: 'title', defaultColumns: ['title', 'student', 'eventType', 'startsAt'] },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'student', 'eventType', 'startsAt'],
+  },
   fields: [
     { name: 'title', type: 'text', required: true },
-    { name: 'student', type: 'relationship', relationTo: 'student-profiles', required: true, index: true, maxDepth: 2 },
-    { name: 'eventType', type: 'select', required: true, options: ['assessment', 'tournament', 'other'] },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      required: true,
+      index: true,
+      maxDepth: 2,
+    },
+    {
+      name: 'eventType',
+      type: 'select',
+      required: true,
+      options: ['assessment', 'tournament', 'other'],
+    },
     { name: 'startsAt', type: 'date', required: true, index: true },
     { name: 'location', type: 'text' },
     { name: 'notes', type: 'textarea' },
@@ -499,11 +839,31 @@ export const CoachAvailability: CollectionConfig = {
     description: 'Add the times that players can choose when booking an initial assessment.',
   },
   fields: [
-    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
-    { name: 'startsAt', type: 'date', required: true, index: true, admin: { date: { pickerAppearance: 'dayAndTime' } } },
+    {
+      name: 'coach',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'startsAt',
+      type: 'date',
+      required: true,
+      index: true,
+      admin: { date: { pickerAppearance: 'dayAndTime' } },
+    },
     { name: 'durationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
     { name: 'location', type: 'text', required: true },
-    { name: 'status', type: 'select', required: true, defaultValue: 'open', index: true, options: ['open', 'blocked'] },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'open',
+      index: true,
+      options: ['open', 'blocked'],
+    },
   ],
 }
 
@@ -520,18 +880,52 @@ export const CoachAvailabilityRules: CollectionConfig = {
     group: 'Training',
     useAsTitle: 'label',
     defaultColumns: ['label', 'coach', 'weekday', 'startTime', 'endTime', 'active'],
-    description: 'Set a repeating weekly window. Individual assessment times are created automatically from it.',
+    description:
+      'Set a repeating weekly window. Individual assessment times are created automatically from it.',
   },
   fields: [
-    { name: 'label', type: 'text', required: true, admin: { description: 'For example: Monday evenings' } },
-    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
-    { name: 'weekday', type: 'select', required: true, options: [
-      { label: 'Monday', value: '1' }, { label: 'Tuesday', value: '2' }, { label: 'Wednesday', value: '3' },
-      { label: 'Thursday', value: '4' }, { label: 'Friday', value: '5' }, { label: 'Saturday', value: '6' },
-      { label: 'Sunday', value: '0' },
-    ] },
-    { name: 'startTime', type: 'text', required: true, defaultValue: '08:00', admin: { description: '24-hour Manila time, for example 08:00 or 19:00.' } },
-    { name: 'endTime', type: 'text', required: true, defaultValue: '10:00', admin: { description: '24-hour Manila time. Must be later than the start time.' } },
+    {
+      name: 'label',
+      type: 'text',
+      required: true,
+      admin: { description: 'For example: Monday evenings' },
+    },
+    {
+      name: 'coach',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'weekday',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Monday', value: '1' },
+        { label: 'Tuesday', value: '2' },
+        { label: 'Wednesday', value: '3' },
+        { label: 'Thursday', value: '4' },
+        { label: 'Friday', value: '5' },
+        { label: 'Saturday', value: '6' },
+        { label: 'Sunday', value: '0' },
+      ],
+    },
+    {
+      name: 'startTime',
+      type: 'text',
+      required: true,
+      defaultValue: '08:00',
+      admin: { description: '24-hour Manila time, for example 08:00 or 19:00.' },
+    },
+    {
+      name: 'endTime',
+      type: 'text',
+      required: true,
+      defaultValue: '10:00',
+      admin: { description: '24-hour Manila time. Must be later than the start time.' },
+    },
     { name: 'slotDurationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
     { name: 'location', type: 'text', required: true },
     { name: 'active', type: 'checkbox', required: true, defaultValue: true, index: true },
@@ -542,7 +936,7 @@ export const AssessmentBookings: CollectionConfig = {
   slug: 'assessment-bookings',
   labels: { singular: 'Assessment Booking', plural: 'Assessment Bookings' },
   access: {
-    create: () => false,
+    create: staffOnly,
     delete: staffOnly,
     read: staffOnly,
     update: staffOnly,
@@ -553,37 +947,104 @@ export const AssessmentBookings: CollectionConfig = {
     defaultColumns: ['playerName', 'email', 'slot', 'status', 'createdAt'],
   },
   fields: [
-    { name: 'bookingKey', type: 'text', required: true, unique: true, index: true, admin: { hidden: true } },
-    { name: 'slot', type: 'relationship', relationTo: 'coach-availability', index: true, maxDepth: 2 },
-    { name: 'availabilityRule', type: 'relationship', relationTo: 'coach-availability-rules', index: true, maxDepth: 1 },
-    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
-    { name: 'startsAt', type: 'date', required: true, index: true, admin: { date: { pickerAppearance: 'dayAndTime' } } },
+    {
+      name: 'bookingKey',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+    },
+    {
+      name: 'source',
+      type: 'select',
+      defaultValue: 'scheduled',
+      options: ['scheduled', 'direct'],
+      index: true,
+    },
+    {
+      name: 'student',
+      type: 'relationship',
+      relationTo: 'student-profiles',
+      index: true,
+      maxDepth: 2,
+    },
+    {
+      name: 'slot',
+      type: 'relationship',
+      relationTo: 'coach-availability',
+      index: true,
+      maxDepth: 2,
+    },
+    {
+      name: 'availabilityRule',
+      type: 'relationship',
+      relationTo: 'coach-availability-rules',
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'coach',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      index: true,
+      maxDepth: 1,
+    },
+    {
+      name: 'startsAt',
+      type: 'date',
+      required: true,
+      index: true,
+      admin: { date: { pickerAppearance: 'dayAndTime' } },
+    },
     { name: 'durationMinutes', type: 'number', required: true, min: 15 },
     { name: 'location', type: 'text', required: true },
     { name: 'playerName', type: 'text', required: true },
     { name: 'email', type: 'email', required: true, index: true },
     { name: 'phone', type: 'text' },
-    { name: 'playingExperience', type: 'select', options: [
-      { label: 'New to badminton', value: 'new' },
-      { label: 'Less than 1 year', value: 'under-1-year' },
-      { label: '1–3 years', value: '1-3-years' },
-      { label: 'More than 3 years', value: 'over-3-years' },
-    ] },
+    {
+      name: 'playingExperience',
+      type: 'select',
+      options: [
+        { label: 'New to badminton', value: 'new' },
+        { label: 'Less than 1 year', value: 'under-1-year' },
+        { label: '1–3 years', value: '1-3-years' },
+        { label: 'More than 3 years', value: 'over-3-years' },
+      ],
+    },
     { name: 'preferredEvent', type: 'select', options: ['singles', 'doubles', 'both', 'not-sure'] },
     { name: 'goals', type: 'textarea' },
     { name: 'trainingAvailability', type: 'textarea' },
     { name: 'injuryConsiderations', type: 'textarea' },
-    { name: 'notes', type: 'textarea', admin: { description: 'Additional information supplied by the player.' } },
+    {
+      name: 'notes',
+      type: 'textarea',
+      admin: { description: 'Additional information supplied by the player.' },
+    },
     {
       name: 'assessmentResults',
       type: 'group',
-      admin: { description: 'The coach completes this structured 60-minute assessment in the coach dashboard.' },
+      admin: {
+        description:
+          'The coach completes this structured 60-minute assessment in the coach dashboard.',
+      },
       fields: [
         { name: 'averageScore', type: 'number', min: 1, max: 5, admin: { readOnly: true } },
-        { name: 'developmentStage', type: 'select', options: ['not-introduced', 'learning', 'controlled', 'game-ready', 'pressure-ready'] },
-        { name: 'recommendedPackage', type: 'select', options: ['foundations', 'development', 'competitive'] },
         {
-          name: 'movement', type: 'group', fields: [
+          name: 'developmentStage',
+          type: 'select',
+          options: ['not-introduced', 'learning', 'controlled', 'game-ready', 'pressure-ready'],
+        },
+        {
+          name: 'recommendedPackage',
+          type: 'select',
+          options: ['foundations', 'development', 'competitive'],
+        },
+        {
+          name: 'movement',
+          type: 'group',
+          fields: [
             { name: 'readyPosition', type: 'number', min: 1, max: 5 },
             { name: 'fourCornerMovement', type: 'number', min: 1, max: 5 },
             { name: 'frontCourtRecovery', type: 'number', min: 1, max: 5 },
@@ -592,7 +1053,9 @@ export const AssessmentBookings: CollectionConfig = {
           ],
         },
         {
-          name: 'technical', type: 'group', fields: [
+          name: 'technical',
+          type: 'group',
+          fields: [
             { name: 'gripChanges', type: 'number', min: 1, max: 5 },
             { name: 'lowServe', type: 'number', min: 1, max: 5 },
             { name: 'overheadClear', type: 'number', min: 1, max: 5 },
@@ -603,7 +1066,9 @@ export const AssessmentBookings: CollectionConfig = {
           ],
         },
         {
-          name: 'tactical', type: 'group', fields: [
+          name: 'tactical',
+          type: 'group',
+          fields: [
             { name: 'shotConsistency', type: 'number', min: 1, max: 5 },
             { name: 'courtPositioning', type: 'number', min: 1, max: 5 },
             { name: 'shotSelection', type: 'number', min: 1, max: 5 },
@@ -612,15 +1077,35 @@ export const AssessmentBookings: CollectionConfig = {
             { name: 'performanceUnderPressure', type: 'number', min: 1, max: 5 },
           ],
         },
-        { name: 'strengths', type: 'array', maxRows: 3, fields: [{ name: 'item', type: 'text', required: true }] },
-        { name: 'trainingPriorities', type: 'array', maxRows: 3, fields: [{ name: 'item', type: 'text', required: true }] },
+        {
+          name: 'strengths',
+          type: 'array',
+          maxRows: 3,
+          fields: [{ name: 'item', type: 'text', required: true }],
+        },
+        {
+          name: 'trainingPriorities',
+          type: 'array',
+          maxRows: 3,
+          fields: [{ name: 'item', type: 'text', required: true }],
+        },
         { name: 'firstSessionFocus', type: 'textarea' },
         { name: 'independentPractice', type: 'textarea' },
         { name: 'coachSummary', type: 'textarea' },
-        { name: 'completedAt', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
+        {
+          name: 'completedAt',
+          type: 'date',
+          admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+        },
       ],
     },
-    { name: 'status', type: 'select', required: true, defaultValue: 'confirmed', options: ['confirmed', 'completed'] },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'confirmed',
+      options: ['confirmed', 'completed'],
+    },
   ],
 }
 
