@@ -5,6 +5,8 @@ import { sendAssessmentBookingEmails } from '@/utilities/sendAssessmentBookingEm
 import { scheduleAssessmentReminders } from '@/utilities/scheduleAssessmentReminders'
 
 const text = (value: unknown, max: number) => typeof value === 'string' ? value.trim().slice(0, max) : ''
+const playingExperienceOptions = ['new', 'under-1-year', '1-3-years', 'over-3-years'] as const
+const preferredEventOptions = ['singles', 'doubles', 'both', 'not-sure'] as const
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>
@@ -19,9 +21,16 @@ export async function POST(request: Request) {
   const email = text(body.email, 254).toLowerCase()
   const phone = text(body.phone, 40)
   const notes = text(body.notes, 1000)
+  const playingExperience = text(body.playingExperience, 30)
+  const preferredEvent = text(body.preferredEvent, 30)
+  const goals = text(body.goals, 1000)
+  const trainingAvailability = text(body.trainingAvailability, 500)
+  const injuryConsiderations = text(body.injuryConsiderations, 1000)
+  const validPlayingExperience = playingExperienceOptions.includes(playingExperience as typeof playingExperienceOptions[number]) ? playingExperience as typeof playingExperienceOptions[number] : undefined
+  const validPreferredEvent = preferredEventOptions.includes(preferredEvent as typeof preferredEventOptions[number]) ? preferredEvent as typeof preferredEventOptions[number] : undefined
 
-  if (!slot || !playerName || !/^\S+@\S+\.\S+$/.test(email)) {
-    return Response.json({ error: 'Choose a slot and enter your name and a valid email.' }, { status: 400 })
+  if (!slot || !playerName || !/^\S+@\S+\.\S+$/.test(email) || !validPlayingExperience || !validPreferredEvent || !goals || !trainingAvailability) {
+    return Response.json({ error: 'Choose a slot and complete the required player profile questions.' }, { status: 400 })
   }
 
   const payload = await getPayload({ config: configPromise })
@@ -45,7 +54,7 @@ export async function POST(request: Request) {
     const booking = await payload.create({
       collection: 'assessment-bookings',
       overrideAccess: true,
-      data: { ...bookingData, playerName, email, phone: phone || undefined, notes: notes || undefined, status: 'confirmed' },
+      data: { ...bookingData, playerName, email, phone: phone || undefined, playingExperience: validPlayingExperience, preferredEvent: validPreferredEvent, goals, trainingAvailability, injuryConsiderations: injuryConsiderations || undefined, notes: notes || undefined, status: 'confirmed' },
     })
     await sendAssessmentBookingEmails(payload, {
       coachID: bookingData.coach,

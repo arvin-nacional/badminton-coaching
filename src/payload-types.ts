@@ -472,6 +472,8 @@ export interface User {
   id: string;
   name?: string | null;
   roles: ('admin' | 'coach' | 'student')[];
+  accountStatus?: ('pending' | 'active') | null;
+  invitationAcceptedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1384,7 +1386,63 @@ export interface AssessmentBooking {
   playerName: string;
   email: string;
   phone?: string | null;
+  playingExperience?: ('new' | 'under-1-year' | '1-3-years' | 'over-3-years') | null;
+  preferredEvent?: ('singles' | 'doubles' | 'both' | 'not-sure') | null;
+  goals?: string | null;
+  trainingAvailability?: string | null;
+  injuryConsiderations?: string | null;
+  /**
+   * Additional information supplied by the player.
+   */
   notes?: string | null;
+  /**
+   * The coach completes this structured 60-minute assessment in the coach dashboard.
+   */
+  assessmentResults?: {
+    averageScore?: number | null;
+    developmentStage?: ('not-introduced' | 'learning' | 'controlled' | 'game-ready' | 'pressure-ready') | null;
+    recommendedPackage?: ('foundations' | 'development' | 'competitive') | null;
+    movement?: {
+      readyPosition?: number | null;
+      fourCornerMovement?: number | null;
+      frontCourtRecovery?: number | null;
+      rearCourtRecovery?: number | null;
+      balanceCoordination?: number | null;
+    };
+    technical?: {
+      gripChanges?: number | null;
+      lowServe?: number | null;
+      overheadClear?: number | null;
+      dropShot?: number | null;
+      netShot?: number | null;
+      lift?: number | null;
+      drive?: number | null;
+    };
+    tactical?: {
+      shotConsistency?: number | null;
+      courtPositioning?: number | null;
+      shotSelection?: number | null;
+      recovery?: number | null;
+      spaceAwareness?: number | null;
+      performanceUnderPressure?: number | null;
+    };
+    strengths?:
+      | {
+          item: string;
+          id?: string | null;
+        }[]
+      | null;
+    trainingPriorities?:
+      | {
+          item: string;
+          id?: string | null;
+        }[]
+      | null;
+    firstSessionFocus?: string | null;
+    independentPractice?: string | null;
+    coachSummary?: string | null;
+    completedAt?: string | null;
+  };
   status: 'confirmed' | 'completed';
   updatedAt: string;
   createdAt: string;
@@ -2205,6 +2263,8 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
+  accountStatus?: T;
+  invitationAcceptedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2513,7 +2573,65 @@ export interface AssessmentBookingsSelect<T extends boolean = true> {
   playerName?: T;
   email?: T;
   phone?: T;
+  playingExperience?: T;
+  preferredEvent?: T;
+  goals?: T;
+  trainingAvailability?: T;
+  injuryConsiderations?: T;
   notes?: T;
+  assessmentResults?:
+    | T
+    | {
+        averageScore?: T;
+        developmentStage?: T;
+        recommendedPackage?: T;
+        movement?:
+          | T
+          | {
+              readyPosition?: T;
+              fourCornerMovement?: T;
+              frontCourtRecovery?: T;
+              rearCourtRecovery?: T;
+              balanceCoordination?: T;
+            };
+        technical?:
+          | T
+          | {
+              gripChanges?: T;
+              lowServe?: T;
+              overheadClear?: T;
+              dropShot?: T;
+              netShot?: T;
+              lift?: T;
+              drive?: T;
+            };
+        tactical?:
+          | T
+          | {
+              shotConsistency?: T;
+              courtPositioning?: T;
+              shotSelection?: T;
+              recovery?: T;
+              spaceAwareness?: T;
+              performanceUnderPressure?: T;
+            };
+        strengths?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        trainingPriorities?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        firstSessionFocus?: T;
+        independentPractice?: T;
+        coachSummary?: T;
+        completedAt?: T;
+      };
   status?: T;
   updatedAt?: T;
   createdAt?: T;
