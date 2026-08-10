@@ -83,6 +83,9 @@ export interface Config {
     assignments: Assignment;
     'independent-practices': IndependentPractice;
     'coaching-events': CoachingEvent;
+    'coach-availability': CoachAvailability;
+    'coach-availability-rules': CoachAvailabilityRule;
+    'assessment-bookings': AssessmentBooking;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -124,6 +127,9 @@ export interface Config {
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'independent-practices': IndependentPracticesSelect<false> | IndependentPracticesSelect<true>;
     'coaching-events': CoachingEventsSelect<false> | CoachingEventsSelect<true>;
+    'coach-availability': CoachAvailabilitySelect<false> | CoachAvailabilitySelect<true>;
+    'coach-availability-rules': CoachAvailabilityRulesSelect<false> | CoachAvailabilityRulesSelect<true>;
+    'assessment-bookings': AssessmentBookingsSelect<false> | AssessmentBookingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -154,6 +160,7 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      sendAssessmentReminder: TaskSendAssessmentReminder;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1318,6 +1325,71 @@ export interface CoachingEvent {
   createdAt: string;
 }
 /**
+ * Add the times that players can choose when booking an initial assessment.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coach-availability".
+ */
+export interface CoachAvailability {
+  id: string;
+  coach: string | User;
+  startsAt: string;
+  durationMinutes: number;
+  location: string;
+  status: 'open' | 'blocked';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Set a repeating weekly window. Individual assessment times are created automatically from it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coach-availability-rules".
+ */
+export interface CoachAvailabilityRule {
+  id: string;
+  /**
+   * For example: Monday evenings
+   */
+  label: string;
+  coach: string | User;
+  weekday: '1' | '2' | '3' | '4' | '5' | '6' | '0';
+  /**
+   * 24-hour Manila time, for example 08:00 or 19:00.
+   */
+  startTime: string;
+  /**
+   * 24-hour Manila time. Must be later than the start time.
+   */
+  endTime: string;
+  slotDurationMinutes: number;
+  location: string;
+  active: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assessment-bookings".
+ */
+export interface AssessmentBooking {
+  id: string;
+  bookingKey: string;
+  slot?: (string | null) | CoachAvailability;
+  availabilityRule?: (string | null) | CoachAvailabilityRule;
+  coach: string | User;
+  startsAt: string;
+  durationMinutes: number;
+  location: string;
+  playerName: string;
+  email: string;
+  phone?: string | null;
+  notes?: string | null;
+  status: 'confirmed' | 'completed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -1460,7 +1532,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'sendAssessmentReminder' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1493,7 +1565,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'sendAssessmentReminder' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1570,6 +1642,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'coaching-events';
         value: string | CoachingEvent;
+      } | null)
+    | ({
+        relationTo: 'coach-availability';
+        value: string | CoachAvailability;
+      } | null)
+    | ({
+        relationTo: 'coach-availability-rules';
+        value: string | CoachAvailabilityRule;
+      } | null)
+    | ({
+        relationTo: 'assessment-bookings';
+        value: string | AssessmentBooking;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2387,6 +2471,55 @@ export interface CoachingEventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coach-availability_select".
+ */
+export interface CoachAvailabilitySelect<T extends boolean = true> {
+  coach?: T;
+  startsAt?: T;
+  durationMinutes?: T;
+  location?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coach-availability-rules_select".
+ */
+export interface CoachAvailabilityRulesSelect<T extends boolean = true> {
+  label?: T;
+  coach?: T;
+  weekday?: T;
+  startTime?: T;
+  endTime?: T;
+  slotDurationMinutes?: T;
+  location?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assessment-bookings_select".
+ */
+export interface AssessmentBookingsSelect<T extends boolean = true> {
+  bookingKey?: T;
+  slot?: T;
+  availabilityRule?: T;
+  coach?: T;
+  startsAt?: T;
+  durationMinutes?: T;
+  location?: T;
+  playerName?: T;
+  email?: T;
+  phone?: T;
+  notes?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2773,6 +2906,19 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendAssessmentReminder".
+ */
+export interface TaskSendAssessmentReminder {
+  input: {
+    bookingID: string;
+    reminder: 'one-day' | 'two-hours';
+  };
+  output: {
+    sent: boolean;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

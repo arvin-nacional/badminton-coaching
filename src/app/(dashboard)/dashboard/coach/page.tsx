@@ -91,7 +91,7 @@ export default async function CoachDashboardPage() {
       eyebrow="Coach dashboard"
       title={`Good day${user.name ? `, ${user.name}` : ''}`}
       description="Your roster, next sessions, player priorities, and planning tools in one working view."
-      actions={<div className="flex gap-3"><Link href="/dashboard/student" className="rounded-full border border-[#092c59]/20 bg-white px-5 py-3 text-sm font-bold">Student view</Link><Link href="/admin/collections/training-sessions/create" className="rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white">Plan a session</Link></div>}
+      actions={<Link href="/admin/collections/training-sessions/create" className="rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white">Plan a session</Link>}
     >
       <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Panel title="Active students" icon={UsersRound}><Stat label="Roster" value={profiles.totalDocs} detail={`${inactiveStudents.length} need follow-up`} /></Panel>

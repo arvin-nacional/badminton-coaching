@@ -13,7 +13,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       heading: 'Know what to',
       highlight: 'train next.',
       description: 'Personal badminton coaching built around your current ability, goals, and playing style. Start with a complete assessment, follow a clear training plan, and see your progress after every session.',
-      primaryButton: { label: 'Book an assessment', url: '#contact' },
+      primaryButton: { label: 'Book an assessment', url: '/book-assessment' },
       secondaryButton: { label: 'Explore programs', url: '#programs' },
       benefits: [
         { text: 'Personalized development roadmap' },
@@ -87,7 +87,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       heading: 'No guessing.\nJust a plan built around your game.',
       description: 'Every new player begins with a complete assessment. You will leave knowing your current level, your three main development priorities, and what your first four training sessions should cover.',
       stepLabel: 'Step',
-      button: { label: 'Book your assessment', url: '#contact' },
+      button: { label: 'Book your assessment', url: '/book-assessment' },
       steps: [
         { title: 'Player Profile', description: 'We discuss your playing experience, goals, preferred event, training availability, competition plans, and relevant injury history.' },
         { title: 'Movement Screen', description: 'We evaluate your ready position, split step, balance, coordination, court movement, and recovery after each shot.' },
@@ -136,7 +136,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       anchor: 'contact',
       eyebrow: 'Ready to improve with purpose?',
       heading: 'Let us find your\nnext step.',
-      button: { label: 'Book your assessment', url: 'mailto:coach@example.com?subject=Badminton%20Assessment' },
+      button: { label: 'Book your assessment', url: '/book-assessment' },
     },
   ],
   meta: {

@@ -3,6 +3,7 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import Link from 'next/link'
 
+import { LogoutButton } from '@/components/Dashboard/LogoutButton'
 import { cn } from '@/utilities/ui'
 
 import '../(frontend)/globals.css'
@@ -20,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               NEXT SHOT<span className="text-[#1677ff]">.</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm font-bold">
-              <Link href="/">Website</Link>
+              <LogoutButton />
               <Link href="/dashboard" className="rounded-full bg-[#092c59] px-5 py-2.5 text-white">My dashboard</Link>
             </nav>
           </div>

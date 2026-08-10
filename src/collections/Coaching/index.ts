@@ -483,6 +483,91 @@ export const CoachingEvents: CollectionConfig = {
   ],
 }
 
+export const CoachAvailability: CollectionConfig = {
+  slug: 'coach-availability',
+  labels: { singular: 'Assessment Slot', plural: 'Assessment Availability' },
+  access: {
+    create: staffOnly,
+    delete: staffOnly,
+    read: () => ({ status: { equals: 'open' } }),
+    update: staffOnly,
+  },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'startsAt',
+    defaultColumns: ['startsAt', 'coach', 'durationMinutes', 'location', 'status'],
+    description: 'Add the times that players can choose when booking an initial assessment.',
+  },
+  fields: [
+    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
+    { name: 'startsAt', type: 'date', required: true, index: true, admin: { date: { pickerAppearance: 'dayAndTime' } } },
+    { name: 'durationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
+    { name: 'location', type: 'text', required: true },
+    { name: 'status', type: 'select', required: true, defaultValue: 'open', index: true, options: ['open', 'blocked'] },
+  ],
+}
+
+export const CoachAvailabilityRules: CollectionConfig = {
+  slug: 'coach-availability-rules',
+  labels: { singular: 'Weekly Availability', plural: 'Weekly Availability' },
+  access: {
+    create: staffOnly,
+    delete: staffOnly,
+    read: () => ({ active: { equals: true } }),
+    update: staffOnly,
+  },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'label',
+    defaultColumns: ['label', 'coach', 'weekday', 'startTime', 'endTime', 'active'],
+    description: 'Set a repeating weekly window. Individual assessment times are created automatically from it.',
+  },
+  fields: [
+    { name: 'label', type: 'text', required: true, admin: { description: 'For example: Monday evenings' } },
+    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
+    { name: 'weekday', type: 'select', required: true, options: [
+      { label: 'Monday', value: '1' }, { label: 'Tuesday', value: '2' }, { label: 'Wednesday', value: '3' },
+      { label: 'Thursday', value: '4' }, { label: 'Friday', value: '5' }, { label: 'Saturday', value: '6' },
+      { label: 'Sunday', value: '0' },
+    ] },
+    { name: 'startTime', type: 'text', required: true, defaultValue: '08:00', admin: { description: '24-hour Manila time, for example 08:00 or 19:00.' } },
+    { name: 'endTime', type: 'text', required: true, defaultValue: '10:00', admin: { description: '24-hour Manila time. Must be later than the start time.' } },
+    { name: 'slotDurationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
+    { name: 'location', type: 'text', required: true },
+    { name: 'active', type: 'checkbox', required: true, defaultValue: true, index: true },
+  ],
+}
+
+export const AssessmentBookings: CollectionConfig = {
+  slug: 'assessment-bookings',
+  labels: { singular: 'Assessment Booking', plural: 'Assessment Bookings' },
+  access: {
+    create: () => false,
+    delete: staffOnly,
+    read: staffOnly,
+    update: staffOnly,
+  },
+  admin: {
+    group: 'Training',
+    useAsTitle: 'playerName',
+    defaultColumns: ['playerName', 'email', 'slot', 'status', 'createdAt'],
+  },
+  fields: [
+    { name: 'bookingKey', type: 'text', required: true, unique: true, index: true, admin: { hidden: true } },
+    { name: 'slot', type: 'relationship', relationTo: 'coach-availability', index: true, maxDepth: 2 },
+    { name: 'availabilityRule', type: 'relationship', relationTo: 'coach-availability-rules', index: true, maxDepth: 1 },
+    { name: 'coach', type: 'relationship', relationTo: 'users', required: true, index: true, maxDepth: 1 },
+    { name: 'startsAt', type: 'date', required: true, index: true, admin: { date: { pickerAppearance: 'dayAndTime' } } },
+    { name: 'durationMinutes', type: 'number', required: true, min: 15 },
+    { name: 'location', type: 'text', required: true },
+    { name: 'playerName', type: 'text', required: true },
+    { name: 'email', type: 'email', required: true, index: true },
+    { name: 'phone', type: 'text' },
+    { name: 'notes', type: 'textarea' },
+    { name: 'status', type: 'select', required: true, defaultValue: 'confirmed', options: ['confirmed', 'completed'] },
+  ],
+}
+
 export const coachingCollections = [
   Programs,
   Skills,
@@ -495,4 +580,7 @@ export const coachingCollections = [
   Assignments,
   IndependentPractices,
   CoachingEvents,
+  CoachAvailability,
+  CoachAvailabilityRules,
+  AssessmentBookings,
 ]

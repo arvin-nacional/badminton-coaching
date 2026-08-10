@@ -4,6 +4,7 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -15,11 +16,23 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { dropLegacyBookingSlotIndex } from './utilities/dropLegacyBookingSlotIndex'
+import { sendAssessmentReminderTask } from './jobs/sendAssessmentReminder'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const resendFrom = process.env.RESEND_FROM_EMAIL || ''
+const resendFromMatch = resendFrom.match(/^(.+?)\s*<([^>]+)>$/)
+const defaultFromName = process.env.RESEND_FROM_NAME || resendFromMatch?.[1]?.trim() || 'Next Shot Badminton'
+const defaultFromAddress = process.env.RESEND_FROM_ADDRESS || resendFromMatch?.[2]?.trim() || resendFrom
 
 export default buildConfig({
+  onInit: dropLegacyBookingSlotIndex,
+  email: resendAdapter({
+    apiKey: process.env.RESEND_API_KEY || '',
+    defaultFromAddress,
+    defaultFromName,
+  }),
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
@@ -97,6 +110,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   jobs: {
+    autoRun: [{ cron: '* * * * *', limit: 50, queue: 'assessment-reminders' }],
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
         // Allow logged in users to execute this endpoint (default)
@@ -112,6 +126,6 @@ export default buildConfig({
         return authHeader === `Bearer ${secret}`
       },
     },
-    tasks: [],
+    tasks: [sendAssessmentReminderTask],
   },
 })

@@ -20,9 +20,10 @@ type Row<T> = T & { id?: string | null }
 
 const ButtonLink = ({ button, secondary = false }: { button?: Button | null; secondary?: boolean }) => {
   if (!button?.label || !button.url) return null
+  const href = button.label.toLowerCase().includes('assessment') ? '/book-assessment' : button.url
   return (
     <Link
-      href={button.url}
+      href={href}
       className={secondary ? 'coach-button-secondary' : 'coach-button-primary'}
     >
       {button.label} {secondary ? <ChevronRight className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}

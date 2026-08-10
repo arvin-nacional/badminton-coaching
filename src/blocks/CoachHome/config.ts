@@ -14,7 +14,7 @@ export const CoachHero: Block = {
     { name: 'heading', type: 'text', required: true, defaultValue: 'Know what to' },
     { name: 'highlight', type: 'text', required: true, defaultValue: 'train next.' },
     { name: 'description', type: 'textarea', required: true, defaultValue: 'Personal badminton coaching built around your current ability, goals, and playing style. Start with a complete assessment, follow a clear training plan, and see your progress after every session.' },
-    { name: 'primaryButton', type: 'group', fields: buttonFields('Book an assessment', '#contact') },
+    { name: 'primaryButton', type: 'group', fields: buttonFields('Book an assessment', '/book-assessment') },
     { name: 'secondaryButton', type: 'group', fields: buttonFields('Explore programs', '#programs') },
     {
       name: 'benefits',
