@@ -17,17 +17,23 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { dropLegacyBookingSlotIndex } from './utilities/dropLegacyBookingSlotIndex'
+import { syncFoundationsHomepage } from './utilities/syncFoundationsHomepage'
 import { sendAssessmentReminderTask } from './jobs/sendAssessmentReminder'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const resendFrom = process.env.RESEND_FROM_EMAIL || ''
 const resendFromMatch = resendFrom.match(/^(.+?)\s*<([^>]+)>$/)
-const defaultFromName = process.env.RESEND_FROM_NAME || resendFromMatch?.[1]?.trim() || 'Next Shot Badminton'
-const defaultFromAddress = process.env.RESEND_FROM_ADDRESS || resendFromMatch?.[2]?.trim() || resendFrom
+const defaultFromName =
+  process.env.RESEND_FROM_NAME || resendFromMatch?.[1]?.trim() || 'Next Shot Badminton'
+const defaultFromAddress =
+  process.env.RESEND_FROM_ADDRESS || resendFromMatch?.[2]?.trim() || resendFrom
 
 export default buildConfig({
-  onInit: dropLegacyBookingSlotIndex,
+  onInit: async (payload) => {
+    await dropLegacyBookingSlotIndex(payload)
+    await syncFoundationsHomepage(payload)
+  },
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || '',
     defaultFromAddress,
