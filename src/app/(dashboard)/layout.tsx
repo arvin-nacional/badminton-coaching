@@ -21,14 +21,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <html className={cn(GeistSans.variable, GeistMono.variable)} data-theme="light" lang="en">
       <body className="bg-[#f3f7fc] text-[#071f42]">
         <header className="border-b border-[#092c59]/10 bg-white px-5 md:px-8">
-          <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between">
+          <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-3 font-black">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#092c59] text-[#4cc9ff]">
                 N
               </span>
-              NEXT SHOT<span className="text-[#1677ff]">.</span>
+              <span className="hidden sm:inline">
+                NEXT SHOT<span className="text-[#1677ff]">.</span>
+              </span>
             </Link>
-            <nav className="flex items-center gap-4 text-sm font-bold">
+            <nav className="flex min-w-0 items-center gap-2 text-xs font-bold sm:gap-4 sm:text-sm">
               {user ? (
                 <>
                   <Link href="/" className="hidden sm:inline">
@@ -44,7 +46,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 </>
               ) : (
                 <>
-                  <Link href="/">Back to website</Link>
+                  <Link href="/" className="whitespace-nowrap">
+                    <span className="sm:hidden">Website</span>
+                    <span className="hidden sm:inline">Back to website</span>
+                  </Link>
                   <Link
                     href="/login?redirect=/dashboard/student"
                     className="rounded-full bg-[#092c59] px-5 py-2.5 text-white"
