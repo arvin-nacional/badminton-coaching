@@ -4,25 +4,33 @@ import type { TrainingSession } from '@/payload-types'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
-  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string') return value.id
+  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string')
+    return value.id
   return null
 }
 
-export const syncStudentProfileFromTrainingSession: CollectionAfterChangeHook<TrainingSession> = async ({
-  doc,
-  previousDoc,
-  req,
-}) => {
-  const progressionChanged = doc.status !== previousDoc?.status
-    || doc.attendance !== previousDoc?.attendance
-    || relationshipID(doc.student) !== relationshipID(previousDoc?.student)
+export const syncStudentProfileFromTrainingSession: CollectionAfterChangeHook<
+  TrainingSession
+> = async ({ doc, previousDoc, req }) => {
+  const affectsProgress = (session: TrainingSession | undefined) =>
+    Boolean(
+      session &&
+      (session.status === 'completed' ||
+        ['present', 'late', 'absent'].includes(session.attendance || '')),
+    )
+  const progressionChanged =
+    (affectsProgress(doc) || affectsProgress(previousDoc)) &&
+    (doc.status !== previousDoc?.status ||
+      doc.attendance !== previousDoc?.attendance ||
+      relationshipID(doc.student) !== relationshipID(previousDoc?.student))
 
   if (!progressionChanged) return doc
 
-  const studentIDs = new Set([
-    relationshipID(doc.student),
-    relationshipID(previousDoc?.student),
-  ].filter((id): id is string => Boolean(id)))
+  const studentIDs = new Set(
+    [relationshipID(doc.student), relationshipID(previousDoc?.student)].filter((id): id is string =>
+      Boolean(id),
+    ),
+  )
 
   for (const studentID of studentIDs) {
     const trackedSessions = await req.payload.find({
@@ -44,8 +52,12 @@ export const syncStudentProfileFromTrainingSession: CollectionAfterChangeHook<Tr
         ],
       },
     })
-    const attendanceSessions = trackedSessions.docs.filter((session) => ['present', 'late', 'absent'].includes(session.attendance || ''))
-    const attendedCount = attendanceSessions.filter((session) => session.attendance === 'present' || session.attendance === 'late').length
+    const attendanceSessions = trackedSessions.docs.filter((session) =>
+      ['present', 'late', 'absent'].includes(session.attendance || ''),
+    )
+    const attendedCount = attendanceSessions.filter(
+      (session) => session.attendance === 'present' || session.attendance === 'late',
+    ).length
     const latestCompleted = trackedSessions.docs.find((session) => session.status === 'completed')
 
     await req.payload.update({
