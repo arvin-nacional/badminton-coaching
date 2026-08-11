@@ -198,6 +198,10 @@ export default async function StudentDashboardPage() {
     const drill = drillsByID.get(drillID)
     return drill ? [drill] : []
   })
+  const practiceDurationMinutes = practiceDrills.reduce(
+    (total, drill) => total + drill.durationMinutes,
+    0,
+  )
   const upcomingLessons = programLessons
     .filter((programLesson) => programLesson.week > programWeek)
     .slice(0, 3)
@@ -426,15 +430,24 @@ export default async function StudentDashboardPage() {
                         {practiceDrills.length} {practiceDrills.length === 1 ? 'drill' : 'drills'}
                       </span>
                       <span className="rounded-full bg-[#f3f7fc] px-3 py-1.5">
-                        {practiceDrills.reduce((total, drill) => total + drill.durationMinutes, 0)}{' '}
-                        min total
+                        {practiceDurationMinutes} min total
                       </span>
                     </div>
                   ) : null}
                 </div>
 
                 {practiceDrills.length ? (
-                  <IndependentPracticeDrills drills={practiceDrills} />
+                  <IndependentPracticeDrills
+                    drills={practiceDrills}
+                    practiceID={currentPractice?.id}
+                    initialTimerStatus={currentPractice?.timerStatus}
+                    initialTimerStartedAt={currentPractice?.timerStartedAt}
+                    initialElapsedSeconds={currentPractice?.elapsedSeconds}
+                    initialCurrentDrillIndex={currentPractice?.currentDrillIndex}
+                    initialCurrentDrillElapsedSeconds={currentPractice?.currentDrillElapsedSeconds}
+                    initialCurrentStepIndex={currentPractice?.currentStepIndex}
+                    initialCurrentStepElapsedSeconds={currentPractice?.currentStepElapsedSeconds}
+                  />
                 ) : (
                   <Empty text="The drills for this home practice are being prepared." />
                 )}

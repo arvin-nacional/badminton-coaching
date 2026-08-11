@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { HomePracticeTimer } from '@/components/Dashboard/HomePracticeTimer'
 import type { Drill } from '@/payload-types'
 
 type PracticeDrill = Pick<
@@ -12,6 +13,10 @@ type PracticeDrill = Pick<
   | 'id'
   | 'name'
   | 'illustrationURL'
+  | 'stepIllustrationURL'
+  | 'stepIllustrationColumns'
+  | 'stepIllustrationRows'
+  | 'practiceSteps'
   | 'durationMinutes'
   | 'difficulty'
   | 'eventType'
@@ -44,7 +49,27 @@ const defaultIllustrations: Record<string, string> = {
 const illustrationFor = (drill: PracticeDrill) =>
   drill.illustrationURL || defaultIllustrations[drill.name]
 
-export function IndependentPracticeDrills({ drills }: { drills: PracticeDrill[] }) {
+export function IndependentPracticeDrills({
+  drills,
+  practiceID,
+  initialTimerStatus,
+  initialTimerStartedAt,
+  initialElapsedSeconds,
+  initialCurrentDrillIndex,
+  initialCurrentDrillElapsedSeconds,
+  initialCurrentStepIndex,
+  initialCurrentStepElapsedSeconds,
+}: {
+  drills: PracticeDrill[]
+  practiceID?: string
+  initialTimerStatus?: 'not-started' | 'running' | 'paused' | 'finished' | null
+  initialTimerStartedAt?: string | null
+  initialElapsedSeconds?: number | null
+  initialCurrentDrillIndex?: number | null
+  initialCurrentDrillElapsedSeconds?: number | null
+  initialCurrentStepIndex?: number | null
+  initialCurrentStepElapsedSeconds?: number | null
+}) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
@@ -156,6 +181,23 @@ export function IndependentPracticeDrills({ drills }: { drills: PracticeDrill[] 
         ))}
       </div>
 
+      {practiceID ? (
+        <HomePracticeTimer
+          practiceID={practiceID}
+          drills={drills.map((drill) => ({
+            ...drill,
+            illustrationURL: illustrationFor(drill),
+          }))}
+          initialStatus={initialTimerStatus}
+          initialStartedAt={initialTimerStartedAt}
+          initialElapsedSeconds={initialElapsedSeconds}
+          initialCurrentDrillIndex={initialCurrentDrillIndex}
+          initialCurrentDrillElapsedSeconds={initialCurrentDrillElapsedSeconds}
+          initialCurrentStepIndex={initialCurrentStepIndex}
+          initialCurrentStepElapsedSeconds={initialCurrentStepElapsedSeconds}
+        />
+      ) : null}
+
       {selectedDrill && selectedIndex !== null
         ? createPortal(
             <div
@@ -235,7 +277,9 @@ export function IndependentPracticeDrills({ drills }: { drills: PracticeDrill[] 
                       >
                         {selectedDrill.name}
                       </h3>
-                      <p className="mt-4 leading-7 text-[#334b65]">{selectedDrill.instructions}</p>
+                      <p className="mt-4 whitespace-pre-line leading-7 text-[#334b65]">
+                        {selectedDrill.instructions}
+                      </p>
 
                       <div className="mt-5 rounded-2xl bg-[#eef9f3] p-4">
                         <p className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#157347]">

@@ -234,6 +234,53 @@ export const Drills: CollectionConfig = {
       type: 'text',
       admin: { description: 'Public image path used for drill cards and detail views.' },
     },
+    {
+      name: 'stepIllustrationURL',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) => siblingData?.practiceSetting === 'home',
+        description: 'Contact sheet used to illustrate each numbered home-practice exercise.',
+      },
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'stepIllustrationColumns',
+          type: 'number',
+          min: 1,
+          admin: {
+            condition: (_, siblingData) => siblingData?.practiceSetting === 'home',
+            width: '50%',
+          },
+        },
+        {
+          name: 'stepIllustrationRows',
+          type: 'number',
+          min: 1,
+          admin: {
+            condition: (_, siblingData) => siblingData?.practiceSetting === 'home',
+            width: '50%',
+          },
+        },
+      ],
+    },
+    {
+      name: 'practiceSteps',
+      type: 'array',
+      labels: { singular: 'Exercise', plural: 'Exercises' },
+      admin: {
+        condition: (_, siblingData) => siblingData?.practiceSetting === 'home',
+        description:
+          'Numbered exercises shown as individual illustrated cards in guided home practice.',
+      },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'instruction', type: 'textarea', required: true },
+        { name: 'amount', type: 'text', required: true },
+        { name: 'durationSeconds', type: 'number', min: 1 },
+      ],
+    },
     { name: 'successTarget', type: 'text', required: true },
     { name: 'easierVariation', type: 'textarea' },
     { name: 'harderProgression', type: 'textarea' },
@@ -762,7 +809,16 @@ export const IndependentPractices: CollectionConfig = {
   admin: {
     group: 'Training',
     useAsTitle: 'title',
-    defaultColumns: ['title', 'student', 'program', 'lessonWeek', 'status', 'completedAt'],
+    defaultColumns: [
+      'title',
+      'student',
+      'program',
+      'lessonWeek',
+      'timerStatus',
+      'currentDrillIndex',
+      'elapsedSeconds',
+      'status',
+    ],
   },
   fields: [
     {
@@ -809,6 +865,86 @@ export const IndependentPractices: CollectionConfig = {
       required: true,
       defaultValue: 'assigned',
       options: ['assigned', 'completed'],
+    },
+    {
+      name: 'timerStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'not-started',
+      options: [
+        { label: 'Not started', value: 'not-started' },
+        { label: 'Running', value: 'running' },
+        { label: 'Paused', value: 'paused' },
+        { label: 'Finished', value: 'finished' },
+      ],
+      admin: {
+        readOnly: true,
+        description: 'Current state of the student’s home-practice timer.',
+      },
+    },
+    {
+      name: 'timerStartedAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'Start time for the currently running timer segment.',
+      },
+    },
+    {
+      name: 'elapsedSeconds',
+      type: 'number',
+      required: true,
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Accumulated practice time in seconds.',
+      },
+    },
+    {
+      name: 'currentDrillIndex',
+      type: 'number',
+      required: true,
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Zero-based position of the active drill in the guided practice modal.',
+      },
+    },
+    {
+      name: 'currentDrillElapsedSeconds',
+      type: 'number',
+      required: true,
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Accumulated time for the active drill countdown.',
+      },
+    },
+    {
+      name: 'currentStepIndex',
+      type: 'number',
+      required: true,
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Zero-based position of the active exercise inside the current drill.',
+      },
+    },
+    {
+      name: 'currentStepElapsedSeconds',
+      type: 'number',
+      required: true,
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Accumulated time for the active exercise.',
+      },
     },
     { name: 'completedAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
     { name: 'coachFeedback', type: 'textarea' },

@@ -1110,6 +1110,24 @@ export interface Drill {
    * Public image path used for drill cards and detail views.
    */
   illustrationURL?: string | null;
+  /**
+   * Contact sheet used to illustrate each numbered home-practice exercise.
+   */
+  stepIllustrationURL?: string | null;
+  stepIllustrationColumns?: number | null;
+  stepIllustrationRows?: number | null;
+  /**
+   * Numbered exercises shown as individual illustrated cards in guided home practice.
+   */
+  practiceSteps?:
+    | {
+        title: string;
+        instruction: string;
+        amount: string;
+        durationSeconds?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   successTarget: string;
   easierVariation?: string | null;
   harderProgression?: string | null;
@@ -1149,6 +1167,34 @@ export interface IndependentPractice {
   drills: (string | Drill)[];
   successCriteria: string;
   status: 'assigned' | 'completed';
+  /**
+   * Current state of the student’s home-practice timer.
+   */
+  timerStatus: 'not-started' | 'running' | 'paused' | 'finished';
+  /**
+   * Start time for the currently running timer segment.
+   */
+  timerStartedAt?: string | null;
+  /**
+   * Accumulated practice time in seconds.
+   */
+  elapsedSeconds: number;
+  /**
+   * Zero-based position of the active drill in the guided practice modal.
+   */
+  currentDrillIndex: number;
+  /**
+   * Accumulated time for the active drill countdown.
+   */
+  currentDrillElapsedSeconds: number;
+  /**
+   * Zero-based position of the active exercise inside the current drill.
+   */
+  currentStepIndex: number;
+  /**
+   * Accumulated time for the active exercise.
+   */
+  currentStepElapsedSeconds: number;
   completedAt?: string | null;
   coachFeedback?: string | null;
   updatedAt: string;
@@ -2368,6 +2414,18 @@ export interface DrillsSelect<T extends boolean = true> {
   difficulty?: T;
   videoURL?: T;
   illustrationURL?: T;
+  stepIllustrationURL?: T;
+  stepIllustrationColumns?: T;
+  stepIllustrationRows?: T;
+  practiceSteps?:
+    | T
+    | {
+        title?: T;
+        instruction?: T;
+        amount?: T;
+        durationSeconds?: T;
+        id?: T;
+      };
   successTarget?: T;
   easierVariation?: T;
   harderProgression?: T;
@@ -2522,6 +2580,13 @@ export interface IndependentPracticesSelect<T extends boolean = true> {
   drills?: T;
   successCriteria?: T;
   status?: T;
+  timerStatus?: T;
+  timerStartedAt?: T;
+  elapsedSeconds?: T;
+  currentDrillIndex?: T;
+  currentDrillElapsedSeconds?: T;
+  currentStepIndex?: T;
+  currentStepElapsedSeconds?: T;
   completedAt?: T;
   coachFeedback?: T;
   updatedAt?: T;

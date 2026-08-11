@@ -1,5 +1,7 @@
 import type { Payload } from 'payload'
 
+import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
+
 type Level = 'foundations' | 'development' | 'competitive'
 type SkillCategory =
   | 'stroke-technique'
@@ -849,7 +851,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 8,
     instructions:
-      'Complete three rounds: 30 seconds of forehand tap-ups, 30 seconds of backhand tap-ups, then 30 seconds alternating sides. Rest for 30 seconds between rounds.',
+      'Setup: Clear a space of at least 2 metres, hold the racket in front of your body and begin with a relaxed forehand grip.\n\n1. Forehand control — tap the shuttle or foam ball upward for 30 seconds using short finger movements. Keep every contact below head height.\n2. Backhand control — change to a thumb-led backhand grip and repeat for 30 seconds.\n3. Alternating control — change between forehand and backhand after every contact for 30 seconds.\n4. Rest for 30 seconds, shake out the hand and repeat the sequence.\n\nWork/rest: Complete 3 rounds of the full sequence with 30 seconds rest between rounds.\nSafety: Stop and reset whenever the object moves toward furniture, another person or a wall; do not chase it while swinging.',
     coachingPoints:
       'Use the fingers to change grip, keep the racket in front and make small controlled contacts.',
     commonMistakes:
@@ -872,7 +874,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Mark a wide landing zone on the floor. Serve from a consistent starting spot for four sets of 10, aiming for a soft landing inside the target. A net is not required.',
+      'Setup: Mark a serving line and a wide landing target about 2.5–3 metres away using tape or two towels. Place 10 shuttles beside your racket foot. A net is not required.\n\n1. Stand in the same balanced serving position for every attempt, with the racket foot slightly forward.\n2. Hold the shuttle in front of the racket and prepare with a relaxed thumb grip.\n3. Use a short forward push—not a swing—to send the shuttle toward the target.\n4. Hold the finish briefly, then reset your feet, grip and contact point before serving again.\n5. After 10 serves, count how many landed in the target and record the score.\n\nWork/rest: Complete 4 sets of 10 serves. Rest 30–45 seconds while collecting shuttles.\nSafety: Use a clear lane and retrieve all shuttles before beginning the next set to avoid stepping on them.',
     coachingPoints:
       'Use a stable stance, relaxed thumb grip, small push and the same contact point every time.',
     commonMistakes:
@@ -895,7 +897,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 9,
     instructions:
-      'Perform three sets of eight slow shadow overheads on each side. Reset after every repetition and check preparation, contact position, landing and recovery.',
+      'Setup: Check that the ceiling and the area behind you are clear. Use a racket only when there is safe overhead clearance; otherwise use a rolled hand towel.\n\n1. Begin in a ready position and make a small split step.\n2. Turn side-on as if moving toward one rear corner. Raise the non-racket arm and prepare the racket behind the shoulder.\n3. Reach to an imaginary contact point high and slightly in front of the hitting shoulder. Let the forearm rotate naturally through the action.\n4. Land balanced, allow the racket to finish across the body and recover immediately to your base position.\n5. Reset fully before alternating to the other rear-court direction.\n\nWork/rest: Complete 3 sets of 8 repetitions, alternating rear corners. Rest 30 seconds between sets.\nSafety: Move slowly until the path is consistent, and stop if the racket could contact the ceiling, a light fitting or furniture.',
     coachingPoints:
       'Turn side-on, lead with the non-racket arm, reach to a high contact and finish balanced.',
     commonMistakes:
@@ -917,7 +919,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Place four markers around a central base. Complete four 40-second rounds moving from base to a called or pre-planned marker, shadowing a stroke and recovering under control. Rest 40 seconds.',
+      'Setup: Place one marker in front, behind, left and right of a central base. Keep every marker only one controlled step or lunge away inside a clear, non-slip area.\n\n1. Start on the base with knees soft, chest lifted and racket in front.\n2. Make a small split step, then push toward the selected marker.\n3. Arrive under control, shadow the appropriate badminton stroke and hold the landing for one second.\n4. Push back to the base using recovery steps; do not turn your back on the imaginary court.\n5. Regain the ready position before moving to the next marker. Use a fixed order first, then random cues when comfortable.\n\nWork/rest: Complete 4 rounds of 40 seconds with 40 seconds rest between rounds.\nSafety: Scale every step to the available room. Do not use full-court strides, jump onto markers or continue on a slippery surface.',
     coachingPoints:
       'Use a small split step, move quietly, keep the knees aligned and return to a balanced base.',
     commonMistakes:
@@ -941,7 +943,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Complete three rounds of six forward badminton lunges per side, eight slow calf raises and a 20-second single-leg balance per side. Rest 45 seconds between rounds.',
+      'Setup: Stand beside a stable chair or wall on a non-slip floor. Use the support lightly whenever balance is uncertain.\n\n1. Badminton lunge — step forward, land heel first and lower only as far as you can keep the front knee aligned over the toes. Hold for 2 seconds, then push back. Complete 6 per side.\n2. Calf raise — stand tall, rise slowly onto the balls of both feet, pause for 1 second and lower with control. Complete 8 repetitions.\n3. Single-leg balance — stand on one leg with a soft knee and level hips for 20 seconds, then change sides.\n4. Rest, then repeat all three exercises in the same order.\n\nWork/rest: Complete 3 rounds with 45 seconds rest between rounds.\nSafety: Use a shorter lunge if alignment is lost. Stop for sharp pain, joint pain or dizziness; muscle effort is acceptable, pain is not.',
     coachingPoints:
       'Land heel first, keep the knee tracking over the toes, hold the trunk tall and push back through the front leg.',
     commonMistakes:
@@ -964,7 +966,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Stand a safe distance from a clear wall and rally with compact forehand and backhand drives. Complete five 45-second rounds with 30 seconds rest.',
+      'Setup: Choose a solid, unbreakable wall with no windows or people nearby. Wear eye protection, mark a chest-height target and begin about 1.5–2 metres away with a foam ball or suitable shuttle.\n\n1. Hold the racket head above the hand in a neutral ready position.\n2. Feed the object gently to the wall and play compact forehand drives for several contacts.\n3. Repeat with backhand drives, using the thumb and fingers instead of a large arm swing.\n4. Alternate forehand and backhand while keeping the contact point in front of the body.\n5. After every hit, return the racket immediately to the ready position and adjust with small steps.\n\nWork/rest: Complete 5 rounds of 45 seconds with 30 seconds rest. Count your longest controlled rally in each round.\nSafety: Stop immediately if the rebound becomes unpredictable or enters another person’s space. Never practise against glass, fragile surfaces or a crowded wall.',
     coachingPoints:
       'Keep the racket head up, shorten the swing, contact in front and recover to ready position after each hit.',
     commonMistakes:
@@ -988,7 +990,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 9,
     instructions:
-      'Complete five 40-second rounds. On every beep, split step, react to the next direction cue, touch the matching marker and recover to base. Rest 40 seconds.',
+      'Setup: Put four markers one controlled step from a central base: front, back, left and right. Prepare random audio cues or ask someone to call directions every 3–4 seconds.\n\n1. Wait at the base in a relaxed ready position; do not bounce continuously.\n2. As the cue sounds, make one small split step and land with both feet ready to push.\n3. React only after identifying the direction, then push toward the matching marker.\n4. Touch or shadow a stroke at the marker while keeping your balance.\n5. Recover to base, regain racket readiness and wait for the next cue.\n\nWork/rest: Complete 5 rounds of 40 seconds with 40 seconds rest between rounds. Aim for 8–10 quality reactions per round.\nSafety: Keep the markers close enough that every direction fits the room. Reduce speed if the feet cross, slide or approach furniture.',
     coachingPoints:
       'Stay relaxed before the cue, land the split as the cue arrives and push first with the leg opposite the direction of travel.',
     commonMistakes:
@@ -1010,7 +1012,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 14,
     instructions:
-      'Complete three controlled rounds: 8 split squats per side, 10 glute bridges, 8 incline push-ups, 12 calf raises and a 25-second front plank. Rest 60 seconds between rounds.',
+      'Setup: Place an exercise mat on a non-slip floor and use a stable chair or counter for incline push-ups. Warm up with 2 minutes of easy marching, squats and arm circles.\n\n1. Split squat — use a staggered stance, lower vertically and keep the front knee aligned. Complete 8 per side.\n2. Glute bridge — lie on your back, press through the feet and lift the hips without arching the lower back. Complete 10.\n3. Incline push-up — place hands on the stable support, keep the body straight and lower with control. Complete 8.\n4. Calf raise — rise slowly, pause at the top and lower fully. Complete 12.\n5. Front plank — brace the trunk, squeeze the glutes and breathe normally for 25 seconds.\n\nWork/rest: Complete 3 rounds. Move calmly between exercises and rest 60 seconds after each round.\nSafety: The support must not slide or tip. Stop any exercise that causes sharp pain and shorten the set when posture or joint alignment can no longer be maintained.',
     coachingPoints:
       'Use full control, keep knees aligned, brace the trunk and stop each set before form breaks down.',
     commonMistakes: 'Rushing repetitions, holding the breath and continuing through sharp pain.',
@@ -1032,7 +1034,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Complete three rounds of 10 band pull-aparts or towel isometrics, 8 slow shoulder external rotations per side, 8 dead bugs per side and a 20-second side plank per side.',
+      'Setup: Use a very light resistance band or a towel and place a mat on the floor. Keep every shoulder movement inside a comfortable, pain-free range.\n\n1. Pull-apart or towel isometric — hold the arms at chest height, keep the shoulders down and gently pull outward. Complete 10 controlled repetitions or 10 five-second holds.\n2. External rotation — keep the elbow close to the ribs and rotate the forearm outward without twisting the trunk. Complete 8 per side.\n3. Dead bug — lie on your back, brace the abdomen and slowly lower the opposite arm and leg without lifting the lower back. Complete 8 per side.\n4. Side plank — support the shoulder directly over the elbow and hold a straight body line for 20 seconds per side.\n\nWork/rest: Complete 3 rounds with 30–45 seconds rest between rounds.\nSafety: Do not use heavy resistance, force the arm behind the body or continue through shoulder, neck or lower-back pain.',
     coachingPoints:
       'Keep the ribs down, move the shoulder without shrugging and use a light resistance that allows full control.',
     commonMistakes:
@@ -1055,7 +1057,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Visualise 10 short rally situations. After each one, turn away, take one controlled breath, use one cue, choose a serve or return plan and write the decision in a few words.',
+      'Setup: Sit or stand somewhere quiet with a timer, notebook and pen. Choose 10 realistic situations from recent matches, such as serving at 18-all, responding after an error or protecting a small lead.\n\n1. Read one scenario and close your eyes. Picture the court, score, opponent position and your body language.\n2. Imagine playing the rally with a clear intention rather than trying to predict a perfect result.\n3. When the imagined rally ends, turn away as you would between points and take one slow breath.\n4. Use one short reset cue, such as “next rally” or “early preparation.”\n5. Decide the next serve, return or rally plan, then write it in one concise sentence.\n6. Reset your posture before beginning the next scenario.\n\nWork/rest: Complete 10 scenarios, allowing about 45–60 seconds for each.\nSafety: If visualisation increases anxiety, open your eyes, slow the breathing and use neutral practice situations before returning to pressure scores.',
     coachingPoints:
       'Make the images specific, keep the reset brief and choose one actionable intention for the next rally.',
     commonMistakes:
@@ -1078,7 +1080,7 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 1,
     durationMinutes: 14,
     instructions:
-      'Complete six 30-second shadow rounds at purposeful speed with 45 seconds rest. Move to compact versions of all six corners, shadow the correct stroke and recover after every action.',
+      'Setup: Arrange six markers as compact front, side and rear corners around a central base. Leave enough clearance for the racket and complete 2–3 minutes of easy movement before starting.\n\n1. Begin on the base with a small split step and racket ready.\n2. Move to one called or pre-planned corner using steps scaled to the room.\n3. Shadow the correct stroke for that corner and land with the knee and foot aligned.\n4. Recover fully to base before changing direction. Keep moving for the entire work interval without sacrificing technique.\n5. During rest, walk slowly, breathe and rate the round’s movement quality from 1–5.\n\nWork/rest: Complete 6 rounds of 30 seconds at purposeful—not maximum—speed, with 45 seconds rest.\nSafety: Stop a round when balance, landing control or recovery shape breaks down. Do not continue on a slippery surface or use explosive court-sized movements indoors.',
     coachingPoints:
       'Keep the movement small enough for the space, breathe continuously and preserve split step, posture and landing quality.',
     commonMistakes:
@@ -1506,7 +1508,20 @@ export async function seedCoachingLibrary(payload: Payload) {
       limit: 1,
       where: { name: { equals: drill.name } },
     })
-    const drillData = { ...data, skill, practiceSetting: data.practiceSetting || 'court' }
+    const sequence = buildHomePracticeSequence(drill.name, data.instructions)
+    const drillData = {
+      ...data,
+      skill,
+      practiceSetting: data.practiceSetting || 'court',
+      ...(sequence
+        ? {
+            practiceSteps: sequence.steps,
+            stepIllustrationColumns: sequence.columns,
+            stepIllustrationRows: sequence.rows,
+            stepIllustrationURL: sequence.sheetURL,
+          }
+        : {}),
+    }
     const document = existing.docs[0]
       ? await payload.update({
           collection: 'drills',

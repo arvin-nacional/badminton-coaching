@@ -4,7 +4,13 @@ import { CheckCircle2, Circle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
-export function IndependentPracticeCheck({ practiceID, initialCompleted }: { practiceID: string; initialCompleted: boolean }) {
+export function IndependentPracticeCheck({
+  practiceID,
+  initialCompleted,
+}: {
+  practiceID: string
+  initialCompleted: boolean
+}) {
   const router = useRouter()
   const [completed, setCompleted] = useState(initialCompleted)
   const [error, setError] = useState('')
@@ -34,7 +40,9 @@ export function IndependentPracticeCheck({ practiceID, initialCompleted }: { pra
 
   return (
     <div className="mt-5 border-t border-[#092c59]/10 pt-5">
-      <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition ${completed ? 'border-[#2b9f6a]/30 bg-[#e9f8ef] text-[#24734b]' : 'border-[#1677ff]/20 bg-[#eaf3ff] text-[#092c59]'}`}>
+      <label
+        className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition ${completed ? 'border-[#2b9f6a]/30 bg-[#e9f8ef] text-[#24734b]' : 'border-[#1677ff]/20 bg-[#eaf3ff] text-[#092c59]'}`}
+      >
         <input
           type="checkbox"
           className="sr-only"
@@ -42,8 +50,23 @@ export function IndependentPracticeCheck({ practiceID, initialCompleted }: { pra
           disabled={isPending}
           onChange={(event) => updateCompletion(event.target.checked)}
         />
-        {completed ? <CheckCircle2 className="h-6 w-6 shrink-0" /> : <Circle className="h-6 w-6 shrink-0 text-[#1677ff]" />}
-        <span><strong className="block">{completed ? 'Independent practice completed' : 'Mark independent practice as done'}</strong><span className="mt-0.5 block text-xs opacity-70">{isPending ? 'Saving…' : completed ? 'Tap again if you need to reopen it.' : 'Your coach will see this on their dashboard.'}</span></span>
+        {completed ? (
+          <CheckCircle2 className="h-6 w-6 shrink-0" />
+        ) : (
+          <Circle className="h-6 w-6 shrink-0 text-[#1677ff]" />
+        )}
+        <span>
+          <strong className="block">
+            {completed ? 'Home practice completed' : 'Mark home practice as done'}
+          </strong>
+          <span className="mt-0.5 block text-xs opacity-70">
+            {isPending
+              ? 'Saving…'
+              : completed
+                ? 'Tap again if you need to reopen it.'
+                : 'Your coach will see this on their dashboard.'}
+          </span>
+        </span>
       </label>
       {error ? <p className="mt-2 text-sm font-semibold text-[#b42318]">{error}</p> : null}
     </div>
