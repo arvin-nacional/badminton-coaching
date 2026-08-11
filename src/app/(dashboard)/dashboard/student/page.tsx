@@ -2,8 +2,10 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
   Clock3,
+  House,
   MessageSquareText,
   PlayCircle,
   Target,
@@ -359,20 +361,25 @@ export default async function StudentDashboardPage() {
           icon={ClipboardList}
         >
           {currentLesson ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(280px,.78fr)_minmax(0,1.72fr)]">
-              <div className="rounded-3xl bg-[#f6f9fd] p-5 md:p-6">
-                <div className="flex items-start justify-between gap-4">
+            <div className="grid gap-6 xl:grid-cols-[minmax(280px,.7fr)_minmax(0,1.3fr)]">
+              <div className="self-start rounded-3xl bg-[#f6f9fd] p-5 md:p-6 xl:sticky xl:top-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
-                      This week
+                      This week&apos;s plan
                     </p>
                     <h3 className="mt-2 text-xl font-black leading-tight text-[#092c59]">
                       {currentPractice?.title || currentLesson.title}
                     </h3>
                   </div>
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#607286]">
-                    <Clock3 className="h-4 w-4 text-[#1677ff]" /> Week {programWeek}
-                  </span>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    <span className="flex items-center gap-1.5 rounded-full bg-[#eaf3ff] px-3 py-1.5 text-xs font-bold text-[#1677ff]">
+                      <House className="h-4 w-4" /> At home
+                    </span>
+                    <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#607286]">
+                      <Clock3 className="h-4 w-4 text-[#1677ff]" /> Week {programWeek}
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[#607286]">
                   {practiceTemplate?.instructions || currentPractice?.instructions}
@@ -403,87 +410,69 @@ export default async function StudentDashboardPage() {
               </div>
 
               <div>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
                       Practice drills
                     </p>
-                    <h3 className="mt-1 text-xl font-black text-[#092c59]">What to work through</h3>
+                    <h3 className="mt-1 text-xl font-black text-[#092c59]">Complete in order</h3>
                   </div>
                   {practiceDrills.length ? (
-                    <p className="text-xs font-bold text-[#718399]">
-                      {practiceDrills.length} {practiceDrills.length === 1 ? 'drill' : 'drills'} ·{' '}
-                      {practiceDrills.reduce((total, drill) => total + drill.durationMinutes, 0)}{' '}
-                      minutes
-                    </p>
+                    <div className="flex flex-wrap gap-2 text-xs font-bold text-[#607286]">
+                      <span className="rounded-full bg-[#f3f7fc] px-3 py-1.5">
+                        {practiceDrills.length} {practiceDrills.length === 1 ? 'drill' : 'drills'}
+                      </span>
+                      <span className="rounded-full bg-[#f3f7fc] px-3 py-1.5">
+                        {practiceDrills.reduce((total, drill) => total + drill.durationMinutes, 0)}{' '}
+                        min total
+                      </span>
+                    </div>
                   ) : null}
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-4">
                   {practiceDrills.length ? (
                     practiceDrills.map((drill, index) => (
                       <article
                         key={drill.id}
-                        className="overflow-hidden rounded-3xl border border-[#092c59]/10 bg-white shadow-[0_14px_32px_-28px_rgba(9,44,89,.45)]"
+                        className="overflow-hidden rounded-2xl border border-[#092c59]/10 bg-white shadow-[0_14px_32px_-28px_rgba(9,44,89,.45)]"
                       >
-                        <div className="border-b border-[#092c59]/8 bg-[#f8fbff] p-5">
+                        <div className="border-b border-[#092c59]/8 bg-[#f8fbff] p-4 sm:p-5">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex min-w-0 items-start gap-3">
-                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1677ff] text-xs font-black text-white">
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1677ff] text-sm font-black text-white">
                                 {index + 1}
                               </span>
-                              <div>
+                              <div className="min-w-0">
                                 <p className="font-black leading-5 text-[#092c59]">{drill.name}</p>
-                                <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-[#607286]">
+                                <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-bold text-[#607286]">
                                   <span className="rounded-full bg-white px-2.5 py-1">
                                     {drill.durationMinutes} min
                                   </span>
                                   <span className="rounded-full bg-white px-2.5 py-1 capitalize">
-                                    {drill.eventType}
-                                  </span>
-                                  <span className="rounded-full bg-white px-2.5 py-1">
-                                    {drill.numberOfPlayers}{' '}
-                                    {drill.numberOfPlayers === 1 ? 'player' : 'players'}
+                                    {drill.numberOfPlayers === 1
+                                      ? 'Solo'
+                                      : `${drill.numberOfPlayers} players`}
                                   </span>
                                 </div>
                               </div>
                             </div>
-                            <span className="shrink-0 rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[10px] font-black uppercase text-[#1677ff]">
+                            <span className="shrink-0 rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#1677ff]">
                               {drill.difficulty}
                             </span>
                           </div>
                         </div>
 
-                        <div className="space-y-4 p-5 text-sm leading-6">
-                          <div>
-                            <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
-                              How to do it
-                            </p>
-                            <p className="mt-1 text-[#334b65]">{drill.instructions}</p>
-                          </div>
-                          <div className="rounded-xl bg-[#eaf3ff] p-3.5">
-                            <p className="text-xs font-black uppercase tracking-wider text-[#1677ff]">
-                              Coaching points
-                            </p>
-                            <p className="mt-1 text-[#334b65]">{drill.coachingPoints}</p>
-                          </div>
-                          {drill.commonMistakes ? (
-                            <div className="rounded-xl bg-[#fff7e6] p-3.5">
-                              <p className="text-xs font-black uppercase tracking-wider text-[#9a6500]">
-                                Avoid
-                              </p>
-                              <p className="mt-1 text-[#5d4a24]">{drill.commonMistakes}</p>
-                            </div>
-                          ) : null}
-                          <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-4 p-4 text-sm leading-6 sm:p-5">
+                          <div className="grid gap-4 md:grid-cols-[minmax(0,1.25fr)_minmax(220px,.75fr)]">
                             <div>
                               <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
-                                Equipment
+                                How to do it
                               </p>
-                              <p className="mt-1 text-[#334b65]">{drill.equipment}</p>
+                              <p className="mt-1 text-[#334b65]">{drill.instructions}</p>
                             </div>
-                            <div>
-                              <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
+                            <div className="rounded-xl border border-[#2b9f6a]/15 bg-[#eef9f3] p-3.5">
+                              <p className="text-xs font-black uppercase tracking-wider text-[#157347]">
                                 Success target
                               </p>
                               <p className="mt-1 font-semibold text-[#24513b]">
@@ -491,8 +480,33 @@ export default async function StudentDashboardPage() {
                               </p>
                             </div>
                           </div>
-                          {drill.easierVariation || drill.harderProgression ? (
-                            <div className="grid gap-3 border-t border-[#092c59]/8 pt-4 sm:grid-cols-2">
+                          <div className="rounded-xl bg-[#eaf3ff] p-3.5">
+                            <p className="text-xs font-black uppercase tracking-wider text-[#1677ff]">
+                              Key coaching cue
+                            </p>
+                            <p className="mt-1 text-[#334b65]">{drill.coachingPoints}</p>
+                          </div>
+
+                          <details className="group border-t border-[#092c59]/8 pt-1">
+                            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2 py-2.5 font-bold text-[#334b65] transition hover:bg-[#f3f7fc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff] [&::-webkit-details-marker]:hidden">
+                              Equipment, adjustments and completion details
+                              <ChevronDown className="h-4 w-4 shrink-0 text-[#1677ff] transition-transform group-open:rotate-180" />
+                            </summary>
+                            <div className="grid gap-4 px-2 pb-2 pt-3 sm:grid-cols-2">
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
+                                  Equipment
+                                </p>
+                                <p className="mt-1 text-[#334b65]">{drill.equipment}</p>
+                              </div>
+                              {drill.commonMistakes ? (
+                                <div>
+                                  <p className="text-xs font-black uppercase tracking-wider text-[#9a6500]">
+                                    Avoid
+                                  </p>
+                                  <p className="mt-1 text-[#5d4a24]">{drill.commonMistakes}</p>
+                                </div>
+                              ) : null}
                               {drill.easierVariation ? (
                                 <div>
                                   <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
@@ -509,23 +523,23 @@ export default async function StudentDashboardPage() {
                                   <p className="mt-1 text-[#334b65]">{drill.harderProgression}</p>
                                 </div>
                               ) : null}
+                              {drill.completionRequirement ? (
+                                <div className="rounded-xl bg-[#eef9f3] p-3.5 sm:col-span-2">
+                                  <p className="text-xs font-black uppercase tracking-wider text-[#157347]">
+                                    Ready to complete when
+                                  </p>
+                                  <p className="mt-1 text-[#24513b]">
+                                    {drill.completionRequirement}
+                                  </p>
+                                </div>
+                              ) : null}
                             </div>
-                          ) : null}
-                          {drill.completionRequirement ? (
-                            <div className="rounded-xl border border-[#2b9f6a]/20 bg-[#eef9f3] p-3.5">
-                              <p className="text-xs font-black uppercase tracking-wider text-[#157347]">
-                                Ready to complete when
-                              </p>
-                              <p className="mt-1 text-[#24513b]">{drill.completionRequirement}</p>
-                            </div>
-                          ) : null}
+                          </details>
                         </div>
                       </article>
                     ))
                   ) : (
-                    <div className="lg:col-span-2">
-                      <Empty text="The drills for this practice are being prepared." />
-                    </div>
+                    <Empty text="The drills for this practice are being prepared." />
                   )}
                 </div>
               </div>

@@ -267,6 +267,236 @@ type DrillSeed = {
 }
 
 const drills: DrillSeed[] = [
+  {
+    name: 'Solo Racket Control Circuit',
+    skill: 'Grip changes and racket readiness',
+    level: 'foundations',
+    eventType: 'general',
+    equipment: 'Racket, shuttle or soft foam ball, and a clear indoor or outdoor space',
+    numberOfPlayers: 1,
+    durationMinutes: 8,
+    instructions:
+      'Complete three rounds: 30 seconds of forehand tap-ups, 30 seconds of backhand tap-ups, then 30 seconds alternating sides. Rest for 30 seconds between rounds.',
+    coachingPoints:
+      'Use the fingers to change grip, keep the racket in front and make small controlled contacts.',
+    commonMistakes:
+      'Squeezing the handle, swinging from the shoulder and chasing contacts into furniture or walls.',
+    difficulty: 'easy',
+    successTarget: 'Complete all three rounds with at least 20 controlled contacts in each round.',
+    easierVariation: 'Use a balloon or catch the shuttle after every contact.',
+    harderProgression: 'Alternate high and low contacts while taking small side steps.',
+    completionRequirement:
+      'Changes grip without looking at the handle and stays in control of the object.',
+  },
+  {
+    name: 'Low Serve Floor Targets',
+    skill: 'Backhand short serve',
+    level: 'foundations',
+    eventType: 'doubles',
+    equipment: 'Racket, 10 shuttles, tape or two towels, and a safe 3-metre lane',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Mark a wide landing zone on the floor. Serve from a consistent starting spot for four sets of 10, aiming for a soft landing inside the target. A net is not required.',
+    coachingPoints:
+      'Use a stable stance, relaxed thumb grip, small push and the same contact point every time.',
+    commonMistakes:
+      'Using a large backswing, striking too hard and moving the target closer after misses.',
+    difficulty: 'easy',
+    successTarget: 'Land at least 7 of 10 serves in the floor target in the final two sets.',
+    easierVariation: 'Make the landing zone wider or shorten the serving distance.',
+    harderProgression: 'Use separate T, body and wide targets and call the target before serving.',
+    completionRequirement:
+      'Repeats the same setup and controls landing distance in two consecutive sets.',
+  },
+  {
+    name: 'Overhead Shadow Technique',
+    skill: 'Forehand overhead clear',
+    level: 'foundations',
+    eventType: 'general',
+    equipment: 'Racket or rolled hand towel, mirror or phone camera, and safe overhead clearance',
+    numberOfPlayers: 1,
+    durationMinutes: 9,
+    instructions:
+      'Perform three sets of eight slow shadow overheads on each side. Reset after every repetition and check preparation, contact position, landing and recovery.',
+    coachingPoints:
+      'Turn side-on, lead with the non-racket arm, reach to a high contact and finish balanced.',
+    commonMistakes:
+      'Practising beneath a low ceiling, rushing the swing and letting the contact drift behind the body.',
+    difficulty: 'easy',
+    successTarget: 'Record 20 of 24 repetitions with a high contact shape and balanced finish.',
+    easierVariation: 'Practise the throwing action without a racket.',
+    harderProgression: 'Add a split step, chasse and immediate recovery before each shadow stroke.',
+    completionRequirement: 'Keeps the same preparation for clear, drop and smash shadows.',
+  },
+  {
+    name: 'Compact Home Footwork',
+    skill: 'Six-corner movement',
+    level: 'foundations',
+    eventType: 'general',
+    equipment: 'Four small floor markers and a clear, non-slip space of about 2 by 2 metres',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Place four markers around a central base. Complete four 40-second rounds moving from base to a called or pre-planned marker, shadowing a stroke and recovering under control. Rest 40 seconds.',
+    coachingPoints:
+      'Use a small split step, move quietly, keep the knees aligned and return to a balanced base.',
+    commonMistakes:
+      'Taking court-sized steps in a small room, crossing the feet carelessly and prioritising speed over balance.',
+    difficulty: 'easy',
+    successTarget: 'Complete four rounds without touching a marker or losing balance.',
+    easierVariation: 'Walk the pattern for 25 seconds per round.',
+    harderProgression:
+      'Use random audio cues and change direction without returning fully upright.',
+    completionRequirement:
+      'Maintains posture, rhythm and a consistent base throughout the final round.',
+  },
+  {
+    name: 'Lunge Balance and Leg Strength',
+    skill: 'Landing and lunge stability',
+    level: 'foundations',
+    eventType: 'general',
+    equipment: 'Stable chair or wall for support and a non-slip floor',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Complete three rounds of six forward badminton lunges per side, eight slow calf raises and a 20-second single-leg balance per side. Rest 45 seconds between rounds.',
+    coachingPoints:
+      'Land heel first, keep the knee tracking over the toes, hold the trunk tall and push back through the front leg.',
+    commonMistakes:
+      'Knee collapsing inward, front heel lifting and using a range that causes pain.',
+    difficulty: 'easy',
+    successTarget:
+      'Complete all repetitions with a two-second stable hold at the bottom of every lunge.',
+    easierVariation: 'Use a shallower lunge and hold a chair for balance.',
+    harderProgression: 'Add a racket reach or a slow knee drive after each recovery.',
+    completionRequirement: 'Controls both sides equally without pain or loss of knee alignment.',
+  },
+  {
+    name: 'Wall Drive and Defence',
+    skill: 'Drive and block',
+    level: 'development',
+    eventType: 'general',
+    equipment: 'Racket, shuttle or foam ball, eye protection, and a clear solid wall',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Stand a safe distance from a clear wall and rally with compact forehand and backhand drives. Complete five 45-second rounds with 30 seconds rest.',
+    coachingPoints:
+      'Keep the racket head up, shorten the swing, contact in front and recover to ready position after each hit.',
+    commonMistakes:
+      'Using a fragile wall or crowded area, swinging too hard and letting the racket drop between contacts.',
+    difficulty: 'moderate',
+    successTarget: 'Reach 20 consecutive controlled wall contacts in two different rounds.',
+    easierVariation: 'Use a foam ball, stand closer and allow one bounce.',
+    harderProgression: 'Alternate forehand and backhand on every contact while side stepping.',
+    completionRequirement:
+      'Maintains compact technique and racket readiness as the pace increases.',
+  },
+  {
+    name: 'Reactive Split-Step Cues',
+    skill: 'Split step timing',
+    level: 'development',
+    eventType: 'general',
+    equipment:
+      'Phone timer with random beeps or a shuffled list of direction cues, plus four floor markers',
+    numberOfPlayers: 1,
+    durationMinutes: 9,
+    instructions:
+      'Complete five 40-second rounds. On every beep, split step, react to the next direction cue, touch the matching marker and recover to base. Rest 40 seconds.',
+    coachingPoints:
+      'Stay relaxed before the cue, land the split as the cue arrives and push first with the leg opposite the direction of travel.',
+    commonMistakes:
+      'Bouncing continuously, guessing the cue and using steps too large for the available space.',
+    difficulty: 'moderate',
+    successTarget: 'Respond correctly to at least 8 of 10 cues while finishing balanced.',
+    easierVariation: 'Use only left and right cues at a slower interval.',
+    harderProgression: 'Add front and rear cues and shorten the time between signals.',
+    completionRequirement: 'Reacts after the cue without pre-moving and regains base each time.',
+  },
+  {
+    name: 'Badminton Bodyweight Strength Circuit',
+    skill: 'Landing and lunge stability',
+    level: 'development',
+    eventType: 'general',
+    equipment: 'Exercise mat, stable chair and interval timer',
+    numberOfPlayers: 1,
+    durationMinutes: 14,
+    instructions:
+      'Complete three controlled rounds: 8 split squats per side, 10 glute bridges, 8 incline push-ups, 12 calf raises and a 25-second front plank. Rest 60 seconds between rounds.',
+    coachingPoints:
+      'Use full control, keep knees aligned, brace the trunk and stop each set before form breaks down.',
+    commonMistakes: 'Rushing repetitions, holding the breath and continuing through sharp pain.',
+    difficulty: 'moderate',
+    successTarget:
+      'Finish three rounds with consistent technique and no more than one shortened set.',
+    easierVariation: 'Complete two rounds and reduce each exercise by two repetitions.',
+    harderProgression: 'Add a fourth round or use a three-second lowering phase.',
+    completionRequirement: 'Maintains posture and joint alignment through the final round.',
+  },
+  {
+    name: 'Shoulder and Core Control',
+    skill: 'Smash and follow-up',
+    level: 'development',
+    eventType: 'general',
+    equipment: 'Light resistance band or towel and exercise mat',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Complete three rounds of 10 band pull-aparts or towel isometrics, 8 slow shoulder external rotations per side, 8 dead bugs per side and a 20-second side plank per side.',
+    coachingPoints:
+      'Keep the ribs down, move the shoulder without shrugging and use a light resistance that allows full control.',
+    commonMistakes:
+      'Using heavy resistance, arching the lower back and forcing a painful shoulder range.',
+    difficulty: 'moderate',
+    successTarget: 'Complete all three rounds while keeping the neck relaxed and trunk stable.',
+    easierVariation: 'Shorten the plank and perform the shoulder work without resistance.',
+    harderProgression:
+      'Add two repetitions per exercise or lengthen each side plank to 30 seconds.',
+    completionRequirement: 'Controls the shoulder and trunk without compensation or discomfort.',
+  },
+  {
+    name: 'Match Visualization and Reset',
+    skill: 'Between-rally routine',
+    level: 'competitive',
+    eventType: 'general',
+    equipment: 'Timer, notebook and pen',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Visualise 10 short rally situations. After each one, turn away, take one controlled breath, use one cue, choose a serve or return plan and write the decision in a few words.',
+    coachingPoints:
+      'Make the images specific, keep the reset brief and choose one actionable intention for the next rally.',
+    commonMistakes:
+      'Replaying only mistakes, writing long explanations and changing the routine every repetition.',
+    difficulty: 'moderate',
+    successTarget:
+      'Complete the same reset sequence and a clear next-rally plan for 9 of 10 scenarios.',
+    easierVariation: 'Use five coach-provided scenarios and a written reset checklist.',
+    harderProgression: 'Use recent match situations and limit each reset to 15 seconds.',
+    completionRequirement: 'Can state and complete the routine without looking at the checklist.',
+  },
+  {
+    name: 'High-Intensity Shadow Intervals',
+    skill: 'Movement endurance',
+    level: 'competitive',
+    eventType: 'singles',
+    equipment: 'Six small floor markers, racket, interval timer and a clear non-slip space',
+    numberOfPlayers: 1,
+    durationMinutes: 14,
+    instructions:
+      'Complete six 30-second shadow rounds at purposeful speed with 45 seconds rest. Move to compact versions of all six corners, shadow the correct stroke and recover after every action.',
+    coachingPoints:
+      'Keep the movement small enough for the space, breathe continuously and preserve split step, posture and landing quality.',
+    commonMistakes:
+      'Using maximum speed immediately, sliding on the floor and continuing after movement shape breaks down.',
+    difficulty: 'challenging',
+    successTarget: 'Complete all six rounds with movement quality rated at least 4 out of 5.',
+    easierVariation: 'Use four corners for four 25-second rounds.',
+    harderProgression: 'Use random cues and reduce rest to 30 seconds while preserving technique.',
+    completionRequirement:
+      'Maintains the same balance and recovery rhythm in the final round as the first.',
+  },
   { name: 'Grip Change Tap-Ups', skill: 'Grip changes and racket readiness', level: 'foundations', eventType: 'general', equipment: 'Racket and shuttle', numberOfPlayers: 1, durationMinutes: 8, instructions: 'Alternate forehand and backhand tap-ups while changing grip with the fingers.', coachingPoints: 'Relax the hand, rotate with the fingers and keep the racket in front.', commonMistakes: 'Panhandle grip, tight fist and large arm swings.', difficulty: 'easy', successTarget: 'Three sets of 20 controlled contacts without losing the correct grip.', easierVariation: 'Catch the shuttle after each contact and reset the grip.', harderProgression: 'Move while alternating low and high contacts.', completionRequirement: 'Changes grip automatically while maintaining control.' },
   { name: 'Clear to Targets', skill: 'Forehand overhead clear', level: 'foundations', eventType: 'general', equipment: 'Rackets, shuttles and two rear-court targets', numberOfPlayers: 2, durationMinutes: 12, instructions: 'A feeder sends comfortable shuttles to the rear court. The player clears toward alternating deep targets.', coachingPoints: 'Turn side-on, prepare early, contact overhead and finish balanced.', commonMistakes: 'Contact behind the body, excessive force and falling sideways.', difficulty: 'moderate', successTarget: '8 of 10 clears land beyond the doubles service line.', easierVariation: 'Use hand feeds and one large central target.', harderProgression: 'Randomise feeds between the two rear corners.', completionRequirement: 'Maintains length and balance in a cooperative rally.' },
   { name: 'Rear-Court Clear and Recovery', skill: 'Rear-court recovery', level: 'foundations', eventType: 'general', equipment: 'Rackets, shuttles and a base marker', numberOfPlayers: 2, durationMinutes: 12, instructions: 'Move from base to a fed rear-court shuttle, clear, land balanced and recover to the marker immediately.', coachingPoints: 'Split as the feeder strikes, turn early, contact overhead, land balanced and recover immediately.', commonMistakes: 'Waiting flat-footed, crossing under the shuttle and watching the shot before recovering.', difficulty: 'moderate', successTarget: '8 successful clear-and-recovery repetitions out of 10.', easierVariation: 'Shadow the pattern without a shuttle.', harderProgression: 'Use a random clear or drop feed after the recovery.', completionRequirement: 'Applies the correct recovery in a conditioned rally.' },
@@ -286,6 +516,40 @@ const drills: DrillSeed[] = [
   { name: 'Tournament Interval Simulation', skill: 'Between-rally routine', level: 'competitive', eventType: 'general', equipment: 'Rackets, shuttle, timer and notes card', numberOfPlayers: 2, durationMinutes: 20, instructions: 'Play timed rally blocks with only the regulation-like interval to breathe, review one cue and prepare for the next rally.', coachingPoints: 'Turn away briefly, control breathing, use one useful cue and establish serve/return readiness.', commonMistakes: 'Replaying the previous error, taking too many instructions and returning without a plan.', difficulty: 'moderate', successTarget: 'Complete the personal reset routine before 9 of 10 rallies.', easierVariation: 'Allow coach-led prompts and a longer reset.', harderProgression: 'Add score pressure, noise and restricted coaching.', completionRequirement: 'Uses the routine independently throughout a full practice game.' },
   { name: 'Repeat Movement Quality Intervals', skill: 'Movement endurance', level: 'competitive', eventType: 'general', equipment: 'Court markers, racket and interval timer', numberOfPlayers: 1, durationMinutes: 16, instructions: 'Complete six-corner movement intervals while preserving split timing, posture and recovery quality.', coachingPoints: 'Move smoothly before adding speed, breathe continuously and stop a repetition when shape breaks down.', commonMistakes: 'Chasing speed, shortening recovery steps and allowing knees to collapse under fatigue.', difficulty: 'challenging', successTarget: 'Complete 6 x 40-second intervals with movement quality rated 4/5 or better.', easierVariation: 'Use four corners and 25-second intervals.', harderProgression: 'Add racket feeds during the final three intervals.', completionRequirement: 'Maintains technical movement standards through the final interval.' },
 ]
+
+const homeDrillsForLesson = (programLesson: LessonSeed, level: Level): string[] => {
+  const context =
+    `${programLesson.title} ${programLesson.objective} ${programLesson.drills.join(' ')}`.toLowerCase()
+  const selected: string[] = []
+  const add = (name: string) => {
+    if (!selected.includes(name)) selected.push(name)
+  }
+
+  if (/(serve|service)/.test(context)) add('Low Serve Floor Targets')
+  if (/(grip|racket readiness|tap-up)/.test(context)) add('Solo Racket Control Circuit')
+  if (/(clear|drop|smash|overhead|rear-court|attack)/.test(context))
+    add('Overhead Shadow Technique')
+  if (/(drive|block|defen|flat exchange|counter)/.test(context)) add('Wall Drive and Defence')
+  if (/(net|lift|forecourt|front-court|lunge)/.test(context)) add('Lunge Balance and Leg Strength')
+  if (/(split|react)/.test(context)) add('Reactive Split-Step Cues')
+  if (/(split|movement|recovery|corner|rally|direction|rotation|formation)/.test(context)) {
+    add(level === 'competitive' ? 'High-Intensity Shadow Intervals' : 'Compact Home Footwork')
+  }
+  if (/(pressure|match|tactical|decision|plan|assessment|tournament|routine|score)/.test(context)) {
+    add('Match Visualization and Reset')
+  }
+
+  if (!selected.length) add('Solo Racket Control Circuit')
+  add(
+    level === 'foundations'
+      ? 'Lunge Balance and Leg Strength'
+      : level === 'development'
+        ? 'Badminton Bodyweight Strength Circuit'
+        : 'Shoulder and Core Control',
+  )
+
+  return selected.slice(0, 3)
+}
 
 export async function seedCoachingLibrary(payload: Payload) {
   payload.logger.info('Seeding coaching programs, skills and drills...')
@@ -317,18 +581,23 @@ export async function seedCoachingLibrary(payload: Payload) {
     for (const phase of program.phases) {
       for (const programLesson of phase.lessons) {
         const practiceName = `${program.name} · Week ${programLesson.week}: ${programLesson.title}`
-        const practiceDrills = programLesson.drills.map((drillName) => {
+        const homeDrillNames = homeDrillsForLesson(programLesson, program.level)
+        const practiceDrills = homeDrillNames.map((drillName) => {
           const drillID = drillIDs.get(drillName)
           if (!drillID) throw new Error(`Missing drill for independent practice ${practiceName}: ${drillName}`)
           return drillID
         })
+        const durationMinutes = homeDrillNames.reduce((total, drillName) => {
+          const drill = drills.find((item) => item.name === drillName)
+          return total + (drill?.durationMinutes || 0)
+        }, 0)
         const practiceData = {
           name: practiceName,
           level: program.level,
-          instructions: programLesson.independentPractice,
+          instructions: `Complete these drills at home in a clear, non-slip space with enough room to move and swing safely. This week's focus is: ${programLesson.objective}`,
           drills: practiceDrills,
-          durationMinutes: programLesson.durationMinutes,
-          successCriteria: programLesson.successCriteria,
+          durationMinutes,
+          successCriteria: 'Meet the success target for every drill with controlled technique, then note one improvement and one point to ask your coach about.',
         }
         const existing = await payload.find({ collection: 'practice-library', depth: 0, limit: 1, where: { name: { equals: practiceName } } })
         const document = existing.docs[0]
