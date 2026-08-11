@@ -184,7 +184,7 @@ export const Drills: CollectionConfig = {
   admin: {
     group: 'Coaching',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'level', 'difficulty', 'durationMinutes'],
+    defaultColumns: ['name', 'practiceSetting', 'level', 'difficulty', 'durationMinutes'],
   },
   fields: [
     { name: 'name', type: 'text', required: true, index: true },
@@ -202,6 +202,20 @@ export const Drills: CollectionConfig = {
       defaultValue: 'general',
       options: ['general', 'singles', 'doubles'],
     },
+    {
+      name: 'practiceSetting',
+      type: 'select',
+      required: true,
+      defaultValue: 'court',
+      index: true,
+      options: [
+        { label: 'Home practice', value: 'home' },
+        { label: 'Court training', value: 'court' },
+      ],
+      admin: {
+        description: 'Controls whether this drill is available in the home-practice library.',
+      },
+    },
     { name: 'equipment', type: 'text', required: true },
     { name: 'numberOfPlayers', type: 'number', min: 1, required: true },
     { name: 'durationMinutes', type: 'number', min: 1, required: true },
@@ -215,6 +229,11 @@ export const Drills: CollectionConfig = {
       options: ['easy', 'moderate', 'challenging'],
     },
     { name: 'videoURL', type: 'text' },
+    {
+      name: 'illustrationURL',
+      type: 'text',
+      admin: { description: 'Public image path used for drill cards and detail views.' },
+    },
     { name: 'successTarget', type: 'text', required: true },
     { name: 'easierVariation', type: 'textarea' },
     { name: 'harderProgression', type: 'textarea' },
@@ -224,7 +243,7 @@ export const Drills: CollectionConfig = {
 
 export const PracticeLibrary: CollectionConfig = {
   slug: 'practice-library',
-  labels: { singular: 'Independent Practice', plural: 'Independent Practice Library' },
+  labels: { singular: 'Home Practice', plural: 'Home Practice Library' },
   access: staffManagedAccess,
   hooks: { afterChange: [syncPracticeLibraryInstances] },
   admin: {
@@ -249,6 +268,9 @@ export const PracticeLibrary: CollectionConfig = {
       required: true,
       minRows: 1,
       maxDepth: 1,
+      filterOptions: {
+        practiceSetting: { equals: 'home' },
+      },
     },
     { name: 'durationMinutes', type: 'number', required: true, min: 1 },
     { name: 'successCriteria', type: 'textarea', required: true },
@@ -730,7 +752,7 @@ export const Assignments: CollectionConfig = {
 
 export const IndependentPractices: CollectionConfig = {
   slug: 'independent-practices',
-  labels: { singular: 'Student Practice', plural: 'Student Practice Progress' },
+  labels: { singular: 'Student Home Practice', plural: 'Student Home Practice Progress' },
   access: {
     create: staffOnly,
     delete: staffOnly,

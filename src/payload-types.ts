@@ -1094,6 +1094,10 @@ export interface Drill {
   skill: string | Skill;
   level: 'foundations' | 'development' | 'competitive';
   eventType: 'general' | 'singles' | 'doubles';
+  /**
+   * Controls whether this drill is available in the home-practice library.
+   */
+  practiceSetting: 'home' | 'court';
   equipment: string;
   numberOfPlayers: number;
   durationMinutes: number;
@@ -1102,6 +1106,10 @@ export interface Drill {
   commonMistakes?: string | null;
   difficulty: 'easy' | 'moderate' | 'challenging';
   videoURL?: string | null;
+  /**
+   * Public image path used for drill cards and detail views.
+   */
+  illustrationURL?: string | null;
   successTarget: string;
   easierVariation?: string | null;
   harderProgression?: string | null;
@@ -2350,6 +2358,7 @@ export interface DrillsSelect<T extends boolean = true> {
   skill?: T;
   level?: T;
   eventType?: T;
+  practiceSetting?: T;
   equipment?: T;
   numberOfPlayers?: T;
   durationMinutes?: T;
@@ -2358,6 +2367,7 @@ export interface DrillsSelect<T extends boolean = true> {
   commonMistakes?: T;
   difficulty?: T;
   videoURL?: T;
+  illustrationURL?: T;
   successTarget?: T;
   easierVariation?: T;
   harderProgression?: T;
