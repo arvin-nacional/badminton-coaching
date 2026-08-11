@@ -33,9 +33,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <nav className="flex min-w-0 items-center gap-2 text-xs font-bold sm:gap-4 sm:text-sm">
               {user ? (
                 <>
-                  <Link href="/" className="hidden sm:inline">
-                    Website
-                  </Link>
                   <LogoutButton />
                   <Link
                     href="/dashboard"
