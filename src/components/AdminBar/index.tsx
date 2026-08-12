@@ -14,6 +14,10 @@ import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
+type AdminBarUser = PayloadMeUser & {
+  roles?: ('admin' | 'coach' | 'student')[] | null
+}
+
 const collectionLabels = {
   pages: {
     plural: 'Pages',
@@ -43,7 +47,8 @@ export const AdminBar: React.FC<{
   const router = useRouter()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
-    setShow(Boolean(user?.id))
+    const roles = (user as AdminBarUser | null)?.roles
+    setShow(Boolean(user?.id && (!roles?.length || roles.includes('admin'))))
   }, [])
 
   return (
