@@ -7,7 +7,11 @@ import { createPortal } from 'react-dom'
 
 import { HomePracticeTimer } from '@/components/Dashboard/HomePracticeTimer'
 import { PracticeStepIllustration } from '@/components/Dashboard/PracticeStepIllustration'
-import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
+import {
+  badmintonBodyweightStrengthContent,
+  buildHomePracticeSequence,
+  shoulderAndCoreControlContent,
+} from '@/data/homePracticeSteps'
 import type { Drill, IndependentPractice } from '@/payload-types'
 
 type PracticeDrill = Pick<
@@ -49,7 +53,11 @@ const defaultIllustrations: Record<string, string> = {
 }
 
 const illustrationFor = (drill: PracticeDrill) =>
-  drill.illustrationURL || defaultIllustrations[drill.name]
+  drill.name === 'Badminton Bodyweight Strength Circuit'
+    ? badmintonBodyweightStrengthContent.illustrationURL
+    : drill.name === 'Shoulder and Core Control'
+      ? shoulderAndCoreControlContent.illustrationURL
+      : drill.illustrationURL || defaultIllustrations[drill.name]
 
 export function IndependentPracticeDrills({
   drills,
@@ -101,17 +109,25 @@ export function IndependentPracticeDrills({
     : selectedDrill?.practiceSteps?.length
       ? selectedDrill.practiceSteps
       : selectedGeneratedSequence?.steps || []
-  const selectedSheetURL =
-    selectedDrill?.stepIllustrationURL ||
-    selectedGeneratedSequence?.sheetURL ||
-    (selectedDrill ? illustrationFor(selectedDrill) : null)
+  const useGeneratedSequence = Boolean(selectedGeneratedSequence?.useGeneratedSteps)
+  const selectedSheetURL = useGeneratedSequence
+    ? selectedGeneratedSequence?.sheetURL ||
+      selectedDrill?.stepIllustrationURL ||
+      (selectedDrill ? illustrationFor(selectedDrill) : null)
+    : selectedDrill?.stepIllustrationURL ||
+      selectedGeneratedSequence?.sheetURL ||
+      (selectedDrill ? illustrationFor(selectedDrill) : null)
   const selectedSheetColumns = Math.max(
     1,
-    selectedDrill?.stepIllustrationColumns || selectedGeneratedSequence?.columns || 1,
+    useGeneratedSequence
+      ? selectedGeneratedSequence?.columns || selectedDrill?.stepIllustrationColumns || 1
+      : selectedDrill?.stepIllustrationColumns || selectedGeneratedSequence?.columns || 1,
   )
   const selectedSheetRows = Math.max(
     1,
-    selectedDrill?.stepIllustrationRows || selectedGeneratedSequence?.rows || 1,
+    useGeneratedSequence
+      ? selectedGeneratedSequence?.rows || selectedDrill?.stepIllustrationRows || 1
+      : selectedDrill?.stepIllustrationRows || selectedGeneratedSequence?.rows || 1,
   )
 
   const closeModal = useCallback(() => {

@@ -13,6 +13,8 @@ import {
   RotateCcw,
   ShieldCheck,
   Target,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -21,8 +23,10 @@ import { createPortal } from 'react-dom'
 import { PracticeStepIllustration } from '@/components/Dashboard/PracticeStepIllustration'
 import {
   buildHomePracticeSequence,
+  getRandomCueDelayMilliseconds,
   getHomePracticeAdvanceAction,
   getHomePracticeRounds,
+  pickRandomDirectionCue,
   type HomePracticeStep,
 } from '@/data/homePracticeSteps'
 import type { Drill, IndependentPractice } from '@/payload-types'
@@ -73,6 +77,7 @@ const formatTime = (totalSeconds: number) => {
 
 const sequenceFor = (drill: WorkoutDrill): PracticeSequence => {
   const generated = buildHomePracticeSequence(drill.name, drill.instructions)
+  const useGeneratedSequence = Boolean(generated?.useGeneratedSteps)
   const storedSteps =
     drill.practiceSteps?.map((step) => ({
       title: step.title,
@@ -86,9 +91,21 @@ const sequenceFor = (drill: WorkoutDrill): PracticeSequence => {
     workRest: generated?.workRest || `Allow approximately ${drill.durationMinutes} minutes.`,
     safety:
       generated?.safety || 'Stop if the movement cannot be completed safely and under control.',
-    sheetURL: drill.stepIllustrationURL || generated?.sheetURL || drill.illustrationURL,
-    columns: Math.max(1, drill.stepIllustrationColumns || generated?.columns || 1),
-    rows: Math.max(1, drill.stepIllustrationRows || generated?.rows || 1),
+    sheetURL: useGeneratedSequence
+      ? generated?.sheetURL || drill.stepIllustrationURL || drill.illustrationURL
+      : drill.stepIllustrationURL || generated?.sheetURL || drill.illustrationURL,
+    columns: Math.max(
+      1,
+      useGeneratedSequence
+        ? generated?.columns || drill.stepIllustrationColumns || 1
+        : drill.stepIllustrationColumns || generated?.columns || 1,
+    ),
+    rows: Math.max(
+      1,
+      useGeneratedSequence
+        ? generated?.rows || drill.stepIllustrationRows || 1
+        : drill.stepIllustrationRows || generated?.rows || 1,
+    ),
     rounds: generated?.rounds || getHomePracticeRounds(drill.instructions),
     steps: generated?.useGeneratedSteps
       ? generated.steps
@@ -184,12 +201,15 @@ export function HomePracticeTimer({
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'exercises' | 'log'>('exercises')
+  const [activeSpokenCue, setActiveSpokenCue] = useState('')
+  const [directionCuesMuted, setDirectionCuesMuted] = useState(false)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const keepProgressButtonRef = useRef<HTMLButtonElement>(null)
   const summaryPrimaryButtonRef = useRef<HTMLButtonElement>(null)
   const workoutContentRef = useRef<HTMLElement>(null)
   const automaticAdvanceRef = useRef('')
   const actionInFlightRef = useRef(false)
+  const directionCuesMutedRef = useRef(false)
 
   const runningSegmentSeconds =
     status === 'running' && startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0
@@ -228,6 +248,61 @@ export function HomePracticeTimer({
     const interval = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(interval)
   }, [status])
+
+  useEffect(() => {
+    directionCuesMutedRef.current = directionCuesMuted
+  }, [directionCuesMuted])
+
+  useEffect(() => {
+    const step = currentSequence?.steps[currentStepIndex]
+    const cues = step?.spokenCues
+    const cueInterval = step?.cueIntervalSeconds
+    setActiveSpokenCue('')
+
+    if (status !== 'running' || !cues?.length || !cueInterval) {
+      window.speechSynthesis?.cancel()
+      return
+    }
+
+    const cueWindowEndsAt =
+      Date.now() + Math.max(0, (step.durationSeconds || 0) - currentStepElapsedSeconds) * 1000
+    let cancelled = false
+    let timeoutID: number | undefined
+    let previousCue = ''
+
+    const scheduleCue = (delayMilliseconds: number) => {
+      timeoutID = window.setTimeout(() => {
+        if (cancelled || Date.now() >= cueWindowEndsAt) return
+
+        const cue = pickRandomDirectionCue(cues, previousCue)
+        if (!cue) return
+        previousCue = cue
+        setActiveSpokenCue(cue)
+
+        if (
+          !directionCuesMutedRef.current &&
+          typeof window.SpeechSynthesisUtterance === 'function' &&
+          window.speechSynthesis
+        ) {
+          window.speechSynthesis.cancel()
+          const utterance = new window.SpeechSynthesisUtterance(cue)
+          utterance.rate = 1
+          utterance.volume = 1
+          window.speechSynthesis.speak(utterance)
+        }
+
+        scheduleCue(getRandomCueDelayMilliseconds(cueInterval.min, cueInterval.max))
+      }, delayMilliseconds)
+    }
+
+    scheduleCue(1500)
+
+    return () => {
+      cancelled = true
+      if (timeoutID !== undefined) window.clearTimeout(timeoutID)
+      window.speechSynthesis?.cancel()
+    }
+  }, [currentSequence, currentStepElapsedSeconds, currentStepIndex, status])
 
   useEffect(() => setPracticeCompleted(initialCompleted), [initialCompleted])
 
@@ -533,6 +608,7 @@ export function HomePracticeTimer({
   const viewedDrillIsComplete = status === 'finished' || viewedDrillIndex < currentDrillIndex
 
   const currentStepIsTimed = Boolean(currentSequence.steps[currentStepIndex]?.durationSeconds)
+  const currentStepAmount = currentSequence.steps[currentStepIndex]?.amount || 'Reps'
   const nextLabel = !isLastStep
     ? currentStepIsTimed
       ? 'Skip to next exercise'
@@ -540,10 +616,14 @@ export function HomePracticeTimer({
     : hasMoreRounds
       ? currentStepIsTimed
         ? `Skip rest — start round ${currentRound + 1}`
-        : `Start round ${currentRound + 1} of ${currentSequence.rounds}`
+        : `${currentStepAmount} done — start round ${currentRound + 1} of ${currentSequence.rounds}`
       : isLastDrill
-        ? 'Finish practice'
-        : 'Next part'
+        ? currentStepIsTimed
+          ? 'Finish practice'
+          : `${currentStepAmount} done — finish practice`
+        : currentStepIsTimed
+          ? 'Next part'
+          : `${currentStepAmount} done — next part`
 
   return (
     <>
@@ -712,6 +792,13 @@ export function HomePracticeTimer({
                                 }
                                 isSaving={isSaving}
                                 autoAdvances={Boolean(step.durationSeconds)}
+                                spokenCue={
+                                  isViewingCurrentDrill && index === currentStepIndex
+                                    ? activeSpokenCue
+                                    : ''
+                                }
+                                cuesMuted={directionCuesMuted}
+                                onToggleCues={() => setDirectionCuesMuted((muted) => !muted)}
                                 onToggleTimer={toggleActiveStep}
                               />
                             ))}
@@ -1208,6 +1295,9 @@ function StepCard({
   elapsedSeconds,
   isSaving,
   autoAdvances,
+  spokenCue,
+  cuesMuted,
+  onToggleCues,
   onToggleTimer,
 }: {
   step: HomePracticeStep
@@ -1221,6 +1311,9 @@ function StepCard({
   elapsedSeconds: number
   isSaving: boolean
   autoAdvances: boolean
+  spokenCue: string
+  cuesMuted: boolean
+  onToggleCues: () => void
   onToggleTimer: () => void
 }) {
   const durationSeconds = step.durationSeconds || 0
@@ -1274,6 +1367,36 @@ function StepCard({
           <p className="mt-3 text-xs font-semibold leading-5 text-[#4f647b] sm:text-sm sm:leading-6">
             {step.instruction}
           </p>
+
+          {active && step.spokenCues?.length ? (
+            <div className="mt-4 rounded-2xl border border-[#1677ff]/25 bg-[#eaf3ff] p-3 sm:p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#1677ff] sm:text-xs">
+                    Direction cue
+                  </p>
+                  <p
+                    aria-live="polite"
+                    className="mt-1 truncate text-xl font-black uppercase tracking-wide text-[#092c59] sm:text-2xl"
+                  >
+                    {spokenCue || (timerStatus === 'running' ? 'Get ready' : 'Starts with timer')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onToggleCues}
+                  className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#1677ff]/20 bg-white px-3 text-xs font-black text-[#092c59] transition hover:border-[#1677ff]/50"
+                  aria-label={
+                    cuesMuted ? 'Turn spoken direction cues on' : 'Mute spoken direction cues'
+                  }
+                  aria-pressed={cuesMuted}
+                >
+                  {cuesMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  <span className="hidden sm:inline">{cuesMuted ? 'Voice off' : 'Voice on'}</span>
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           <button
             type="button"

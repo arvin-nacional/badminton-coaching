@@ -3,7 +3,20 @@ import 'dotenv/config'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { buildHomePracticeSequence, compactHomeFootworkContent } from '@/data/homePracticeSteps'
+import {
+  badmintonBodyweightStrengthContent,
+  buildHomePracticeSequence,
+  compactHomeFootworkContent,
+  highIntensityShadowIntervalsContent,
+  lowServeFloorTargetContent,
+  lungeBalanceLegStrengthContent,
+  matchVisualizationResetContent,
+  overheadShadowTechniqueContent,
+  reactiveSplitStepCuesContent,
+  shoulderAndCoreControlContent,
+  soloRacketControlContent,
+  wallDriveAndDefenceContent,
+} from '@/data/homePracticeSteps'
 
 const payload = await getPayload({ config })
 const homeDrills = await payload.find({
@@ -25,7 +38,21 @@ for (const drill of homeDrills.docs) {
     depth: 0,
     overrideAccess: true,
     data: {
+      ...(drill.name === 'Solo Racket Control Circuit' ? soloRacketControlContent : {}),
+      ...(drill.name === 'Low Serve Floor Targets' ? lowServeFloorTargetContent : {}),
+      ...(drill.name === 'Overhead Shadow Technique' ? overheadShadowTechniqueContent : {}),
       ...(drill.name === 'Compact Home Footwork' ? compactHomeFootworkContent : {}),
+      ...(drill.name === 'Lunge Balance and Leg Strength' ? lungeBalanceLegStrengthContent : {}),
+      ...(drill.name === 'Wall Drive and Defence' ? wallDriveAndDefenceContent : {}),
+      ...(drill.name === 'Reactive Split-Step Cues' ? reactiveSplitStepCuesContent : {}),
+      ...(drill.name === 'High-Intensity Shadow Intervals'
+        ? highIntensityShadowIntervalsContent
+        : {}),
+      ...(drill.name === 'Badminton Bodyweight Strength Circuit'
+        ? badmintonBodyweightStrengthContent
+        : {}),
+      ...(drill.name === 'Shoulder and Core Control' ? shoulderAndCoreControlContent : {}),
+      ...(drill.name === 'Match Visualization and Reset' ? matchVisualizationResetContent : {}),
       practiceSteps: sequence.steps,
       stepIllustrationColumns: sequence.columns,
       stepIllustrationRows: sequence.rows,

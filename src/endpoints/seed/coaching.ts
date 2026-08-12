@@ -1,6 +1,19 @@
 import type { Payload } from 'payload'
 
-import { buildHomePracticeSequence, compactHomeFootworkContent } from '@/data/homePracticeSteps'
+import {
+  badmintonBodyweightStrengthContent,
+  buildHomePracticeSequence,
+  compactHomeFootworkContent,
+  highIntensityShadowIntervalsContent,
+  lowServeFloorTargetContent,
+  lungeBalanceLegStrengthContent,
+  matchVisualizationResetContent,
+  overheadShadowTechniqueContent,
+  reactiveSplitStepCuesContent,
+  shoulderAndCoreControlContent,
+  soloRacketControlContent,
+  wallDriveAndDefenceContent,
+} from '@/data/homePracticeSteps'
 
 type Level = 'foundations' | 'development' | 'competitive'
 type SkillCategory =
@@ -846,22 +859,9 @@ const drills: DrillSeed[] = [
     level: 'foundations',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/solo-racket-control-circuit.png',
-    equipment: 'Racket, shuttle or soft foam ball, and a clear indoor or outdoor space',
+    ...soloRacketControlContent,
     numberOfPlayers: 1,
-    durationMinutes: 8,
-    instructions:
-      'Setup: Clear a space of at least 2 metres, hold the racket in front of your body and begin with a relaxed forehand grip.\n\n1. Forehand control — tap the shuttle or foam ball upward for 30 seconds using short finger movements. Keep every contact below head height.\n2. Backhand control — change to a thumb-led backhand grip and repeat for 30 seconds.\n3. Alternating control — change between forehand and backhand after every contact for 30 seconds.\n4. Rest for 30 seconds, shake out the hand and repeat the sequence.\n\nWork/rest: Complete 3 rounds of the full sequence with 30 seconds rest between rounds.\nSafety: Stop and reset whenever the object moves toward furniture, another person or a wall; do not chase it while swinging.',
-    coachingPoints:
-      'Use the fingers to change grip, keep the racket in front and make small controlled contacts.',
-    commonMistakes:
-      'Squeezing the handle, swinging from the shoulder and chasing contacts into furniture or walls.',
     difficulty: 'easy',
-    successTarget: 'Complete all three rounds with at least 20 controlled contacts in each round.',
-    easierVariation: 'Use a balloon or catch the shuttle after every contact.',
-    harderProgression: 'Alternate high and low contacts while taking small side steps.',
-    completionRequirement:
-      'Changes grip without looking at the handle and stays in control of the object.',
   },
   {
     name: 'Low Serve Floor Targets',
@@ -869,22 +869,9 @@ const drills: DrillSeed[] = [
     level: 'foundations',
     eventType: 'doubles',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/low-serve-floor-targets.png',
-    equipment: 'Racket, 10 shuttles, tape or two towels, and a safe 3-metre lane',
+    ...lowServeFloorTargetContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Mark a serving line and a wide landing target about 2.5–3 metres away using tape or two towels. Place 10 shuttles beside your racket foot. A net is not required.\n\n1. Stand in the same balanced serving position for every attempt, with the racket foot slightly forward.\n2. Hold the shuttle in front of the racket and prepare with a relaxed thumb grip.\n3. Use a short forward push—not a swing—to send the shuttle toward the target.\n4. Hold the finish briefly, then reset your feet, grip and contact point before serving again.\n5. After 10 serves, count how many landed in the target and record the score.\n\nWork/rest: Complete 4 sets of 10 serves. Rest 30–45 seconds while collecting shuttles.\nSafety: Use a clear lane and retrieve all shuttles before beginning the next set to avoid stepping on them.',
-    coachingPoints:
-      'Use a stable stance, relaxed thumb grip, small push and the same contact point every time.',
-    commonMistakes:
-      'Using a large backswing, striking too hard and moving the target closer after misses.',
     difficulty: 'easy',
-    successTarget: 'Land at least 7 of 10 serves in the floor target in the final two sets.',
-    easierVariation: 'Make the landing zone wider or shorten the serving distance.',
-    harderProgression: 'Use separate T, body and wide targets and call the target before serving.',
-    completionRequirement:
-      'Repeats the same setup and controls landing distance in two consecutive sets.',
   },
   {
     name: 'Overhead Shadow Technique',
@@ -892,21 +879,9 @@ const drills: DrillSeed[] = [
     level: 'foundations',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/overhead-shadow-technique.png',
-    equipment: 'Racket or rolled hand towel, mirror or phone camera, and safe overhead clearance',
+    ...overheadShadowTechniqueContent,
     numberOfPlayers: 1,
-    durationMinutes: 9,
-    instructions:
-      'Setup: Check that the ceiling and the area behind you are clear. Use a racket only when there is safe overhead clearance; otherwise use a rolled hand towel.\n\n1. Begin in a ready position and make a small split step.\n2. Turn side-on as if moving toward one rear corner. Raise the non-racket arm and prepare the racket behind the shoulder.\n3. Reach to an imaginary contact point high and slightly in front of the hitting shoulder. Let the forearm rotate naturally through the action.\n4. Land balanced, allow the racket to finish across the body and recover immediately to your base position.\n5. Reset fully before alternating to the other rear-court direction.\n\nWork/rest: Complete 3 sets of 8 repetitions, alternating rear corners. Rest 30 seconds between sets.\nSafety: Move slowly until the path is consistent, and stop if the racket could contact the ceiling, a light fitting or furniture.',
-    coachingPoints:
-      'Turn side-on, lead with the non-racket arm, reach to a high contact and finish balanced.',
-    commonMistakes:
-      'Practising beneath a low ceiling, rushing the swing and letting the contact drift behind the body.',
     difficulty: 'easy',
-    successTarget: 'Record 20 of 24 repetitions with a high contact shape and balanced finish.',
-    easierVariation: 'Practise the throwing action without a racket.',
-    harderProgression: 'Add a split step, chasse and immediate recovery before each shadow stroke.',
-    completionRequirement: 'Keeps the same preparation for clear, drop and smash shadows.',
   },
   {
     name: 'Compact Home Footwork',
@@ -924,22 +899,9 @@ const drills: DrillSeed[] = [
     level: 'foundations',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/lunge-balance-leg-strength.png',
-    equipment: 'Stable chair or wall for support and a non-slip floor',
+    ...lungeBalanceLegStrengthContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Stand beside a stable chair or wall on a non-slip floor. Use the support lightly whenever balance is uncertain.\n\n1. Badminton lunge — step forward, land heel first and lower only as far as you can keep the front knee aligned over the toes. Hold for 2 seconds, then push back. Complete 6 per side.\n2. Calf raise — stand tall, rise slowly onto the balls of both feet, pause for 1 second and lower with control. Complete 8 repetitions.\n3. Single-leg balance — stand on one leg with a soft knee and level hips for 20 seconds, then change sides.\n4. Rest, then repeat all three exercises in the same order.\n\nWork/rest: Complete 3 rounds with 45 seconds rest between rounds.\nSafety: Use a shorter lunge if alignment is lost. Stop for sharp pain, joint pain or dizziness; muscle effort is acceptable, pain is not.',
-    coachingPoints:
-      'Land heel first, keep the knee tracking over the toes, hold the trunk tall and push back through the front leg.',
-    commonMistakes:
-      'Knee collapsing inward, front heel lifting and using a range that causes pain.',
     difficulty: 'easy',
-    successTarget:
-      'Complete all repetitions with a two-second stable hold at the bottom of every lunge.',
-    easierVariation: 'Use a shallower lunge and hold a chair for balance.',
-    harderProgression: 'Add a racket reach or a slow knee drive after each recovery.',
-    completionRequirement: 'Controls both sides equally without pain or loss of knee alignment.',
   },
   {
     name: 'Wall Drive and Defence',
@@ -947,22 +909,9 @@ const drills: DrillSeed[] = [
     level: 'development',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/wall-drive-defence.png',
-    equipment: 'Racket, shuttle or foam ball, eye protection, and a clear solid wall',
+    ...wallDriveAndDefenceContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Choose a solid, unbreakable wall with no windows or people nearby. Wear eye protection, mark a chest-height target and begin about 1.5–2 metres away with a foam ball or suitable shuttle.\n\n1. Hold the racket head above the hand in a neutral ready position.\n2. Feed the object gently to the wall and play compact forehand drives for several contacts.\n3. Repeat with backhand drives, using the thumb and fingers instead of a large arm swing.\n4. Alternate forehand and backhand while keeping the contact point in front of the body.\n5. After every hit, return the racket immediately to the ready position and adjust with small steps.\n\nWork/rest: Complete 5 rounds of 45 seconds with 30 seconds rest. Count your longest controlled rally in each round.\nSafety: Stop immediately if the rebound becomes unpredictable or enters another person’s space. Never practise against glass, fragile surfaces or a crowded wall.',
-    coachingPoints:
-      'Keep the racket head up, shorten the swing, contact in front and recover to ready position after each hit.',
-    commonMistakes:
-      'Using a fragile wall or crowded area, swinging too hard and letting the racket drop between contacts.',
     difficulty: 'moderate',
-    successTarget: 'Reach 20 consecutive controlled wall contacts in two different rounds.',
-    easierVariation: 'Use a foam ball, stand closer and allow one bounce.',
-    harderProgression: 'Alternate forehand and backhand on every contact while side stepping.',
-    completionRequirement:
-      'Maintains compact technique and racket readiness as the pace increases.',
   },
   {
     name: 'Reactive Split-Step Cues',
@@ -970,22 +919,9 @@ const drills: DrillSeed[] = [
     level: 'development',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/reactive-split-step-cues.png',
-    equipment:
-      'Phone timer with random beeps or a shuffled list of direction cues, plus four floor markers',
+    ...reactiveSplitStepCuesContent,
     numberOfPlayers: 1,
-    durationMinutes: 9,
-    instructions:
-      'Setup: Put four markers one controlled step from a central base: front, back, left and right. Prepare random audio cues or ask someone to call directions every 3–4 seconds.\n\n1. Wait at the base in a relaxed ready position; do not bounce continuously.\n2. As the cue sounds, make one small split step and land with both feet ready to push.\n3. React only after identifying the direction, then push toward the matching marker.\n4. Touch or shadow a stroke at the marker while keeping your balance.\n5. Recover to base, regain racket readiness and wait for the next cue.\n\nWork/rest: Complete 5 rounds of 40 seconds with 40 seconds rest between rounds. Aim for 8–10 quality reactions per round.\nSafety: Keep the markers close enough that every direction fits the room. Reduce speed if the feet cross, slide or approach furniture.',
-    coachingPoints:
-      'Stay relaxed before the cue, land the split as the cue arrives and push first with the leg opposite the direction of travel.',
-    commonMistakes:
-      'Bouncing continuously, guessing the cue and using steps too large for the available space.',
     difficulty: 'moderate',
-    successTarget: 'Respond correctly to at least 8 of 10 cues while finishing balanced.',
-    easierVariation: 'Use only left and right cues at a slower interval.',
-    harderProgression: 'Add front and rear cues and shorten the time between signals.',
-    completionRequirement: 'Reacts after the cue without pre-moving and regains base each time.',
   },
   {
     name: 'Badminton Bodyweight Strength Circuit',
@@ -993,21 +929,9 @@ const drills: DrillSeed[] = [
     level: 'development',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/badminton-bodyweight-strength-circuit.png',
-    equipment: 'Exercise mat, stable chair and interval timer',
+    ...badmintonBodyweightStrengthContent,
     numberOfPlayers: 1,
-    durationMinutes: 14,
-    instructions:
-      'Setup: Place an exercise mat on a non-slip floor and use a stable chair or counter for incline push-ups. Warm up with 2 minutes of easy marching, squats and arm circles.\n\n1. Split squat — use a staggered stance, lower vertically and keep the front knee aligned. Complete 8 per side.\n2. Glute bridge — lie on your back, press through the feet and lift the hips without arching the lower back. Complete 10.\n3. Incline push-up — place hands on the stable support, keep the body straight and lower with control. Complete 8.\n4. Calf raise — rise slowly, pause at the top and lower fully. Complete 12.\n5. Front plank — brace the trunk, squeeze the glutes and breathe normally for 25 seconds.\n\nWork/rest: Complete 3 rounds. Move calmly between exercises and rest 60 seconds after each round.\nSafety: The support must not slide or tip. Stop any exercise that causes sharp pain and shorten the set when posture or joint alignment can no longer be maintained.',
-    coachingPoints:
-      'Use full control, keep knees aligned, brace the trunk and stop each set before form breaks down.',
-    commonMistakes: 'Rushing repetitions, holding the breath and continuing through sharp pain.',
     difficulty: 'moderate',
-    successTarget:
-      'Finish three rounds with consistent technique and no more than one shortened set.',
-    easierVariation: 'Complete two rounds and reduce each exercise by two repetitions.',
-    harderProgression: 'Add a fourth round or use a three-second lowering phase.',
-    completionRequirement: 'Maintains posture and joint alignment through the final round.',
   },
   {
     name: 'Shoulder and Core Control',
@@ -1015,22 +939,9 @@ const drills: DrillSeed[] = [
     level: 'development',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/shoulder-core-control.png',
-    equipment: 'Light resistance band or towel and exercise mat',
+    ...shoulderAndCoreControlContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Use a very light resistance band or a towel and place a mat on the floor. Keep every shoulder movement inside a comfortable, pain-free range.\n\n1. Pull-apart or towel isometric — hold the arms at chest height, keep the shoulders down and gently pull outward. Complete 10 controlled repetitions or 10 five-second holds.\n2. External rotation — keep the elbow close to the ribs and rotate the forearm outward without twisting the trunk. Complete 8 per side.\n3. Dead bug — lie on your back, brace the abdomen and slowly lower the opposite arm and leg without lifting the lower back. Complete 8 per side.\n4. Side plank — support the shoulder directly over the elbow and hold a straight body line for 20 seconds per side.\n\nWork/rest: Complete 3 rounds with 30–45 seconds rest between rounds.\nSafety: Do not use heavy resistance, force the arm behind the body or continue through shoulder, neck or lower-back pain.',
-    coachingPoints:
-      'Keep the ribs down, move the shoulder without shrugging and use a light resistance that allows full control.',
-    commonMistakes:
-      'Using heavy resistance, arching the lower back and forcing a painful shoulder range.',
     difficulty: 'moderate',
-    successTarget: 'Complete all three rounds while keeping the neck relaxed and trunk stable.',
-    easierVariation: 'Shorten the plank and perform the shoulder work without resistance.',
-    harderProgression:
-      'Add two repetitions per exercise or lengthen each side plank to 30 seconds.',
-    completionRequirement: 'Controls the shoulder and trunk without compensation or discomfort.',
   },
   {
     name: 'Match Visualization and Reset',
@@ -1038,22 +949,9 @@ const drills: DrillSeed[] = [
     level: 'competitive',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/match-visualization-reset.png',
-    equipment: 'Timer, notebook and pen',
+    ...matchVisualizationResetContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Sit or stand somewhere quiet with a timer, notebook and pen. Choose 10 realistic situations from recent matches, such as serving at 18-all, responding after an error or protecting a small lead.\n\n1. Read one scenario and close your eyes. Picture the court, score, opponent position and your body language.\n2. Imagine playing the rally with a clear intention rather than trying to predict a perfect result.\n3. When the imagined rally ends, turn away as you would between points and take one slow breath.\n4. Use one short reset cue, such as “next rally” or “early preparation.”\n5. Decide the next serve, return or rally plan, then write it in one concise sentence.\n6. Reset your posture before beginning the next scenario.\n\nWork/rest: Complete 10 scenarios, allowing about 45–60 seconds for each.\nSafety: If visualisation increases anxiety, open your eyes, slow the breathing and use neutral practice situations before returning to pressure scores.',
-    coachingPoints:
-      'Make the images specific, keep the reset brief and choose one actionable intention for the next rally.',
-    commonMistakes:
-      'Replaying only mistakes, writing long explanations and changing the routine every repetition.',
     difficulty: 'moderate',
-    successTarget:
-      'Complete the same reset sequence and a clear next-rally plan for 9 of 10 scenarios.',
-    easierVariation: 'Use five coach-provided scenarios and a written reset checklist.',
-    harderProgression: 'Use recent match situations and limit each reset to 15 seconds.',
-    completionRequirement: 'Can state and complete the routine without looking at the checklist.',
   },
   {
     name: 'High-Intensity Shadow Intervals',
@@ -1061,22 +959,9 @@ const drills: DrillSeed[] = [
     level: 'competitive',
     eventType: 'singles',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/high-intensity-shadow-intervals.png',
-    equipment: 'Six small floor markers, racket, interval timer and a clear non-slip space',
+    ...highIntensityShadowIntervalsContent,
     numberOfPlayers: 1,
-    durationMinutes: 14,
-    instructions:
-      'Setup: Arrange six markers as compact front, side and rear corners around a central base. Leave enough clearance for the racket and complete 2–3 minutes of easy movement before starting.\n\n1. Begin on the base with a small split step and racket ready.\n2. Move to one called or pre-planned corner using steps scaled to the room.\n3. Shadow the correct stroke for that corner and land with the knee and foot aligned.\n4. Recover fully to base before changing direction. Keep moving for the entire work interval without sacrificing technique.\n5. During rest, walk slowly, breathe and rate the round’s movement quality from 1–5.\n\nWork/rest: Complete 6 rounds of 30 seconds at purposeful—not maximum—speed, with 45 seconds rest.\nSafety: Stop a round when balance, landing control or recovery shape breaks down. Do not continue on a slippery surface or use explosive court-sized movements indoors.',
-    coachingPoints:
-      'Keep the movement small enough for the space, breathe continuously and preserve split step, posture and landing quality.',
-    commonMistakes:
-      'Using maximum speed immediately, sliding on the floor and continuing after movement shape breaks down.',
     difficulty: 'challenging',
-    successTarget: 'Complete all six rounds with movement quality rated at least 4 out of 5.',
-    easierVariation: 'Use four corners for four 25-second rounds.',
-    harderProgression: 'Use random cues and reduce rest to 30 seconds while preserving technique.',
-    completionRequirement:
-      'Maintains the same balance and recovery rhythm in the final round as the first.',
   },
   {
     name: 'Grip Change Tap-Ups',
