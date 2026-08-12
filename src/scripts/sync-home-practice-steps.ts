@@ -3,7 +3,7 @@ import 'dotenv/config'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
+import { buildHomePracticeSequence, compactHomeFootworkContent } from '@/data/homePracticeSteps'
 
 const payload = await getPayload({ config })
 const homeDrills = await payload.find({
@@ -25,6 +25,7 @@ for (const drill of homeDrills.docs) {
     depth: 0,
     overrideAccess: true,
     data: {
+      ...(drill.name === 'Compact Home Footwork' ? compactHomeFootworkContent : {}),
       practiceSteps: sequence.steps,
       stepIllustrationColumns: sequence.columns,
       stepIllustrationRows: sequence.rows,

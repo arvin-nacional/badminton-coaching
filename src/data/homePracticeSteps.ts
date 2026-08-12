@@ -95,6 +95,91 @@ type StepSheetConfig = {
   easierVariation?: string
 }
 
+const compactHomeFootworkSteps: HomePracticeStep[] = [
+  {
+    title: 'Right front corner',
+    instruction:
+      'Start at the base, split step, push diagonally forward-right and finish in a controlled racket-leg lunge. Shadow a forehand net shot, push back and reset at the base.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Left front corner',
+    instruction:
+      'Split step, travel diagonally forward-left and finish with the racket leg supporting a balanced lunge. Shadow a backhand net shot, then recover to the base.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Right side corner',
+    instruction:
+      'Split step, push from the left foot and chasse to the right-side marker. Shadow a compact forehand drive or block, then recover without crossing the feet.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Left side corner',
+    instruction:
+      'Split step, push from the right foot and chasse to the left-side marker. Shadow a compact backhand drive or block, then return under control.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Right rear corner',
+    instruction:
+      'Split step, turn side-on and move diagonally backward-right using small chasse or crossover steps. Shadow an overhead stroke, land balanced and recover to the base.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Left rear corner',
+    instruction:
+      'Split step, turn side-on and move diagonally backward-left. Shadow a round-the-head overhead action, keep the chest controlled and recover to the base.',
+    amount: '3 reps · 20 secs',
+    durationSeconds: 20,
+  },
+  {
+    title: 'Round recovery',
+    instruction:
+      'Walk slowly, shake out the legs and breathe. Check that every marker is still in place before the next round begins.',
+    amount: 'Rest 40 secs',
+    durationSeconds: 40,
+    kind: 'rest',
+  },
+]
+
+const compactHomeFootworkSetup =
+  'Arrange six markers around a central base: right front, left front, right side, left side, right rear and left rear. Keep every marker only one controlled step or lunge away. Right-handed movement cues are shown; left-handed players can mirror the racket-side details.'
+const compactHomeFootworkWorkRest =
+  'Press Start once. The guide gives you 20 seconds (about 3 controlled reps) at each corner, advances automatically, then starts a 40-second recovery. Complete 3 rounds.'
+const compactHomeFootworkSafety =
+  'Scale every movement to the available room. Do not use full-court strides, step on markers or continue on a slippery surface.'
+
+export const compactHomeFootworkContent = {
+  illustrationURL: '/images/drills/compact-home-footwork.png',
+  stepIllustrationURL: '/images/drills/stepsheets/compact-home-footwork-exercises.png',
+  stepIllustrationColumns: 3,
+  stepIllustrationRows: 3,
+  durationMinutes: 10,
+  equipment: 'Six small floor markers and a clear, non-slip space of about 2 by 2 metres',
+  instructions: [
+    `Setup: ${compactHomeFootworkSetup}`,
+    compactHomeFootworkSteps
+      .map((step, index) => `${index + 1}. ${step.title} — ${step.instruction}`)
+      .join('\n'),
+    `Work/rest: ${compactHomeFootworkWorkRest}\nSafety: ${compactHomeFootworkSafety}`,
+  ].join('\n\n'),
+  coachingPoints:
+    'Use a small split step, move quietly, keep the knees aligned and return to a balanced base.',
+  commonMistakes:
+    'Taking court-sized steps in a small room, crossing the feet carelessly and prioritising speed over balance.',
+  successTarget: 'Complete three rounds without touching a marker or losing balance.',
+  easierVariation: 'Walk two controlled reps to each corner before increasing speed.',
+  harderProgression: 'Use random audio cues and change direction without returning fully upright.',
+  completionRequirement:
+    'Maintains posture, rhythm and a consistent base throughout the final round.',
+}
+
 const configs: Record<string, StepSheetConfig> = {
   'Solo Racket Control Circuit': {
     sheetURL: '/images/drills/stepsheets/solo-racket-control-circuit.png',
@@ -132,71 +217,17 @@ const configs: Record<string, StepSheetConfig> = {
     ],
   },
   'Compact Home Footwork': {
-    sheetURL: '/images/drills/stepsheets/compact-home-footwork-exercises.png',
-    columns: 3,
-    rows: 3,
-    setup:
-      'Arrange six markers around a central base: right front, left front, right side, left side, right rear and left rear. Keep every marker only one controlled step or lunge away. Right-handed movement cues are shown; left-handed players can mirror the racket-side details.',
-    workRest:
-      'Press Start once. The guide gives you 20 seconds (about 3 controlled reps) at each corner, advances automatically, then starts a 40-second recovery. Complete 3 rounds.',
-    safety:
-      'Scale every movement to the available room. Do not use full-court strides, step on markers or continue on a slippery surface.',
+    sheetURL: compactHomeFootworkContent.stepIllustrationURL,
+    columns: compactHomeFootworkContent.stepIllustrationColumns,
+    rows: compactHomeFootworkContent.stepIllustrationRows,
+    setup: compactHomeFootworkSetup,
+    workRest: compactHomeFootworkWorkRest,
+    safety: compactHomeFootworkSafety,
     rounds: 3,
-    equipment: 'Six small floor markers and a clear, non-slip space of about 2 by 2 metres',
-    successTarget: 'Complete three rounds without touching a marker or losing balance.',
-    easierVariation: 'Walk two controlled reps to each corner before increasing speed.',
-    steps: [
-      {
-        title: 'Right front corner',
-        instruction:
-          'Start at the base, split step, push diagonally forward-right and finish in a controlled racket-leg lunge. Shadow a forehand net shot, push back and reset at the base.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Left front corner',
-        instruction:
-          'Split step, travel diagonally forward-left and finish with the racket leg supporting a balanced lunge. Shadow a backhand net shot, then recover to the base.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Right side corner',
-        instruction:
-          'Split step, push from the left foot and chasse to the right-side marker. Shadow a compact forehand drive or block, then recover without crossing the feet.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Left side corner',
-        instruction:
-          'Split step, push from the right foot and chasse to the left-side marker. Shadow a compact backhand drive or block, then return under control.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Right rear corner',
-        instruction:
-          'Split step, turn side-on and move diagonally backward-right using small chasse or crossover steps. Shadow an overhead stroke, land balanced and recover to the base.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Left rear corner',
-        instruction:
-          'Split step, turn side-on and move diagonally backward-left. Shadow a round-the-head overhead action, keep the chest controlled and recover to the base.',
-        amount: '3 reps · 20 secs',
-        durationSeconds: 20,
-      },
-      {
-        title: 'Round recovery',
-        instruction:
-          'Walk slowly, shake out the legs and breathe. Check that every marker is still in place before the next round begins.',
-        amount: 'Rest 40 secs',
-        durationSeconds: 40,
-        kind: 'rest',
-      },
-    ],
+    equipment: compactHomeFootworkContent.equipment,
+    successTarget: compactHomeFootworkContent.successTarget,
+    easierVariation: compactHomeFootworkContent.easierVariation,
+    steps: compactHomeFootworkSteps,
   },
   'Lunge Balance and Leg Strength': {
     sheetURL: '/images/drills/stepsheets/lunge-balance-leg-strength.png',

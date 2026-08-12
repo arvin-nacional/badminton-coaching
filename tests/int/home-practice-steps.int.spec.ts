@@ -4,6 +4,7 @@ import {
   buildHomePracticeSequence,
   canFinishHomePractice,
   canMarkHomePracticeComplete,
+  compactHomeFootworkContent,
   getHomePracticeAdvanceAction,
   getHomePracticeRounds,
   upsertHomePracticeExerciseLog,
@@ -116,5 +117,12 @@ describe('home practice sequence progress', () => {
     expect(sequence?.steps.slice(0, 6).every((step) => step.durationSeconds === 20)).toBe(true)
     expect(sequence?.steps.at(-1)?.durationSeconds).toBe(40)
     expect(sequence?.steps.at(-1)?.kind).toBe('rest')
+    expect(sequence?.sheetURL).toBe(compactHomeFootworkContent.stepIllustrationURL)
+    expect(compactHomeFootworkContent.instructions).toContain('1. Right front corner')
+    expect(compactHomeFootworkContent.instructions).toContain('6. Left rear corner')
+    expect(compactHomeFootworkContent.instructions).toContain('Complete 3 rounds')
+    expect(
+      sequence ? sequence.steps.filter((step) => step.kind !== 'rest').length * sequence.rounds : 0,
+    ).toBe(18)
   })
 })

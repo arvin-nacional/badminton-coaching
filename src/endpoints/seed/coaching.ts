@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 
-import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
+import { buildHomePracticeSequence, compactHomeFootworkContent } from '@/data/homePracticeSteps'
 
 type Level = 'foundations' | 'development' | 'competitive'
 type SkillCategory =
@@ -914,23 +914,9 @@ const drills: DrillSeed[] = [
     level: 'foundations',
     eventType: 'general',
     practiceSetting: 'home',
-    illustrationURL: '/images/drills/compact-home-footwork.png',
-    equipment: 'Six small floor markers and a clear, non-slip space of about 2 by 2 metres',
+    ...compactHomeFootworkContent,
     numberOfPlayers: 1,
-    durationMinutes: 10,
-    instructions:
-      'Setup: Arrange six markers around a central base: right front, left front, right side, left side, right rear and left rear. Keep every marker only one controlled step or lunge away. Right-handed movement cues are shown; left-handed players can mirror the racket-side details.\n\n1. Right front corner — split, push diagonally forward-right, finish in a controlled racket-leg lunge, shadow a forehand net shot and recover to base.\n2. Left front corner — split, travel diagonally forward-left, finish in a balanced racket-leg lunge, shadow a backhand net shot and recover.\n3. Right side corner — split, push from the left foot, chasse right, shadow a compact forehand drive or block and recover without crossing the feet.\n4. Left side corner — split, push from the right foot, chasse left, shadow a compact backhand drive or block and return under control.\n5. Right rear corner — split, turn side-on, move diagonally backward-right, shadow an overhead stroke, land balanced and recover.\n6. Left rear corner — split, turn side-on, move diagonally backward-left, shadow a round-the-head overhead action and recover.\n7. Round recovery — walk slowly, shake out the legs, breathe and check the markers before continuing.\n\nWork/rest: Press Start once. The guide gives you 20 seconds (about 3 controlled reps) at each corner, advances automatically, then starts a 40-second recovery. Complete 3 rounds.\nSafety: Scale every movement to the available room. Do not use full-court strides, step on markers or continue on a slippery surface.',
-    coachingPoints:
-      'Use a small split step, move quietly, keep the knees aligned and return to a balanced base.',
-    commonMistakes:
-      'Taking court-sized steps in a small room, crossing the feet carelessly and prioritising speed over balance.',
     difficulty: 'easy',
-    successTarget: 'Complete three rounds without touching a marker or losing balance.',
-    easierVariation: 'Walk two controlled reps to each corner before increasing speed.',
-    harderProgression:
-      'Use random audio cues and change direction without returning fully upright.',
-    completionRequirement:
-      'Maintains posture, rhythm and a consistent base throughout the final round.',
   },
   {
     name: 'Lunge Balance and Leg Strength',
