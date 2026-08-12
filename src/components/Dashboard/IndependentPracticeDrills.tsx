@@ -7,12 +7,9 @@ import { createPortal } from 'react-dom'
 
 import { HomePracticeTimer } from '@/components/Dashboard/HomePracticeTimer'
 import { PracticeStepIllustration } from '@/components/Dashboard/PracticeStepIllustration'
-import {
-  badmintonBodyweightStrengthContent,
-  buildHomePracticeSequence,
-  shoulderAndCoreControlContent,
-} from '@/data/homePracticeSteps'
+import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
 import type { Drill, IndependentPractice } from '@/payload-types'
+import { drillIllustrationFor } from '@/utilities/drillIllustration'
 
 type PracticeDrill = Pick<
   Drill,
@@ -36,28 +33,6 @@ type PracticeDrill = Pick<
   | 'harderProgression'
   | 'completionRequirement'
 >
-
-const defaultIllustrations: Record<string, string> = {
-  'Solo Racket Control Circuit': '/images/drills/solo-racket-control-circuit.png',
-  'Low Serve Floor Targets': '/images/drills/low-serve-floor-targets.png',
-  'Overhead Shadow Technique': '/images/drills/overhead-shadow-technique.png',
-  'Compact Home Footwork': '/images/drills/compact-home-footwork.png',
-  'Lunge Balance and Leg Strength': '/images/drills/lunge-balance-leg-strength.png',
-  'Wall Drive and Defence': '/images/drills/wall-drive-defence.png',
-  'Reactive Split-Step Cues': '/images/drills/reactive-split-step-cues.png',
-  'Badminton Bodyweight Strength Circuit':
-    '/images/drills/badminton-bodyweight-strength-circuit.png',
-  'Shoulder and Core Control': '/images/drills/shoulder-core-control.png',
-  'Match Visualization and Reset': '/images/drills/match-visualization-reset.png',
-  'High-Intensity Shadow Intervals': '/images/drills/high-intensity-shadow-intervals.png',
-}
-
-const illustrationFor = (drill: PracticeDrill) =>
-  drill.name === 'Badminton Bodyweight Strength Circuit'
-    ? badmintonBodyweightStrengthContent.illustrationURL
-    : drill.name === 'Shoulder and Core Control'
-      ? shoulderAndCoreControlContent.illustrationURL
-      : drill.illustrationURL || defaultIllustrations[drill.name]
 
 export function IndependentPracticeDrills({
   drills,
@@ -113,10 +88,10 @@ export function IndependentPracticeDrills({
   const selectedSheetURL = useGeneratedSequence
     ? selectedGeneratedSequence?.sheetURL ||
       selectedDrill?.stepIllustrationURL ||
-      (selectedDrill ? illustrationFor(selectedDrill) : null)
+      (selectedDrill ? drillIllustrationFor(selectedDrill) : null)
     : selectedDrill?.stepIllustrationURL ||
       selectedGeneratedSequence?.sheetURL ||
-      (selectedDrill ? illustrationFor(selectedDrill) : null)
+      (selectedDrill ? drillIllustrationFor(selectedDrill) : null)
   const selectedSheetColumns = Math.max(
     1,
     useGeneratedSequence
@@ -237,9 +212,9 @@ export function IndependentPracticeDrills({
             aria-label={`View details for ${drill.name}`}
           >
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#eef3f8]">
-              {illustrationFor(drill) ? (
+              {drillIllustrationFor(drill) ? (
                 <Image
-                  src={illustrationFor(drill)!}
+                  src={drillIllustrationFor(drill)!}
                   alt=""
                   fill
                   sizes="112px"
@@ -283,7 +258,7 @@ export function IndependentPracticeDrills({
           practiceID={practiceID}
           drills={drills.map((drill) => ({
             ...drill,
-            illustrationURL: illustrationFor(drill),
+            illustrationURL: drillIllustrationFor(drill),
           }))}
           initialStatus={initialTimerStatus}
           initialStartedAt={initialTimerStartedAt}
@@ -373,9 +348,9 @@ export function IndependentPracticeDrills({
                 <div ref={modalContentRef} className="overflow-y-auto">
                   <div className="grid md:grid-cols-[260px_minmax(0,1fr)]">
                     <div className="relative aspect-[4/3] bg-[#eef3f8] md:aspect-auto md:min-h-[330px]">
-                      {illustrationFor(selectedDrill) ? (
+                      {drillIllustrationFor(selectedDrill) ? (
                         <Image
-                          src={illustrationFor(selectedDrill)!}
+                          src={drillIllustrationFor(selectedDrill)!}
                           alt={`${selectedDrill.name} exercise illustration`}
                           fill
                           sizes="(max-width: 768px) 100vw, 260px"

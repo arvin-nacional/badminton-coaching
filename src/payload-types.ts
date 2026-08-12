@@ -1045,6 +1045,10 @@ export interface Program {
       skills: (string | Skill)[];
       drills: (string | Drill)[];
       /**
+       * Weekly guidance shown to the student above the generated home-practice drills.
+       */
+      homePracticeInstructions: string;
+      /**
        * Exercises assigned for this lesson. Saving the program automatically builds and updates the student home-practice plan.
        */
       homeDrills: (string | Drill)[];
@@ -1317,6 +1321,10 @@ export interface TrainingSession {
     movementPreparation?: string | null;
     technicalDrill?: (string | null) | Drill;
     progressiveDrill?: (string | null) | Drill;
+    /**
+     * Any third or later drill from a program lesson, including assessment benchmarks.
+     */
+    additionalDrills?: (string | Drill)[] | null;
     conditionedGame?: string | null;
     matchPlay?: string | null;
     cooldownAndFeedback?: string | null;
@@ -2389,6 +2397,7 @@ export interface ProgramsSelect<T extends boolean = true> {
               durationMinutes?: T;
               skills?: T;
               drills?: T;
+              homePracticeInstructions?: T;
               homeDrills?: T;
               independentPractice?: T;
               successCriteria?: T;
@@ -2526,6 +2535,7 @@ export interface TrainingSessionsSelect<T extends boolean = true> {
         movementPreparation?: T;
         technicalDrill?: T;
         progressiveDrill?: T;
+        additionalDrills?: T;
         conditionedGame?: T;
         matchPlay?: T;
         cooldownAndFeedback?: T;

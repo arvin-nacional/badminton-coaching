@@ -15,6 +15,19 @@ const relationshipIDs = (values: unknown[] | null | undefined) =>
 export const homePracticeName = (programName: string, week: number, lessonTitle: string) =>
   `${programName} - Week ${week}: ${lessonTitle}`
 
+export const programHomePracticeSuccessCriteria =
+  'Finish every guided round in each assigned drill. Your coach will review the saved workout time and exercise logs; note one technical improvement to discuss at the next lesson.'
+
+export const programHomePracticeInstructions = (
+  objective: string,
+  weeklyPractice?: string | null,
+) =>
+  [
+    'Complete the assigned drills in order in a clear, non-slip space with enough room for every movement and swing.',
+    `Lesson objective: ${objective}`,
+    `Weekly practice: ${weeklyPractice || objective}`,
+  ].join('\n\n')
+
 export const syncProgramHomePractices: CollectionBeforeValidateHook<Program> = async ({
   data,
   originalDoc,
@@ -72,7 +85,10 @@ export const syncProgramHomePractices: CollectionBeforeValidateHook<Program> = a
       const practiceData = {
         name,
         level: programLevel,
-        instructions: `Complete these drills at home in a clear, non-slip space. This week's focus is: ${lesson.objective}`,
+        instructions: programHomePracticeInstructions(
+          lesson.objective,
+          lesson.homePracticeInstructions,
+        ),
         drills: validHomeDrillIDs,
         durationMinutes: Math.max(
           1,
@@ -81,8 +97,7 @@ export const syncProgramHomePractices: CollectionBeforeValidateHook<Program> = a
             0,
           ),
         ),
-        successCriteria:
-          'Complete each assigned home drill with controlled technique and note one improvement for your coach.',
+        successCriteria: programHomePracticeSuccessCriteria,
       }
 
       if (!practiceID) {

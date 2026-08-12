@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { CoachRoster, type CoachRosterRow } from '@/components/Dashboard/CoachRoster'
+import { CoachHomePracticeDrills } from '@/components/Dashboard/CoachHomePracticeDrills'
 import {
   DashboardShell,
   Empty,
@@ -25,7 +26,7 @@ import {
   relationName,
   Stat,
 } from '@/components/Dashboard/UI'
-import type { Skill, StudentProfile } from '@/payload-types'
+import type { Drill, Skill, StudentProfile } from '@/payload-types'
 import { isAdmin, isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 
 export default async function CoachDashboardPage() {
@@ -48,74 +49,84 @@ export default async function CoachDashboardPage() {
   const studentScope = {
     student: { in: studentIDs.length ? studentIDs : ['__no_assigned_students__'] },
   }
-  const [sessions, completedSessions, progress, events, assessmentBookings] = await Promise.all([
-    payload.find({
-      collection: 'training-sessions',
-      depth: 2,
-      limit: 500,
-      sort: 'lessonWeek',
-      overrideAccess: false,
-      user,
-      where: {
-        and: [
-          studentScope,
-          {
-            or: [
-              { status: { equals: 'planned' } },
-              {
-                and: [
-                  { scheduledAt: { greater_than_equal: nowISO } },
-                  { status: { equals: 'scheduled' } },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    }),
-    payload.find({
-      collection: 'training-sessions',
-      depth: 2,
-      limit: 100,
-      sort: '-scheduledAt',
-      overrideAccess: false,
-      user,
-      where: { and: [studentScope, { status: { equals: 'completed' } }] },
-    }),
-    payload.find({
-      collection: 'skill-progress',
-      depth: 2,
-      limit: 500,
-      sort: '-updatedAt',
-      overrideAccess: false,
-      user,
-      where: studentScope,
-    }),
-    payload.find({
-      collection: 'coaching-events',
-      depth: 2,
-      limit: 100,
-      sort: 'startsAt',
-      overrideAccess: false,
-      user,
-      where: { and: [studentScope, { startsAt: { greater_than_equal: nowISO } }] },
-    }),
-    payload.find({
-      collection: 'assessment-bookings',
-      depth: 1,
-      limit: 100,
-      sort: 'startsAt',
-      overrideAccess: false,
-      user,
-      where: {
-        and: [
-          { or: [{ status: { equals: 'confirmed' } }, { status: { equals: 'completed' } }] },
-          { startsAt: { greater_than_equal: nowISO } },
-          ...(!isAdmin(user) ? [{ coach: { equals: user.id } }] : []),
-        ],
-      },
-    }),
-  ])
+  const [sessions, completedSessions, progress, events, assessmentBookings, independentPractices] =
+    await Promise.all([
+      payload.find({
+        collection: 'training-sessions',
+        depth: 2,
+        limit: 500,
+        sort: 'lessonWeek',
+        overrideAccess: false,
+        user,
+        where: {
+          and: [
+            studentScope,
+            {
+              or: [
+                { status: { equals: 'planned' } },
+                {
+                  and: [
+                    { scheduledAt: { greater_than_equal: nowISO } },
+                    { status: { equals: 'scheduled' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      }),
+      payload.find({
+        collection: 'training-sessions',
+        depth: 2,
+        limit: 100,
+        sort: '-scheduledAt',
+        overrideAccess: false,
+        user,
+        where: { and: [studentScope, { status: { equals: 'completed' } }] },
+      }),
+      payload.find({
+        collection: 'skill-progress',
+        depth: 2,
+        limit: 500,
+        sort: '-updatedAt',
+        overrideAccess: false,
+        user,
+        where: studentScope,
+      }),
+      payload.find({
+        collection: 'coaching-events',
+        depth: 2,
+        limit: 100,
+        sort: 'startsAt',
+        overrideAccess: false,
+        user,
+        where: { and: [studentScope, { startsAt: { greater_than_equal: nowISO } }] },
+      }),
+      payload.find({
+        collection: 'assessment-bookings',
+        depth: 1,
+        limit: 100,
+        sort: 'startsAt',
+        overrideAccess: false,
+        user,
+        where: {
+          and: [
+            { or: [{ status: { equals: 'confirmed' } }, { status: { equals: 'completed' } }] },
+            { startsAt: { greater_than_equal: nowISO } },
+            ...(!isAdmin(user) ? [{ coach: { equals: user.id } }] : []),
+          ],
+        },
+      }),
+      payload.find({
+        collection: 'independent-practices',
+        depth: 2,
+        limit: 500,
+        sort: 'lessonWeek',
+        overrideAccess: false,
+        user,
+        where: studentScope,
+      }),
+    ])
 
   const assessmentNeeded = profiles.docs.filter(
     (profile) => profile.assessmentStatus === 'required',
@@ -177,6 +188,16 @@ export default async function CoachDashboardPage() {
       sessionsRemaining: profile.sessionsRemaining,
       studentID: profile.id,
     }
+  })
+  const weeklyHomePractices = profiles.docs.map((profile) => {
+    const practice = independentPractices.docs.find((item) => {
+      const studentID = typeof item.student === 'object' ? item.student.id : item.student
+      return studentID === profile.id && item.lessonWeek === profile.currentProgramWeek
+    })
+    const drills = (practice?.drills || []).filter(
+      (drill): drill is Drill => typeof drill === 'object',
+    )
+    return { drills, practice, profile }
   })
   const upcomingCalendar = scheduledSessions
     .slice()
@@ -422,6 +443,83 @@ export default async function CoachDashboardPage() {
           icon={UsersRound}
         >
           <CoachRoster rows={rosterRows} />
+        </Panel>
+
+        <Panel
+          className="lg:col-span-12"
+          title="This week's home practice"
+          subtitle="Every assigned drill with the same image and time shown to the player"
+          icon={Dumbbell}
+        >
+          <div className="grid gap-4 xl:grid-cols-2">
+            {weeklyHomePractices.length ? (
+              weeklyHomePractices.map(({ drills, practice, profile }) => {
+                const plannedMinutes = drills.reduce(
+                  (total, drill) => total + drill.durationMinutes,
+                  0,
+                )
+
+                return (
+                  <article
+                    key={profile.id}
+                    className="rounded-2xl border border-[#092c59]/10 bg-[#f8fbff] p-5"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-lg font-black">{profile.displayName}</p>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[#718399]">
+                          {relationName(profile.program)} · Week {profile.currentProgramWeek}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase ${practice?.status === 'completed' ? 'bg-[#e9f8ef] text-[#24734b]' : practice?.timerStatus === 'running' || practice?.timerStatus === 'paused' ? 'bg-[#fff6e8] text-[#8b6a31]' : 'bg-[#eaf3ff] text-[#1677ff]'}`}
+                      >
+                        {practice?.status === 'completed'
+                          ? 'Completed'
+                          : practice?.timerStatus === 'running' ||
+                              practice?.timerStatus === 'paused'
+                            ? 'In progress'
+                            : practice
+                              ? 'Assigned'
+                              : 'Not generated'}
+                      </span>
+                    </div>
+
+                    {practice ? (
+                      <>
+                        <h3 className="mt-4 font-black text-[#092c59]">{practice.title}</h3>
+                        <p className="mt-1 text-xs font-bold text-[#718399]">
+                          {drills.length} {drills.length === 1 ? 'drill' : 'drills'} ·{' '}
+                          {plannedMinutes} minutes
+                        </p>
+                        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#607286]">
+                          {practice.instructions}
+                        </p>
+                        <div className="mt-4">
+                          <CoachHomePracticeDrills drills={drills} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="mt-4">
+                        <Empty text="No home practice has been generated for this program week." />
+                      </div>
+                    )}
+
+                    <Link
+                      href={`/dashboard/coach/students/${profile.id}`}
+                      className="mt-5 inline-flex text-sm font-black text-[#1677ff]"
+                    >
+                      Browse all program weeks →
+                    </Link>
+                  </article>
+                )
+              })
+            ) : (
+              <div className="xl:col-span-2">
+                <Empty text="Assigned players and their current home-practice plans will appear here." />
+              </div>
+            )}
+          </div>
         </Panel>
 
         <Panel

@@ -1,6 +1,11 @@
 import type { Payload } from 'payload'
 
 import {
+  homePracticeName,
+  programHomePracticeInstructions,
+  programHomePracticeSuccessCriteria,
+} from '@/collections/Coaching/syncProgramHomePractices'
+import {
   badmintonBodyweightStrengthContent,
   buildHomePracticeSequence,
   compactHomeFootworkContent,
@@ -26,7 +31,7 @@ type SkillCategory =
   | 'training-habits'
 
 type LessonType = 'technical' | 'movement' | 'tactical' | 'match-play' | 'assessment'
-type LessonSeed = {
+export type LessonSeed = {
   week: number
   title: string
   lessonType: LessonType
@@ -126,7 +131,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Establish a safe movement and racket-control baseline.',
             ['Grip Change Tap-Ups', 'Four-Corner Shadow Rhythm'],
-            'Complete 3 x 20 tap-ups and rehearse each corner slowly.',
+            'Complete the solo racket-control, compact-footwork and lunge-and-balance benchmarks at a controlled pace, then record the lowest result as the starting priority.',
             'Uses a suitable grip and reaches four corners without losing balance.',
           ),
           lesson(
@@ -135,7 +140,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Change grip with the fingers while keeping the racket available for the next shot.',
             ['Grip Change Tap-Ups', 'Low Serve Gate'],
-            'Complete 50 alternating contacts and 20 low serves.',
+            'Complete the solo racket-control circuit for relaxed grip changes, then the low-serve target circuit and record the final two target scores.',
             'Changes grip without looking at the handle in 8 of 10 attempts.',
           ),
           lesson(
@@ -144,7 +149,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Introduce a repeatable split-step and recovery rhythm.',
             ['Four-Corner Shadow Rhythm', 'Lunge, Net and Recover'],
-            'Perform four controlled 30-second shadow rounds.',
+            'Complete the compact-footwork, reactive split-step and lunge-and-balance circuits, then record the least stable direction or recovery.',
             'Returns to a balanced base after 8 of 10 movements.',
           ),
         ],
@@ -162,7 +167,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Create safe height and length using early preparation and overhead contact.',
             ['Clear to Targets', 'Grip Change Tap-Ups'],
-            'Shadow 30 overhead actions, then record 20 target attempts.',
+            'Complete 3 x 8 controlled overhead shadows, then reinforce relaxed grip changes with one racket-control circuit.',
             'Places 8 of 10 clears beyond the doubles service line.',
           ),
           lesson(
@@ -171,7 +176,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Link the overhead clear to an immediate balanced recovery.',
             ['Rear-Court Clear and Recovery', 'Clear to Targets'],
-            'Complete 3 x 8 clear-and-recover shadow repetitions.',
+            'Complete the compact-footwork circuit for controlled rear-court movement, then 3 x 8 overhead-shadow repetitions with an immediate balanced recovery.',
             'Recovers before the feeder begins the next action in 8 of 10 feeds.',
           ),
           lesson(
@@ -180,7 +185,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Develop a repeatable low serve and understand legal service preparation.',
             ['Low Serve Gate', 'Twenty-Shot Cooperative Rally'],
-            'Serve 5 sets of 10 to alternating targets.',
+            'Complete one solo racket-control circuit to prime the thumb-led grip, then complete 4 rounds of 10 low serves and record target hits.',
             'Achieves at least 80% legal serves with controlled height.',
           ),
           lesson(
@@ -189,7 +194,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Use the lift to move the opponent back and regain court position.',
             ['Lift for Length', 'Lunge, Net and Recover'],
-            'Complete 30 shadow lunges and 30 controlled lift actions.',
+            'Complete the compact-footwork circuit with controlled front-corner approaches, then the lunge-and-balance circuit that supports a stable underarm lift.',
             'Reaches the rear target and recovers on 8 of 10 feeds.',
           ),
         ],
@@ -207,7 +212,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Approach, play and recover from the forecourt with a stable lunge.',
             ['Lunge, Net and Recover', 'Lift for Length'],
-            'Alternate 20 shadow net shots and lifts from each side.',
+            'Complete the compact footwork circuit with extra attention to balanced front-corner lunges, then respond to random direction cues and recover to the same base.',
             'Selects net or lift appropriately and finishes balanced in 8 of 10 feeds.',
           ),
           lesson(
@@ -216,7 +221,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Start the rally with a clear serve, return and recovery intention.',
             ['Low Serve Gate', 'Lift for Length'],
-            'Practise 20 serves and visualise the likely return after each one.',
+            'Complete the low-serve target circuit, then use reactive split-step cues to practise the first movement after serving or returning.',
             'Completes the first three actions without an unforced error in 7 of 10 rallies.',
           ),
           lesson(
@@ -225,7 +230,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Sustain a rally using safe height, length and recovery.',
             ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'],
-            'Record the longest rally from three 10-minute practices.',
+            'Complete the solo racket-control circuit for repeatable contacts, then rehearse controlled overhead preparation and recovery to base.',
             'Completes three rallies of at least 20 shots with functional recovery.',
           ),
         ],
@@ -247,7 +252,7 @@ const programs: ProgramSeed[] = [
               'Rear-Court Clear and Recovery',
               'Lunge, Net and Recover',
             ],
-            'Complete a six-corner shadow sequence twice and note the least stable corner.',
+            'Complete the compact six-corner footwork and reactive split-step cue circuits, then note the least stable direction to review with your coach.',
             'Maintains balance and returns to a suitable base in 8 of 10 rallies.',
           ),
           lesson(
@@ -256,7 +261,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Demonstrate the core movement, serve, clear, lift and rally standards.',
             ['Low Serve Gate', 'Clear to Targets', 'Twenty-Shot Cooperative Rally'],
-            'Review personal targets and complete one short practice for the weakest area.',
+            'Complete the low-serve, overhead-shadow and compact-footwork benchmarks at a controlled pace, then record the weakest result as the next training priority.',
             'Meets the completion target for at least three drills and identifies the next priority.',
           ),
         ],
@@ -283,7 +288,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Measure split-step timing, corner efficiency and recovery quality.',
             ['Random Six-Corner Feeding', 'Twenty-Shot Cooperative Rally'],
-            'Film one minute of shadow movement and identify one repeated issue.',
+            'Complete the compact six-corner footwork and reactive split-step cue circuits, then record the least stable direction and one repeated timing issue.',
             'Completes 10 of 12 random feeds with a balanced recovery.',
           ),
           lesson(
@@ -292,7 +297,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Time the split from opponent contact rather than guessing direction.',
             ['Random Six-Corner Feeding', 'Four-Corner Shadow Rhythm'],
-            'Perform 5 x 30-second reactive split-step rounds with a partner cue.',
+            'Complete the reactive split-step cue circuit before the compact footwork circuit, and record how many reactions were correctly timed without guessing.',
             'Responds correctly without pre-moving on 10 of 12 feeds.',
           ),
           lesson(
@@ -301,7 +306,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Use an economical turn, landing and recovery under increasing feed speed.',
             ['Rear-Court Clear and Recovery', 'Clear to Targets'],
-            'Complete 3 x 10 shadow recoveries from both rear corners.',
+            'Complete the overhead-shadow circuit, then use both rear markers in the compact-footwork circuit and note which recovery loses balance first.',
             'Maintains clear length and recovers before 8 of 10 follow-up feeds.',
           ),
           lesson(
@@ -310,7 +315,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Move forward quickly, control the lunge and recover for the next direction.',
             ['Lunge, Net and Recover', 'Net-Lift-Kill Progression'],
-            'Complete 20 lunges per side with a two-second balance hold.',
+            'Complete the lunge-and-balance circuit before the compact-footwork circuit, keeping both front-corner approaches controlled and balanced.',
             'Handles both forecourt corners with correct recovery in 8 of 10 feeds.',
           ),
         ],
@@ -328,7 +333,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Disguise clear and drop while preserving balance and recovery.',
             ['Clear-Drop Decision Rally', 'Clear to Targets'],
-            'Shadow alternating clears and drops in 5 sets of 8.',
+            'Complete the overhead-shadow circuit with one repeatable preparation, then finish the shoulder-and-core circuit without losing posture.',
             'Uses the same preparation and reaches the intended zone in 8 of 10 shots.',
           ),
           lesson(
@@ -337,7 +342,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Carry attacking pressure from the smash into the next shot.',
             ['Three-Shot Attack Pattern', 'Rear-Court Clear and Recovery'],
-            'Perform 4 x 6 controlled smash-and-recover shadows.',
+            'Complete the overhead-shadow circuit for the first attack, then use the wall-drive circuit to rehearse compact second-shot preparation.',
             'Completes 7 of 10 three-shot attacks without losing balance.',
           ),
           lesson(
@@ -346,7 +351,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Control drives, protect the body and recognise the chance to move forward.',
             ['Drive Channel Exchange', 'Low Serve Gate'],
-            'Complete three cooperative sets of 30 compact drives.',
+            'Complete the wall-drive circuit for compact exchanges, then the lunge-and-balance circuit for a controlled front-court follow-up.',
             'Sustains 20 drives and responds correctly to 4 of 5 blocks.',
           ),
           lesson(
@@ -355,7 +360,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Check whether improved technique remains stable in a rally.',
             ['Random Six-Corner Feeding', 'Three-Shot Attack Pattern', 'Drive Channel Exchange'],
-            'Review coach feedback and repeat the lowest-scoring drill once.',
+            'Complete the reactive-cue, overhead-shadow and wall-drive benchmarks, then record the lowest result to review with your coach.',
             'Improves at least one baseline measure without reducing movement quality.',
           ),
         ],
@@ -373,7 +378,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Use net pressure and the lift to change opponent position.',
             ['Net-Lift-Kill Progression', 'Lunge, Net and Recover'],
-            'Write one cue for recognising when to stay at the net and when to lift.',
+            'Complete the lunge-and-balance circuit, then use match-visualisation prompts to rehearse when to stay at the net and when to lift.',
             'Creates a clear attacking chance in 6 of 10 rallies.',
           ),
           lesson(
@@ -382,7 +387,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Move the opponent deep before using the forecourt with purpose.',
             ['Clear-Drop Decision Rally', 'Twenty-Shot Cooperative Rally'],
-            'Play three half-court games where every attack must follow a deep shot.',
+            'Complete the overhead-shadow circuit, then visualise clear-drop rallies in which a deep shot creates the next forecourt opportunity.',
             'Makes the correct clear-or-drop choice in 8 of 10 reviewed rallies.',
           ),
           lesson(
@@ -391,7 +396,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Select a block, drive or lift according to balance and available space.',
             ['Defence Choice Under Pressure', 'Drive Channel Exchange'],
-            'Shadow 10 blocks, 10 drives and 10 lifts from a defensive base.',
+            'Complete the wall-drive circuit, then visualise defensive scenarios and choose one clear intention: neutralise, counter or lift to reset.',
             'Chooses an effective defensive response on 12 of 15 attacks.',
           ),
           lesson(
@@ -400,7 +405,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Transition between front-back and side-side formations as a pair.',
             ['Attack-Defence Rotation', 'Drive Channel Exchange'],
-            'Walk through five attack-to-defence transitions with a partner.',
+            'Complete the compact-footwork circuit, then visualise attack-to-defence transitions and name the correct formation after each prompt.',
             'Uses the correct formation after 8 of 10 transitions.',
           ),
         ],
@@ -418,7 +423,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Maintain shot quality while moving the shuttle between front and rear court.',
             ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'],
-            'Complete three target rallies and record errors by type.',
+            'Complete the overhead-shadow and compact-footwork circuits, then record whether preparation, direction change or recovery caused the most errors.',
             'Sustains a 20-shot rally while including four controlled changes of direction.',
           ),
           lesson(
@@ -427,7 +432,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Use high-percentage patterns and a reset routine at critical scores.',
             ['Pressure Score: 18-All', 'Tournament Interval Simulation'],
-            'Write a serve plan and return plan for 18-all.',
+            'Complete the low-serve target circuit, then visualise critical-score serve and return scenarios using one repeatable reset and first-three-shot plan.',
             'Follows the stated plan in 8 of 10 pressure rallies.',
           ),
           lesson(
@@ -436,7 +441,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Connect one reliable rally pattern to one attacking pattern.',
             ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
-            'Write a three-point match plan and rehearse the opening pattern.',
+            'Complete the overhead-shadow circuit, then use match visualisation to rehearse the opening actions and adjustment cue from a three-point match plan.',
             'Starts at least 7 of 10 rallies with the intended tactical pattern.',
           ),
           lesson(
@@ -445,7 +450,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Demonstrate technical, movement and tactical progress in match conditions.',
             ['Random Six-Corner Feeding', 'Net-Lift-Kill Progression', 'Pressure Score: 18-All'],
-            'Review the full program and identify one independent-practice priority.',
+            'Complete the reactive-cue, overhead-shadow and wall-drive benchmarks, then use the lowest result to identify the next independent-practice priority.',
             'Meets two drill targets under pressure and explains the next training priority.',
           ),
         ],
@@ -476,7 +481,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Repeat Movement Quality Intervals',
             ],
-            'Review one recent match and record three recurring rally outcomes.',
+            'Complete the high-intensity shadow benchmark, then visualise recent match scenarios and record one strength, one limiter and the first training priority.',
             'Produces a clear strength, limiting factor and first training priority.',
           ),
           lesson(
@@ -485,7 +490,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Preserve timing, posture and recovery through repeated efforts.',
             ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'],
-            'Complete 4 x 30-second quality movement intervals.',
+            'Complete the high-intensity shadow and bodyweight-strength circuits, recording when footwork shape or posture first falls below the planned standard.',
             'Maintains a 4/5 movement-quality rating through the final interval.',
           ),
           lesson(
@@ -494,7 +499,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Recover according to shot quality while feeds become less predictable.',
             ['Rear-Court Clear and Recovery', 'Random Six-Corner Feeding'],
-            'Film 20 rear-court recoveries and review the first recovery step.',
+            'Complete the overhead-shadow circuit before the high-intensity movement intervals, and review whether the first recovery step stays efficient under load.',
             'Reaches an effective base before 10 of 12 follow-up shots.',
           ),
           lesson(
@@ -503,7 +508,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Use placement and the third shot to gain the first advantage.',
             ['Low Serve Gate', 'Drive Channel Exchange', 'Pressure Score: 18-All'],
-            'Complete 30 serves to match-specific targets and note the expected return.',
+            'Complete the low-serve target and wall-drive circuits, linking accurate serve placement to compact return and third-shot preparation.',
             'Wins or neutralises the first three shots in 7 of 10 rallies.',
           ),
           lesson(
@@ -512,7 +517,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Translate baseline evidence into two measurable competition priorities.',
             ['Tournament Interval Simulation', 'Twenty-Shot Cooperative Rally'],
-            'Write two process goals and one result-neutral tournament cue.',
+            'Use match visualisation to rehearse two measurable process goals, then complete the shoulder-and-core circuit as a controlled physical reset.',
             'Can state, demonstrate and measure both selected priorities.',
           ),
         ],
@@ -530,7 +535,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Increase the repeatability of the player’s highest-value attack.',
             ['Three-Shot Attack Pattern', 'Clear-Drop Decision Rally'],
-            'Rehearse the first three actions of the attack for 30 quality repetitions.',
+            'Complete the overhead-shadow and shoulder-and-core circuits, preserving the same preparation, trunk control and balanced recovery throughout.',
             'Completes 8 of 10 attack patterns with balance and intended placement.',
           ),
           lesson(
@@ -539,7 +544,7 @@ const programs: ProgramSeed[] = [
             'technical',
             'Maintain pressure when the first attack does not finish the rally.',
             ['Three-Shot Attack Pattern', 'Drive Channel Exchange'],
-            'Complete 4 x 8 compact follow-up actions after a shadow smash.',
+            'Complete the overhead-shadow circuit, then the wall-drive circuit to rehearse compact preparation for the second and third attacking contacts.',
             'Keeps the initiative through three shots in 7 of 10 sequences.',
           ),
           lesson(
@@ -548,7 +553,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Use tight net pressure to force a lift or loose reply.',
             ['Net-Lift-Kill Progression', 'Lunge, Net and Recover'],
-            'Practise 20 net approaches with the racket held above net height.',
+            'Complete the lunge-and-balance circuit before the reactive split-step cues, keeping the racket available and the recovery controlled after every front call.',
             'Creates or finishes 7 of 10 forecourt attacking opportunities.',
           ),
           lesson(
@@ -557,7 +562,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Turn a stable defensive contact into neutral or attacking position.',
             ['Defence Choice Under Pressure', 'Drive Channel Exchange'],
-            'Complete three sets of 12 compact defensive contacts.',
+            'Complete the wall-drive circuit before the reactive split-step cues, recovering to a neutral ready position after every defensive contact and direction call.',
             'Neutralises or counterattacks 12 of 15 quality attacks.',
           ),
           lesson(
@@ -566,7 +571,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Apply the selected weapon without forcing it from poor situations.',
             ['Pressure Score: 18-All', 'Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'],
-            'Review video from one conditioned game and tag each attempted pattern.',
+            'Complete the overhead-shadow circuit, then visualise suitable and unsuitable attacking situations and record when the primary weapon should be used.',
             'Creates the intended pattern in at least 6 of 10 suitable rallies.',
           ),
         ],
@@ -584,7 +589,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Identify which improvements are transferring into scored games.',
             ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
-            'Write what improved, what is limiting performance and what comes next.',
+            'Use match visualisation to review transfer under pressure, then complete the shoulder-and-core circuit and record what improved, the current limiter and the next priority.',
             'Supports the next priority with evidence from at least three rallies.',
           ),
           lesson(
@@ -593,7 +598,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Commit to a clear plan and appropriate risk at deuce scores.',
             ['Pressure Score: 18-All', 'Low Serve Gate'],
-            'Rehearse a breathing cue and first-three-shot plan before 20 serves.',
+            'Complete the low-serve target circuit using the same breathing cue, then visualise critical-score first-three-shot plans and record whether the intention stayed clear.',
             'Follows the plan in 8 of 10 critical-score rallies.',
           ),
           lesson(
@@ -602,7 +607,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Use a short physical and mental reset after both wins and errors.',
             ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
-            'Practise the reset routine between 20 visualised rallies.',
+            'Complete the match-visualisation reset scenarios, then use the shoulder-and-core circuit to reinforce relaxed breathing, posture and physical control.',
             'Completes the routine independently before 9 of 10 rallies.',
           ),
           lesson(
@@ -611,7 +616,7 @@ const programs: ProgramSeed[] = [
             'movement',
             'Protect movement mechanics while fatigue and decision demands increase.',
             ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'],
-            'Complete a short interval set and record when movement quality changes.',
+            'Complete the high-intensity shadow and bodyweight-strength circuits, stopping and recording the point where landing, posture or recovery quality first changes.',
             'Maintains technical movement standards through the final interval.',
           ),
           lesson(
@@ -620,7 +625,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Make stable defensive choices when the opponent attacks at a critical score.',
             ['Defence Choice Under Pressure', 'Pressure Score: 18-All'],
-            'Rehearse three defensive intentions: neutralise, counter and reset.',
+            'Complete the wall-drive circuit, then visualise pressure attacks and rehearse three intentions: neutralise, counter and reset.',
             'Makes an effective choice in 12 of 15 pressure attacks.',
           ),
         ],
@@ -642,7 +647,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Repeat Movement Quality Intervals',
             ],
-            'Prepare the exact equipment, warm-up and cue card planned for competition.',
+            'Complete the high-intensity shadow circuit as the physical rehearsal, then use match visualisation to practise the planned interval cues and tournament routine.',
             'Completes the simulation using the planned routine without coach reminders.',
           ),
           lesson(
@@ -651,7 +656,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Apply the preferred game plan against a suitable opponent style.',
             ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
-            'Write the opening, adjustment and closing pattern for game plan A.',
+            'Complete the overhead-shadow circuit, then visualise the opening, adjustment and closing patterns for game plan A against a suitable opponent style.',
             'Recognises and uses the planned pattern in 7 of 10 suitable rallies.',
           ),
           lesson(
@@ -664,7 +669,7 @@ const programs: ProgramSeed[] = [
               'Attack-Defence Rotation',
               'Net-Lift-Kill Progression',
             ],
-            'Write two match signals that should trigger the alternative plan.',
+            'Complete the wall-drive circuit, then visualise two match signals that trigger the alternative plan and rehearse the first response to each.',
             'Changes plan for a clear reason and improves rally control in conditioned play.',
           ),
           lesson(
@@ -673,7 +678,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Reduce volume while preserving sharpness, confidence and routine quality.',
             ['Low Serve Gate', 'Three-Shot Attack Pattern', 'Tournament Interval Simulation'],
-            'Complete a short high-quality rehearsal and stop before technical quality drops.',
+            'Complete the low-serve target circuit at controlled quality, then use match visualisation for a brief confidence rehearsal and finish physically fresh.',
             'Meets key targets with low volume and finishes physically fresh.',
           ),
           lesson(
@@ -686,7 +691,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Tournament Interval Simulation',
             ],
-            'Complete the written self-review before the final coach conversation.',
+            'Complete the high-intensity shadow benchmark, then use match visualisation to record what improved, the current limiter, the next focus and competition readiness.',
             'Explains what improved, the current limiter, the next focus and readiness to compete.',
           ),
         ],
@@ -694,6 +699,8 @@ const programs: ProgramSeed[] = [
     ],
   },
 ]
+
+export const coachingPrograms = programs
 
 const skills: Array<{ name: string; category: SkillCategory; description: string }> = [
   {
@@ -1312,7 +1319,81 @@ const drills: DrillSeed[] = [
   },
 ]
 
-const homeDrillsForLesson = (programLesson: LessonSeed, level: Level): string[] => {
+export const coachingDrills = drills
+
+export const programHomeDrillAssignments: Record<string, Record<number, string[]>> = {
+  'Badminton Foundations': {
+    1: ['Solo Racket Control Circuit', 'Compact Home Footwork', 'Lunge Balance and Leg Strength'],
+    2: ['Solo Racket Control Circuit', 'Low Serve Floor Targets'],
+    3: ['Compact Home Footwork', 'Reactive Split-Step Cues', 'Lunge Balance and Leg Strength'],
+    4: ['Overhead Shadow Technique', 'Solo Racket Control Circuit'],
+    5: ['Compact Home Footwork', 'Overhead Shadow Technique'],
+    6: ['Solo Racket Control Circuit', 'Low Serve Floor Targets'],
+    7: ['Compact Home Footwork', 'Lunge Balance and Leg Strength'],
+    8: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
+    9: ['Low Serve Floor Targets', 'Reactive Split-Step Cues'],
+    10: ['Solo Racket Control Circuit', 'Overhead Shadow Technique'],
+    11: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
+    12: ['Low Serve Floor Targets', 'Overhead Shadow Technique', 'Compact Home Footwork'],
+  },
+  'Player Development': {
+    1: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
+    2: ['Reactive Split-Step Cues', 'Compact Home Footwork'],
+    3: ['Overhead Shadow Technique', 'Compact Home Footwork'],
+    4: ['Lunge Balance and Leg Strength', 'Compact Home Footwork'],
+    5: ['Overhead Shadow Technique', 'Shoulder and Core Control'],
+    6: ['Overhead Shadow Technique', 'Wall Drive and Defence'],
+    7: ['Wall Drive and Defence', 'Lunge Balance and Leg Strength'],
+    8: ['Reactive Split-Step Cues', 'Overhead Shadow Technique', 'Wall Drive and Defence'],
+    9: ['Lunge Balance and Leg Strength', 'Match Visualization and Reset'],
+    10: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
+    11: ['Wall Drive and Defence', 'Match Visualization and Reset'],
+    12: ['Compact Home Footwork', 'Match Visualization and Reset'],
+    13: ['Overhead Shadow Technique', 'Compact Home Footwork'],
+    14: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
+    15: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
+    16: ['Reactive Split-Step Cues', 'Overhead Shadow Technique', 'Wall Drive and Defence'],
+  },
+  'Competitive Performance': {
+    1: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
+    2: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
+    3: ['Overhead Shadow Technique', 'High-Intensity Shadow Intervals'],
+    4: ['Low Serve Floor Targets', 'Wall Drive and Defence'],
+    5: ['Match Visualization and Reset', 'Shoulder and Core Control'],
+    6: ['Overhead Shadow Technique', 'Shoulder and Core Control'],
+    7: ['Overhead Shadow Technique', 'Wall Drive and Defence'],
+    8: ['Lunge Balance and Leg Strength', 'Reactive Split-Step Cues'],
+    9: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+    10: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
+    11: ['Match Visualization and Reset', 'Shoulder and Core Control'],
+    12: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
+    13: ['Match Visualization and Reset', 'Shoulder and Core Control'],
+    14: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
+    15: ['Wall Drive and Defence', 'Match Visualization and Reset'],
+    16: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
+    17: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
+    18: ['Wall Drive and Defence', 'Match Visualization and Reset'],
+    19: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
+    20: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
+  },
+}
+
+export const homeDrillsForLesson = (
+  programName: string,
+  programLesson: LessonSeed,
+  level: Level,
+): string[] => {
+  const reviewedProgramAssignments = programHomeDrillAssignments[programName]
+  if (reviewedProgramAssignments) {
+    const explicitDrills = reviewedProgramAssignments[programLesson.week]
+    if (!explicitDrills) {
+      throw new Error(
+        `Missing reviewed home-practice assignment for ${programName}, week ${programLesson.week}`,
+      )
+    }
+    return [...explicitDrills]
+  }
+
   const context =
     `${programLesson.title} ${programLesson.objective} ${programLesson.drills.join(' ')}`.toLowerCase()
   const selected: string[] = []
@@ -1320,7 +1401,7 @@ const homeDrillsForLesson = (programLesson: LessonSeed, level: Level): string[] 
     if (!selected.includes(name)) selected.push(name)
   }
 
-  if (/(serve|service)/.test(context)) add('Low Serve Floor Targets')
+  if (/\b(serve|serving|service)\b/.test(context)) add('Low Serve Floor Targets')
   if (/(grip|racket readiness|tap-up)/.test(context)) add('Solo Racket Control Circuit')
   if (/(clear|drop|smash|overhead|rear-court|attack)/.test(context))
     add('Overhead Shadow Technique')
@@ -1408,8 +1489,8 @@ export async function seedCoachingLibrary(payload: Payload) {
   for (const program of programs) {
     for (const phase of program.phases) {
       for (const programLesson of phase.lessons) {
-        const practiceName = `${program.name} · Week ${programLesson.week}: ${programLesson.title}`
-        const homeDrillNames = homeDrillsForLesson(programLesson, program.level)
+        const practiceName = homePracticeName(program.name, programLesson.week, programLesson.title)
+        const homeDrillNames = homeDrillsForLesson(program.name, programLesson, program.level)
         const practiceDrills = homeDrillNames.map((drillName) => {
           const drillID = drillIDs.get(drillName)
           if (!drillID)
@@ -1423,11 +1504,13 @@ export async function seedCoachingLibrary(payload: Payload) {
         const practiceData = {
           name: practiceName,
           level: program.level,
-          instructions: `Complete these drills at home in a clear, non-slip space with enough room to move and swing safely. This week's focus is: ${programLesson.objective}`,
+          instructions: programHomePracticeInstructions(
+            programLesson.objective,
+            programLesson.independentPractice,
+          ),
           drills: practiceDrills,
           durationMinutes,
-          successCriteria:
-            'Meet the success target for every drill with controlled technique, then note one improvement and one point to ask your coach about.',
+          successCriteria: programHomePracticeSuccessCriteria,
         }
         const existing = await payload.find({
           collection: 'practice-library',
@@ -1452,6 +1535,7 @@ export async function seedCoachingLibrary(payload: Payload) {
     const phases = program.phases.map((phase) => ({
       ...phase,
       lessons: phase.lessons.map((programLesson) => {
+        const { independentPractice: homePracticeInstructions, ...lessonData } = programLesson
         const practiceID = practiceLibraryIDs.get(`${program.name}:${programLesson.week}`)
         if (!practiceID)
           throw new Error(
@@ -1471,15 +1555,18 @@ export async function seedCoachingLibrary(payload: Payload) {
           ),
         )
         return {
-          ...programLesson,
-          homeDrills: homeDrillsForLesson(programLesson, program.level).map((drillName) => {
-            const drillID = drillIDs.get(drillName)
-            if (!drillID)
-              throw new Error(
-                `Missing home drill for ${program.name}, week ${programLesson.week}: ${drillName}`,
-              )
-            return drillID
-          }),
+          ...lessonData,
+          homePracticeInstructions,
+          homeDrills: homeDrillsForLesson(program.name, programLesson, program.level).map(
+            (drillName) => {
+              const drillID = drillIDs.get(drillName)
+              if (!drillID)
+                throw new Error(
+                  `Missing home drill for ${program.name}, week ${programLesson.week}: ${drillName}`,
+                )
+              return drillID
+            },
+          ),
           independentPractice: practiceID,
           skills: lessonSkillIDs,
           drills: programLesson.drills.map((drillName) => {

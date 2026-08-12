@@ -3,6 +3,8 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   Target,
   TrendingUp,
@@ -12,6 +14,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 import { CoachSessionPlan } from '@/components/Dashboard/CoachSessionPlan'
+import { CoachHomePracticeDrills } from '@/components/Dashboard/CoachHomePracticeDrills'
 import { CompleteSession } from '@/components/Dashboard/CompleteSession'
 import {
   DashboardShell,
@@ -48,10 +51,12 @@ const formatPracticeTime = (totalSeconds: number) => {
 
 export default async function CoachStudentWorkspace({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ week?: string }>
 }) {
-  const { id } = await params
+  const [{ id }, query] = await Promise.all([params, searchParams])
   const { payload, user } = await requireDashboardUser()
   if (!isCoach(user)) redirect('/dashboard/student')
 
@@ -68,7 +73,12 @@ export default async function CoachStudentWorkspace({
   const profile = profileResult.docs[0]
   if (!profile) notFound()
 
-  const [sessions, practices, progress, sessionScores] = await Promise.all([
+  const programID =
+    profile.program && typeof profile.program === 'object'
+      ? profile.program.id
+      : profile.program || null
+
+  const [sessions, practices, progress, sessionScores, program] = await Promise.all([
     payload.find({
       collection: 'training-sessions',
       depth: 2,
@@ -105,20 +115,58 @@ export default async function CoachStudentWorkspace({
       user,
       where: { student: { equals: profile.id } },
     }),
+    programID
+      ? payload.findByID({
+          collection: 'programs',
+          id: programID,
+          depth: 2,
+          overrideAccess: false,
+          user,
+        })
+      : Promise.resolve(null),
   ])
-  const programSessions = sessions.docs.filter((session) => session.source === 'program')
-  const currentSession =
-    programSessions.find(
-      (session) =>
-        session.lessonWeek === profile.currentProgramWeek && session.status !== 'cancelled',
-    ) ||
-    programSessions.find(
-      (session) =>
-        (session.lessonWeek || 0) > profile.currentProgramWeek && session.status !== 'cancelled',
-    )
-  const currentPractice = practices.docs.find(
-    (practice) => practice.lessonWeek === profile.currentProgramWeek,
+  const programSessions = sessions.docs
+    .filter((session) => session.source === 'program')
+    .sort((a, b) => (a.lessonWeek || 0) - (b.lessonWeek || 0))
+  const sessionWeeks = programSessions
+    .map((session) => session.lessonWeek)
+    .filter((week): week is number => typeof week === 'number')
+  const requestedWeek = Number(query.week)
+  const viewedWeek =
+    Number.isInteger(requestedWeek) && sessionWeeks.includes(requestedWeek)
+      ? requestedWeek
+      : profile.currentProgramWeek
+  const viewedWeekIndex = sessionWeeks.indexOf(viewedWeek)
+  const previousWeek = viewedWeekIndex > 0 ? sessionWeeks[viewedWeekIndex - 1] : null
+  const nextWeek =
+    viewedWeekIndex >= 0 && viewedWeekIndex < sessionWeeks.length - 1
+      ? sessionWeeks[viewedWeekIndex + 1]
+      : null
+  const isCurrentProgramWeek = viewedWeek === profile.currentProgramWeek
+  const currentSession = programSessions.find(
+    (session) => session.lessonWeek === viewedWeek && session.status !== 'cancelled',
   )
+  const currentPractice = practices.docs.find((practice) => practice.lessonWeek === viewedWeek)
+  const selectedProgramLesson = program?.phases
+    .flatMap((phase) => phase.lessons || [])
+    .find((lesson) => lesson.week === viewedWeek)
+  const plannedPracticeTemplate =
+    selectedProgramLesson && typeof selectedProgramLesson.independentPractice === 'object'
+      ? selectedProgramLesson.independentPractice
+      : null
+  const practiceTitle =
+    currentPractice?.title || plannedPracticeTemplate?.name || `Week ${viewedWeek} home practice`
+  const practiceInstructions =
+    currentPractice?.instructions || selectedProgramLesson?.homePracticeInstructions
+  const practiceSuccessCriteria =
+    currentPractice?.successCriteria || selectedProgramLesson?.successCriteria
+  const practiceStatus = currentPractice?.status || 'planned'
+  const currentHomeDrills = (
+    currentPractice?.drills ||
+    selectedProgramLesson?.homeDrills ||
+    plannedPracticeTemplate?.drills ||
+    []
+  ).filter((drill): drill is Drill => typeof drill === 'object')
   const attentionSkills = progress.docs
     .filter((item) => item.progress < 60 || item.stage === 'learning')
     .slice(0, 6)
@@ -128,10 +176,6 @@ export default async function CoachStudentWorkspace({
   const scheduledSessions = programSessions.filter(
     (session) => session.status === 'scheduled',
   ).length
-  const currentDrills = [
-    currentSession?.plan?.technicalDrill,
-    currentSession?.plan?.progressiveDrill,
-  ].filter((drill): drill is Drill => Boolean(drill) && typeof drill === 'object')
   const currentScoreRows: SkillScoreRow[] = currentSession
     ? sessionScores.docs
         .filter((score) => {
@@ -159,7 +203,7 @@ export default async function CoachStudentWorkspace({
     <DashboardShell
       eyebrow="Player coaching workspace"
       title={profile.displayName}
-      description={`${relationName(profile.program)} · ${profile.currentPhase} · Week ${profile.currentProgramWeek}`}
+      description={`${relationName(profile.program)} · ${profile.currentPhase} · Student is on Week ${profile.currentProgramWeek}`}
       actions={
         <div className="flex flex-wrap gap-3">
           <Link
@@ -213,14 +257,48 @@ export default async function CoachStudentWorkspace({
         <Panel
           tone="dark"
           className="lg:col-span-12"
-          title="Current lesson"
+          title={isCurrentProgramWeek ? 'Current lesson' : 'Program lesson preview'}
           subtitle={
             currentSession
-              ? `${currentSession.phase} · Week ${currentSession.lessonWeek}`
+              ? `${currentSession.phase} · Viewing Week ${viewedWeek}`
               : 'No lesson is prepared'
           }
           icon={Target}
         >
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl bg-white/10 p-2">
+            {previousWeek ? (
+              <Link
+                href={`/dashboard/coach/students/${profile.id}?week=${previousWeek}`}
+                className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-black text-white transition hover:bg-white/10"
+              >
+                <ChevronLeft className="h-4 w-4" /> Week {previousWeek}
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-3 py-2 text-sm font-black text-white/30">
+                <ChevronLeft className="h-4 w-4" /> Previous
+              </span>
+            )}
+            <div className="text-center">
+              <p className="text-xs font-black uppercase tracking-wider text-[#4cc9ff]">
+                Viewing Week {viewedWeek}
+              </p>
+              <p className="mt-0.5 text-[11px] font-semibold text-white/60">
+                {isCurrentProgramWeek ? "Student's current week" : 'Preview only'}
+              </p>
+            </div>
+            {nextWeek ? (
+              <Link
+                href={`/dashboard/coach/students/${profile.id}?week=${nextWeek}`}
+                className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-black text-white transition hover:bg-white/10"
+              >
+                Week {nextWeek} <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-3 py-2 text-sm font-black text-white/30">
+                Next <ChevronRight className="h-4 w-4" />
+              </span>
+            )}
+          </div>
           {currentSession ? (
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_auto]">
               <div>
@@ -274,20 +352,22 @@ export default async function CoachStudentWorkspace({
           </Panel>
         ) : null}
 
-        <Panel
-          className="lg:col-span-12"
-          title="Assess this lesson's skills"
-          subtitle="One observation updates the student's long-term development profile"
-          icon={TrendingUp}
-        >
-          {currentScoreRows.length ? (
-            <SessionSkillScoring rows={currentScoreRows} />
-          ) : (
-            <Empty text="Skill scoring records are being prepared from the lesson drills." />
-          )}
-        </Panel>
+        {isCurrentProgramWeek ? (
+          <Panel
+            className="lg:col-span-12"
+            title="Assess this lesson's skills"
+            subtitle="One observation updates the student's long-term development profile"
+            icon={TrendingUp}
+          >
+            {currentScoreRows.length ? (
+              <SessionSkillScoring rows={currentScoreRows} />
+            ) : (
+              <Empty text="Skill scoring records are being prepared from the lesson drills." />
+            )}
+          </Panel>
+        ) : null}
 
-        {currentSession && currentSession.status !== 'completed' ? (
+        {isCurrentProgramWeek && currentSession && currentSession.status !== 'completed' ? (
           <div className="lg:col-span-12">
             <CompleteSession
               sessionID={currentSession.id}
@@ -299,105 +379,85 @@ export default async function CoachStudentWorkspace({
         ) : null}
 
         <Panel
-          className="lg:col-span-7"
-          title="Current drills"
-          subtitle="Technical and progressive work for this lesson"
-          icon={Target}
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {currentDrills.length ? (
-              currentDrills.map((drill) => (
-                <div key={drill.id} className="rounded-2xl border border-[#092c59]/10 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-black">{drill.name}</h3>
-                    <span className="rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[10px] font-black uppercase text-[#1677ff]">
-                      {drill.difficulty}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[#607286]">{drill.instructions}</p>
-                  <div className="mt-4 rounded-xl bg-[#f3f7fc] p-3 text-xs leading-5">
-                    <strong>Coach for:</strong> {drill.coachingPoints}
-                  </div>
-                  <p className="mt-3 text-xs font-bold text-[#1677ff]">
-                    Target: {drill.successTarget}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div className="md:col-span-2">
-                <Empty text="No drills are attached to the current lesson." />
-              </div>
-            )}
-          </div>
-        </Panel>
-
-        <Panel
-          className="lg:col-span-5"
+          className="lg:col-span-12"
           title="Independent practice"
-          subtitle={`Week ${profile.currentProgramWeek} follow-through`}
+          subtitle={`Week ${viewedWeek} follow-through`}
           icon={CheckCircle2}
         >
-          {currentPractice ? (
+          {practiceInstructions || currentHomeDrills.length ? (
             <div>
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-lg font-black">{currentPractice.title}</h3>
+                <h3 className="text-lg font-black">{practiceTitle}</h3>
                 <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${currentPractice.status === 'completed' ? 'bg-[#e9f8ef] text-[#24734b]' : 'bg-[#eaf3ff] text-[#1677ff]'}`}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${practiceStatus === 'completed' ? 'bg-[#e9f8ef] text-[#24734b]' : 'bg-[#eaf3ff] text-[#1677ff]'}`}
                 >
-                  {currentPractice.status}
+                  {practiceStatus}
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-[#607286]">
-                {currentPractice.instructions}
+              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-[#607286]">
+                {practiceInstructions}
               </p>
+              <div className="mt-5">
+                <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
+                  Weekly exercises
+                </p>
+                <div className="mt-3">
+                  <CoachHomePracticeDrills drills={currentHomeDrills} detailed />
+                  {!currentHomeDrills.length ? (
+                    <Empty text="Exercise details are still being prepared for this plan." />
+                  ) : null}
+                </div>
+              </div>
               <div className="mt-5 rounded-2xl bg-[#f3f7fc] p-4">
                 <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
                   Completion target
                 </p>
-                <p className="mt-2 text-sm leading-6">{currentPractice.successCriteria}</p>
+                <p className="mt-2 text-sm leading-6">{practiceSuccessCriteria}</p>
               </div>
-              <div className="mt-4 rounded-2xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4">
-                <p className="text-xs font-black uppercase tracking-wider text-[#1677ff]">
-                  Recorded workout evidence
-                </p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl bg-white p-3 text-center">
-                    <p className="font-mono text-lg font-black tabular-nums text-[#092c59]">
-                      {formatPracticeTime(currentPractice.elapsedSeconds)}
-                    </p>
-                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Time</p>
+              {currentPractice ? (
+                <div className="mt-4 rounded-2xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#1677ff]">
+                    Recorded workout evidence
+                  </p>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <div className="rounded-xl bg-white p-3 text-center">
+                      <p className="font-mono text-lg font-black tabular-nums text-[#092c59]">
+                        {formatPracticeTime(currentPractice.elapsedSeconds)}
+                      </p>
+                      <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Time</p>
+                    </div>
+                    <div className="rounded-xl bg-white p-3 text-center">
+                      <p className="text-lg font-black text-[#092c59]">
+                        {currentPractice.exerciseLogs?.length || 0}
+                      </p>
+                      <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Logs</p>
+                    </div>
+                    <div className="rounded-xl bg-white p-3 text-center">
+                      <p className="text-lg font-black text-[#092c59]">
+                        {
+                          new Set((currentPractice.exerciseLogs || []).map((log) => log.drillIndex))
+                            .size
+                        }
+                        /{currentPractice.drills.length}
+                      </p>
+                      <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Drills</p>
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-white p-3 text-center">
-                    <p className="text-lg font-black text-[#092c59]">
-                      {currentPractice.exerciseLogs?.length || 0}
-                    </p>
-                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Logs</p>
-                  </div>
-                  <div className="rounded-xl bg-white p-3 text-center">
-                    <p className="text-lg font-black text-[#092c59]">
-                      {
-                        new Set((currentPractice.exerciseLogs || []).map((log) => log.drillIndex))
-                          .size
-                      }
-                      /{currentPractice.drills.length}
-                    </p>
-                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Drills</p>
-                  </div>
+                  <p className="mt-3 text-xs font-semibold leading-5 text-[#4f647b]">
+                    Timer status:{' '}
+                    <span className="font-black capitalize">{currentPractice.timerStatus}</span>.
+                    Review unusually short times or missing logs with the student.
+                  </p>
                 </div>
-                <p className="mt-3 text-xs font-semibold leading-5 text-[#4f647b]">
-                  Timer status:{' '}
-                  <span className="font-black capitalize">{currentPractice.timerStatus}</span>.
-                  Review unusually short times or missing logs with the student.
-                </p>
-              </div>
-              {currentPractice.coachFeedback ? (
+              ) : null}
+              {currentPractice?.coachFeedback ? (
                 <p className="mt-4 text-sm leading-6">
                   <strong>Coach feedback:</strong> {currentPractice.coachFeedback}
                 </p>
               ) : null}
             </div>
           ) : (
-            <Empty text="No independent practice exists for the current week." />
+            <Empty text={`No independent practice is prepared for Week ${viewedWeek}.`} />
           )}
         </Panel>
 
@@ -426,18 +486,25 @@ export default async function CoachStudentWorkspace({
                     {phaseSessions.map((session) => (
                       <Link
                         key={session.id}
-                        href={`/admin/collections/training-sessions/${session.id}`}
-                        className={`rounded-2xl border p-4 transition hover:border-[#1677ff]/40 ${session.lessonWeek === profile.currentProgramWeek ? 'border-[#1677ff]/40 bg-[#eaf3ff]' : 'border-[#092c59]/10 bg-white'}`}
+                        href={`/dashboard/coach/students/${profile.id}?week=${session.lessonWeek}`}
+                        className={`rounded-2xl border p-4 transition hover:border-[#1677ff]/40 ${session.lessonWeek === viewedWeek ? 'border-[#1677ff] bg-[#eaf3ff] ring-2 ring-[#1677ff]/10' : 'border-[#092c59]/10 bg-white'}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <span className="text-xs font-black uppercase text-[#1677ff]">
                             Week {session.lessonWeek}
                           </span>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${statusTone[session.status] || statusTone.planned}`}
-                          >
-                            {session.status}
-                          </span>
+                          <div className="flex flex-wrap justify-end gap-1">
+                            {session.lessonWeek === profile.currentProgramWeek ? (
+                              <span className="rounded-full bg-[#fff0d9] px-2 py-0.5 text-[9px] font-black uppercase text-[#a85b00]">
+                                Current
+                              </span>
+                            ) : null}
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${statusTone[session.status] || statusTone.planned}`}
+                            >
+                              {session.status}
+                            </span>
+                          </div>
                         </div>
                         <h4 className="mt-2 font-black">
                           {session.title.replace(/^Week \d+:\s*/, '')}

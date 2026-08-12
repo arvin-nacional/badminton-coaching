@@ -4,11 +4,21 @@ import type { Drill, Program, StudentProfile } from '@/payload-types'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
-  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string') return value.id
+  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string')
+    return value.id
   return null
 }
 
-export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfile> = async ({ doc, req }) => {
+export const sessionPlanDrillAssignments = (drillIDs: string[]) => ({
+  technicalDrill: drillIDs[0],
+  progressiveDrill: drillIDs[1] || drillIDs[0],
+  additionalDrills: drillIDs.slice(2),
+})
+
+export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfile> = async ({
+  doc,
+  req,
+}) => {
   const programID = relationshipID(doc.program)
   const coachID = relationshipID(doc.coach)
   const existingSessions = await req.payload.find({
@@ -18,10 +28,7 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
     overrideAccess: true,
     req,
     where: {
-      and: [
-        { student: { equals: doc.id } },
-        { source: { equals: 'program' } },
-      ],
+      and: [{ student: { equals: doc.id } }, { source: { equals: 'program' } }],
     },
   })
 
@@ -41,25 +48,44 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
     return doc
   }
 
-  const program = await req.payload.findByID({
+  const program = (await req.payload.findByID({
     collection: 'programs',
     id: programID,
     depth: 2,
     overrideAccess: true,
     req,
-  }) as Program
+  })) as Program
   const validSessionKeys = new Set<string>()
-  const programDrillIDs = Array.from(new Set(program.phases.flatMap((phase) => phase.lessons || []).flatMap((lesson) => lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id)))))
+  const programDrillIDs = Array.from(
+    new Set(
+      program.phases
+        .flatMap((phase) => phase.lessons || [])
+        .flatMap((lesson) =>
+          lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id)),
+        ),
+    ),
+  )
   const programDrills = programDrillIDs.length
-    ? await req.payload.find({ collection: 'drills', depth: 1, limit: programDrillIDs.length, overrideAccess: true, req, where: { id: { in: programDrillIDs } } })
+    ? await req.payload.find({
+        collection: 'drills',
+        depth: 1,
+        limit: programDrillIDs.length,
+        overrideAccess: true,
+        req,
+        where: { id: { in: programDrillIDs } },
+      })
     : null
   const drillsByID = new Map((programDrills?.docs || []).map((drill) => [drill.id, drill as Drill]))
 
   for (const phase of program.phases.slice().sort((a, b) => a.order - b.order)) {
     for (const lesson of (phase.lessons || []).slice().sort((a, b) => a.week - b.week)) {
       const drillIDs = lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id))
-      const plannedSkillIDs = (lesson.skills || []).map(relationshipID).filter((id): id is string => Boolean(id))
-      const drillSkillIDs = drillIDs.map((drillID) => relationshipID(drillsByID.get(drillID)?.skill)).filter((id): id is string => Boolean(id))
+      const plannedSkillIDs = (lesson.skills || [])
+        .map(relationshipID)
+        .filter((id): id is string => Boolean(id))
+      const drillSkillIDs = drillIDs
+        .map((drillID) => relationshipID(drillsByID.get(drillID)?.skill))
+        .filter((id): id is string => Boolean(id))
       const skillIDs = Array.from(new Set(plannedSkillIDs.length ? plannedSkillIDs : drillSkillIDs))
       const sessionKey = `${doc.id}:${program.id}:${lesson.week}`
       validSessionKeys.add(sessionKey)
@@ -75,8 +101,7 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
           cooldownAndFeedback: lesson.sessionPlan?.cooldownAndFeedback,
           matchPlay: lesson.sessionPlan?.matchPlay,
           movementPreparation: lesson.sessionPlan?.movementPreparation,
-          progressiveDrill: drillIDs[1] || drillIDs[0],
-          technicalDrill: drillIDs[0],
+          ...sessionPlanDrillAssignments(drillIDs),
           warmUp: lesson.sessionPlan?.warmUp,
         },
         program: program.id,
@@ -112,8 +137,8 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
 
   for (const session of existingSessions.docs) {
     if (
-      (session.status === 'planned' || session.status === 'scheduled')
-      && (!session.sessionKey || !validSessionKeys.has(session.sessionKey))
+      (session.status === 'planned' || session.status === 'scheduled') &&
+      (!session.sessionKey || !validSessionKeys.has(session.sessionKey))
     ) {
       await req.payload.update({
         collection: 'training-sessions',

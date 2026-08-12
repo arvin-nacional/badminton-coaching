@@ -120,6 +120,16 @@ export const Programs: CollectionConfig = {
               maxDepth: 1,
             },
             {
+              name: 'homePracticeInstructions',
+              label: 'Home-Practice Instructions',
+              type: 'textarea',
+              required: true,
+              admin: {
+                description:
+                  'Weekly guidance shown to the student above the generated home-practice drills.',
+              },
+            },
+            {
               name: 'homeDrills',
               label: 'Home Drills',
               type: 'relationship',
@@ -667,6 +677,18 @@ export const TrainingSessions: CollectionConfig = {
         { name: 'movementPreparation', type: 'textarea' },
         { name: 'technicalDrill', type: 'relationship', relationTo: 'drills', maxDepth: 1 },
         { name: 'progressiveDrill', type: 'relationship', relationTo: 'drills', maxDepth: 1 },
+        {
+          name: 'additionalDrills',
+          label: 'Additional Lesson Drills',
+          type: 'relationship',
+          relationTo: 'drills',
+          hasMany: true,
+          maxDepth: 1,
+          admin: {
+            description:
+              'Any third or later drill from a program lesson, including assessment benchmarks.',
+          },
+        },
         { name: 'conditionedGame', type: 'textarea' },
         { name: 'matchPlay', type: 'textarea' },
         { name: 'cooldownAndFeedback', type: 'textarea' },
