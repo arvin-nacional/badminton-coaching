@@ -175,6 +175,10 @@ export default async function StudentDashboardPage() {
       typeof practice.program === 'string' ? practice.program : practice.program.id
     return practiceProgramID === programID && practice.lessonWeek === programWeek
   })
+  const canCompleteCurrentPractice = Boolean(
+    currentPractice &&
+    (currentPractice.timerStatus === 'finished' || currentPractice.status === 'completed'),
+  )
   const practiceTemplate =
     currentPractice && typeof currentPractice.practice === 'object'
       ? (currentPractice.practice as PracticeLibrary)
@@ -401,10 +405,12 @@ export default async function StudentDashboardPage() {
                 </div>
 
                 {currentPractice ? (
-                  <IndependentPracticeCheck
-                    practiceID={currentPractice.id}
-                    initialCompleted={currentPractice.status === 'completed'}
-                  />
+                  canCompleteCurrentPractice ? (
+                    <IndependentPracticeCheck
+                      practiceID={currentPractice.id}
+                      initialCompleted={currentPractice.status === 'completed'}
+                    />
+                  ) : null
                 ) : (
                   <p className="mt-5 rounded-2xl border border-dashed border-[#9db1c8] p-4 text-sm font-semibold text-[#718399]">
                     Your practice checklist is being prepared. Refresh after your coach saves the
@@ -446,7 +452,10 @@ export default async function StudentDashboardPage() {
                     initialCurrentDrillIndex={currentPractice?.currentDrillIndex}
                     initialCurrentDrillElapsedSeconds={currentPractice?.currentDrillElapsedSeconds}
                     initialCurrentStepIndex={currentPractice?.currentStepIndex}
+                    initialCurrentRound={currentPractice?.currentRound}
                     initialCurrentStepElapsedSeconds={currentPractice?.currentStepElapsedSeconds}
+                    initialExerciseLogs={currentPractice?.exerciseLogs}
+                    initialCompleted={currentPractice?.status === 'completed'}
                   />
                 ) : (
                   <Empty text="The drills for this home practice are being prepared." />

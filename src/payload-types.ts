@@ -1044,6 +1044,13 @@ export interface Program {
        */
       skills: (string | Skill)[];
       drills: (string | Drill)[];
+      /**
+       * Exercises assigned for this lesson. Saving the program automatically builds and updates the student home-practice plan.
+       */
+      homeDrills: (string | Drill)[];
+      /**
+       * Automatically generated from the selected Home Drills.
+       */
       independentPractice: string | PracticeLibrary;
       successCriteria: string;
       sessionPlan: {
@@ -1192,9 +1199,26 @@ export interface IndependentPractice {
    */
   currentStepIndex: number;
   /**
+   * One-based round number inside the active home-practice drill.
+   */
+  currentRound: number;
+  /**
    * Accumulated time for the active exercise.
    */
   currentStepElapsedSeconds: number;
+  /**
+   * Elapsed time recorded whenever a student completes an exercise.
+   */
+  exerciseLogs?:
+    | {
+        drillIndex: number;
+        round: number;
+        stepIndex: number;
+        elapsedSeconds: number;
+        completedAt: string;
+        id?: string | null;
+      }[]
+    | null;
   completedAt?: string | null;
   coachFeedback?: string | null;
   updatedAt: string;
@@ -2365,6 +2389,7 @@ export interface ProgramsSelect<T extends boolean = true> {
               durationMinutes?: T;
               skills?: T;
               drills?: T;
+              homeDrills?: T;
               independentPractice?: T;
               successCriteria?: T;
               sessionPlan?:
@@ -2586,7 +2611,18 @@ export interface IndependentPracticesSelect<T extends boolean = true> {
   currentDrillIndex?: T;
   currentDrillElapsedSeconds?: T;
   currentStepIndex?: T;
+  currentRound?: T;
   currentStepElapsedSeconds?: T;
+  exerciseLogs?:
+    | T
+    | {
+        drillIndex?: T;
+        round?: T;
+        stepIndex?: T;
+        elapsedSeconds?: T;
+        completedAt?: T;
+        id?: T;
+      };
   completedAt?: T;
   coachFeedback?: T;
   updatedAt?: T;

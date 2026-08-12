@@ -915,18 +915,18 @@ const drills: DrillSeed[] = [
     eventType: 'general',
     practiceSetting: 'home',
     illustrationURL: '/images/drills/compact-home-footwork.png',
-    equipment: 'Four small floor markers and a clear, non-slip space of about 2 by 2 metres',
+    equipment: 'Six small floor markers and a clear, non-slip space of about 2 by 2 metres',
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Setup: Place one marker in front, behind, left and right of a central base. Keep every marker only one controlled step or lunge away inside a clear, non-slip area.\n\n1. Start on the base with knees soft, chest lifted and racket in front.\n2. Make a small split step, then push toward the selected marker.\n3. Arrive under control, shadow the appropriate badminton stroke and hold the landing for one second.\n4. Push back to the base using recovery steps; do not turn your back on the imaginary court.\n5. Regain the ready position before moving to the next marker. Use a fixed order first, then random cues when comfortable.\n\nWork/rest: Complete 4 rounds of 40 seconds with 40 seconds rest between rounds.\nSafety: Scale every step to the available room. Do not use full-court strides, jump onto markers or continue on a slippery surface.',
+      'Setup: Arrange six markers around a central base: right front, left front, right side, left side, right rear and left rear. Keep every marker only one controlled step or lunge away. Right-handed movement cues are shown; left-handed players can mirror the racket-side details.\n\n1. Right front corner — split, push diagonally forward-right, finish in a controlled racket-leg lunge, shadow a forehand net shot and recover to base.\n2. Left front corner — split, travel diagonally forward-left, finish in a balanced racket-leg lunge, shadow a backhand net shot and recover.\n3. Right side corner — split, push from the left foot, chasse right, shadow a compact forehand drive or block and recover without crossing the feet.\n4. Left side corner — split, push from the right foot, chasse left, shadow a compact backhand drive or block and return under control.\n5. Right rear corner — split, turn side-on, move diagonally backward-right, shadow an overhead stroke, land balanced and recover.\n6. Left rear corner — split, turn side-on, move diagonally backward-left, shadow a round-the-head overhead action and recover.\n7. Round recovery — walk slowly, shake out the legs, breathe and check the markers before continuing.\n\nWork/rest: Press Start once. The guide gives you 20 seconds (about 3 controlled reps) at each corner, advances automatically, then starts a 40-second recovery. Complete 3 rounds.\nSafety: Scale every movement to the available room. Do not use full-court strides, step on markers or continue on a slippery surface.',
     coachingPoints:
       'Use a small split step, move quietly, keep the knees aligned and return to a balanced base.',
     commonMistakes:
       'Taking court-sized steps in a small room, crossing the feet carelessly and prioritising speed over balance.',
     difficulty: 'easy',
-    successTarget: 'Complete four rounds without touching a marker or losing balance.',
-    easierVariation: 'Walk the pattern for 25 seconds per round.',
+    successTarget: 'Complete three rounds without touching a marker or losing balance.',
+    easierVariation: 'Walk two controlled reps to each corner before increasing speed.',
     harderProgression:
       'Use random audio cues and change direction without returning fully upright.',
     completionRequirement:
@@ -1601,6 +1601,14 @@ export async function seedCoachingLibrary(payload: Payload) {
         )
         return {
           ...programLesson,
+          homeDrills: homeDrillsForLesson(programLesson, program.level).map((drillName) => {
+            const drillID = drillIDs.get(drillName)
+            if (!drillID)
+              throw new Error(
+                `Missing home drill for ${program.name}, week ${programLesson.week}: ${drillName}`,
+              )
+            return drillID
+          }),
           independentPractice: practiceID,
           skills: lessonSkillIDs,
           drills: programLesson.drills.map((drillName) => {

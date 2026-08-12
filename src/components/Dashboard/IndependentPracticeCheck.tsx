@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Circle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 
 export function IndependentPracticeCheck({
   practiceID,
@@ -16,6 +16,8 @@ export function IndependentPracticeCheck({
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
 
+  useEffect(() => setCompleted(initialCompleted), [initialCompleted])
+
   const updateCompletion = (checked: boolean) => {
     const previous = completed
     setCompleted(checked)
@@ -27,10 +29,11 @@ export function IndependentPracticeCheck({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: checked }),
       }).catch(() => null)
+      const result = (await response?.json().catch(() => null)) as { error?: string } | null
 
       if (!response?.ok) {
         setCompleted(previous)
-        setError('We could not save this change. Please try again.')
+        setError(result?.error || 'We could not save this change. Please try again.')
         return
       }
 

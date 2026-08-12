@@ -69,7 +69,10 @@ export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> 
     await req.payload.update({
       collection: 'independent-practices',
       id: existing.docs[0].id,
-      data: practiceData,
+      data: {
+        ...practiceData,
+        currentRound: Math.max(1, existing.docs[0].currentRound || 1),
+      },
       depth: 0,
       overrideAccess: true,
       req,
@@ -81,8 +84,10 @@ export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> 
         ...practiceData,
         currentDrillIndex: 0,
         currentDrillElapsedSeconds: 0,
+        currentRound: 1,
         currentStepElapsedSeconds: 0,
         currentStepIndex: 0,
+        exerciseLogs: [],
         elapsedSeconds: 0,
         status: 'assigned',
         timerStatus: 'not-started',

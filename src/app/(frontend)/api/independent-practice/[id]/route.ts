@@ -2,7 +2,24 @@ import config from '@payload-config'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 
-const timerActions = ['start', 'pause', 'resume', 'next-step', 'next', 'finish', 'reset'] as const
+import {
+  buildHomePracticeSequence,
+  canFinishHomePractice,
+  canMarkHomePracticeComplete,
+  getHomePracticeRounds,
+  upsertHomePracticeExerciseLog,
+} from '@/data/homePracticeSteps'
+
+const timerActions = [
+  'start',
+  'pause',
+  'resume',
+  'next-step',
+  'repeat',
+  'next',
+  'finish',
+  'reset',
+] as const
 type TimerAction = (typeof timerActions)[number]
 
 const isTimerAction = (value: unknown): value is TimerAction =>
@@ -46,6 +63,13 @@ export async function POST(
 
     if (updatesCompletion) {
       const completed = body.completed as boolean
+      if (completed && !canMarkHomePracticeComplete(practice.timerStatus)) {
+        return Response.json(
+          { error: 'Finish every part of the guided workout before marking it as done.' },
+          { status: 409 },
+        )
+      }
+
       const updated = await payload.update({
         collection: 'independent-practices',
         id: practice.id,
@@ -53,6 +77,7 @@ export async function POST(
         overrideAccess: true,
         data: {
           completedAt: completed ? new Date().toISOString() : null,
+          currentRound: Math.max(1, Math.floor(practice.currentRound || 1)),
           status: completed ? 'completed' : 'assigned',
         },
       })
@@ -79,7 +104,16 @@ export async function POST(
       Math.max(0, Math.floor(practice.currentDrillIndex || 0)),
       Math.max(0, practice.drills.length - 1),
     )
+    const currentRound = Math.max(1, Math.floor(practice.currentRound || 1))
+    const currentStepIndex = Math.max(0, Math.floor(practice.currentStepIndex || 0))
     const now = new Date().toISOString()
+    const completedExerciseLogs = upsertHomePracticeExerciseLog(practice.exerciseLogs || [], {
+      completedAt: now,
+      drillIndex: currentDrillIndex,
+      elapsedSeconds: currentStepElapsedSeconds,
+      round: currentRound,
+      stepIndex: currentStepIndex,
+    })
 
     if (timerAction === 'next-step') {
       const currentDrill = practice.drills[currentDrillIndex]
@@ -90,7 +124,13 @@ export async function POST(
         depth: 0,
         overrideAccess: true,
       })
-      const stepCount = Math.max(1, drill.practiceSteps?.length || 1)
+      const generatedSequence = buildHomePracticeSequence(drill.name, drill.instructions)
+      const stepCount = Math.max(
+        1,
+        generatedSequence?.useGeneratedSteps
+          ? generatedSequence.steps.length
+          : drill.practiceSteps?.length || generatedSequence?.steps.length || 1,
+      )
       const updated = await payload.update({
         collection: 'independent-practices',
         id: practice.id,
@@ -98,11 +138,10 @@ export async function POST(
         overrideAccess: true,
         data: {
           currentDrillElapsedSeconds,
+          currentRound,
+          exerciseLogs: completedExerciseLogs,
           currentStepElapsedSeconds: 0,
-          currentStepIndex: Math.min(
-            Math.max(0, Math.floor(practice.currentStepIndex || 0)) + 1,
-            stepCount - 1,
-          ),
+          currentStepIndex: Math.min(currentStepIndex + 1, stepCount - 1),
           elapsedSeconds,
           timerStartedAt: practice.timerStatus === 'running' ? now : null,
         },
@@ -113,7 +152,50 @@ export async function POST(
         currentDrillIndex: updated.currentDrillIndex,
         currentStepElapsedSeconds: updated.currentStepElapsedSeconds,
         currentStepIndex: updated.currentStepIndex,
+        currentRound: updated.currentRound,
         elapsedSeconds: updated.elapsedSeconds,
+        exerciseLogs: updated.exerciseLogs,
+        timerStartedAt: updated.timerStartedAt,
+        timerStatus: updated.timerStatus,
+      })
+    }
+
+    if (timerAction === 'repeat') {
+      const currentDrill = practice.drills[currentDrillIndex]
+      const currentDrillID = typeof currentDrill === 'string' ? currentDrill : currentDrill.id
+      const drill = await payload.findByID({
+        collection: 'drills',
+        id: currentDrillID,
+        depth: 0,
+        overrideAccess: true,
+      })
+      const rounds =
+        buildHomePracticeSequence(drill.name, drill.instructions)?.rounds ||
+        getHomePracticeRounds(drill.instructions)
+      const updated = await payload.update({
+        collection: 'independent-practices',
+        id: practice.id,
+        depth: 0,
+        overrideAccess: true,
+        data: {
+          currentDrillElapsedSeconds,
+          currentRound: Math.min(currentRound + 1, rounds),
+          exerciseLogs: completedExerciseLogs,
+          currentStepElapsedSeconds: 0,
+          currentStepIndex: 0,
+          elapsedSeconds,
+          timerStartedAt: practice.timerStatus === 'running' ? now : null,
+        },
+      })
+
+      return Response.json({
+        currentDrillElapsedSeconds: updated.currentDrillElapsedSeconds,
+        currentDrillIndex: updated.currentDrillIndex,
+        currentRound: updated.currentRound,
+        currentStepElapsedSeconds: updated.currentStepElapsedSeconds,
+        currentStepIndex: updated.currentStepIndex,
+        elapsedSeconds: updated.elapsedSeconds,
+        exerciseLogs: updated.exerciseLogs,
         timerStartedAt: updated.timerStartedAt,
         timerStatus: updated.timerStatus,
       })
@@ -131,6 +213,8 @@ export async function POST(
             currentDrillIndex + 1,
             Math.max(0, practice.drills.length - 1),
           ),
+          currentRound: 1,
+          exerciseLogs: completedExerciseLogs,
           currentStepElapsedSeconds: 0,
           currentStepIndex: 0,
           elapsedSeconds,
@@ -141,38 +225,83 @@ export async function POST(
       return Response.json({
         currentDrillElapsedSeconds: updated.currentDrillElapsedSeconds,
         currentDrillIndex: updated.currentDrillIndex,
+        currentRound: updated.currentRound,
         currentStepElapsedSeconds: updated.currentStepElapsedSeconds,
         currentStepIndex: updated.currentStepIndex,
         elapsedSeconds: updated.elapsedSeconds,
+        exerciseLogs: updated.exerciseLogs,
         timerStartedAt: updated.timerStartedAt,
         timerStatus: updated.timerStatus,
       })
     }
 
+    if (timerAction === 'finish') {
+      const currentDrill = practice.drills[currentDrillIndex]
+      const currentDrillID = typeof currentDrill === 'string' ? currentDrill : currentDrill.id
+      const drill = await payload.findByID({
+        collection: 'drills',
+        id: currentDrillID,
+        depth: 0,
+        overrideAccess: true,
+      })
+      const generatedSequence = buildHomePracticeSequence(drill.name, drill.instructions)
+      const stepCount = Math.max(
+        1,
+        generatedSequence?.useGeneratedSteps
+          ? generatedSequence.steps.length
+          : drill.practiceSteps?.length || generatedSequence?.steps.length || 1,
+      )
+      const rounds = generatedSequence?.rounds || getHomePracticeRounds(drill.instructions)
+
+      if (
+        !canFinishHomePractice({
+          currentDrillIndex,
+          drillCount: practice.drills.length,
+          currentStepIndex,
+          stepCount,
+          currentRound,
+          rounds,
+        })
+      ) {
+        return Response.json(
+          { error: 'Complete the remaining exercises and rounds before finishing.' },
+          { status: 409 },
+        )
+      }
+    }
+
     const timerData =
       timerAction === 'reset'
         ? {
+            completedAt: null,
             currentDrillElapsedSeconds: 0,
             currentDrillIndex: 0,
+            currentRound: 1,
             currentStepElapsedSeconds: 0,
             currentStepIndex: 0,
+            exerciseLogs: [],
             elapsedSeconds: 0,
+            status: 'assigned' as const,
             timerStartedAt: null,
             timerStatus: 'not-started' as const,
           }
         : timerAction === 'start' || timerAction === 'resume'
           ? {
               currentDrillElapsedSeconds: timerAction === 'start' ? 0 : currentDrillElapsedSeconds,
+              currentRound: timerAction === 'start' ? 1 : currentRound,
               currentStepElapsedSeconds: timerAction === 'start' ? 0 : currentStepElapsedSeconds,
-              currentStepIndex:
-                timerAction === 'start' ? 0 : Math.max(0, practice.currentStepIndex || 0),
+              currentStepIndex: timerAction === 'start' ? 0 : currentStepIndex,
+              exerciseLogs: timerAction === 'start' ? [] : practice.exerciseLogs || [],
               elapsedSeconds,
               timerStartedAt: now,
               timerStatus: 'running' as const,
             }
           : {
               currentDrillElapsedSeconds,
+              currentRound,
               currentStepElapsedSeconds,
+              exerciseLogs:
+                timerAction === 'finish' ? completedExerciseLogs : practice.exerciseLogs || [],
               elapsedSeconds,
               timerStartedAt: null,
               timerStatus: timerAction === 'pause' ? ('paused' as const) : ('finished' as const),
@@ -189,9 +318,13 @@ export async function POST(
     return Response.json({
       currentDrillElapsedSeconds: updated.currentDrillElapsedSeconds,
       currentDrillIndex: updated.currentDrillIndex,
+      currentRound: updated.currentRound,
       currentStepElapsedSeconds: updated.currentStepElapsedSeconds,
       currentStepIndex: updated.currentStepIndex,
       elapsedSeconds: updated.elapsedSeconds,
+      exerciseLogs: updated.exerciseLogs,
+      completedAt: updated.completedAt,
+      status: updated.status,
       timerStartedAt: updated.timerStartedAt,
       timerStatus: updated.timerStatus,
     })

@@ -3,6 +3,79 @@ export type HomePracticeStep = {
   instruction: string
   amount: string
   durationSeconds?: number
+  kind?: 'exercise' | 'rest'
+}
+
+export type HomePracticeAdvanceAction = 'next-step' | 'repeat' | 'next' | 'finish'
+
+export type HomePracticeExerciseLog = {
+  completedAt: string
+  drillIndex: number
+  elapsedSeconds: number
+  round: number
+  stepIndex: number
+  id?: string | null
+}
+
+export const canMarkHomePracticeComplete = (timerStatus: string | null | undefined) =>
+  timerStatus === 'finished'
+
+export const canFinishHomePractice = ({
+  currentDrillIndex,
+  drillCount,
+  currentStepIndex,
+  stepCount,
+  currentRound,
+  rounds,
+}: {
+  currentDrillIndex: number
+  drillCount: number
+  currentStepIndex: number
+  stepCount: number
+  currentRound: number
+  rounds: number
+}) =>
+  drillCount > 0 &&
+  currentDrillIndex === drillCount - 1 &&
+  currentStepIndex >= stepCount - 1 &&
+  currentRound >= rounds
+
+export const upsertHomePracticeExerciseLog = (
+  logs: HomePracticeExerciseLog[],
+  completedLog: HomePracticeExerciseLog,
+) => [
+  ...logs.filter(
+    (log) =>
+      log.drillIndex !== completedLog.drillIndex ||
+      log.round !== completedLog.round ||
+      log.stepIndex !== completedLog.stepIndex,
+  ),
+  completedLog,
+]
+
+export const getHomePracticeAdvanceAction = ({
+  isLastStep,
+  isLastDrill,
+  currentRound,
+  rounds,
+}: {
+  isLastStep: boolean
+  isLastDrill: boolean
+  currentRound: number
+  rounds: number
+}): HomePracticeAdvanceAction => {
+  if (!isLastStep) return 'next-step'
+  if (currentRound < rounds) return 'repeat'
+  return isLastDrill ? 'finish' : 'next'
+}
+
+export const getHomePracticeRounds = (instructions: string) => {
+  const workRest = instructions.match(/Work\/rest:\s*([^\n]+)/i)?.[1] || ''
+  const count = Number(
+    workRest.match(/\b(?:complete|perform)\s+(\d+)\s+(?:rounds?|sets?|scenarios?)\b/i)?.[1],
+  )
+
+  return Number.isSafeInteger(count) && count > 0 ? count : 1
 }
 
 type StepAmount = Pick<HomePracticeStep, 'amount' | 'durationSeconds'>
@@ -11,7 +84,15 @@ type StepSheetConfig = {
   sheetURL: string
   columns: number
   rows: number
-  amounts: StepAmount[]
+  amounts?: StepAmount[]
+  steps?: HomePracticeStep[]
+  setup?: string
+  workRest?: string
+  safety?: string
+  rounds?: number
+  equipment?: string
+  successTarget?: string
+  easierVariation?: string
 }
 
 const configs: Record<string, StepSheetConfig> = {
@@ -51,15 +132,70 @@ const configs: Record<string, StepSheetConfig> = {
     ],
   },
   'Compact Home Footwork': {
-    sheetURL: '/images/drills/stepsheets/compact-home-footwork.png',
+    sheetURL: '/images/drills/stepsheets/compact-home-footwork-exercises.png',
     columns: 3,
-    rows: 2,
-    amounts: [
-      { amount: 'Ready position' },
-      { amount: '40 secs', durationSeconds: 40 },
-      { amount: 'Hold 1 sec' },
-      { amount: 'Every movement' },
-      { amount: 'Reset each rep' },
+    rows: 3,
+    setup:
+      'Arrange six markers around a central base: right front, left front, right side, left side, right rear and left rear. Keep every marker only one controlled step or lunge away. Right-handed movement cues are shown; left-handed players can mirror the racket-side details.',
+    workRest:
+      'Press Start once. The guide gives you 20 seconds (about 3 controlled reps) at each corner, advances automatically, then starts a 40-second recovery. Complete 3 rounds.',
+    safety:
+      'Scale every movement to the available room. Do not use full-court strides, step on markers or continue on a slippery surface.',
+    rounds: 3,
+    equipment: 'Six small floor markers and a clear, non-slip space of about 2 by 2 metres',
+    successTarget: 'Complete three rounds without touching a marker or losing balance.',
+    easierVariation: 'Walk two controlled reps to each corner before increasing speed.',
+    steps: [
+      {
+        title: 'Right front corner',
+        instruction:
+          'Start at the base, split step, push diagonally forward-right and finish in a controlled racket-leg lunge. Shadow a forehand net shot, push back and reset at the base.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Left front corner',
+        instruction:
+          'Split step, travel diagonally forward-left and finish with the racket leg supporting a balanced lunge. Shadow a backhand net shot, then recover to the base.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Right side corner',
+        instruction:
+          'Split step, push from the left foot and chasse to the right-side marker. Shadow a compact forehand drive or block, then recover without crossing the feet.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Left side corner',
+        instruction:
+          'Split step, push from the right foot and chasse to the left-side marker. Shadow a compact backhand drive or block, then return under control.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Right rear corner',
+        instruction:
+          'Split step, turn side-on and move diagonally backward-right using small chasse or crossover steps. Shadow an overhead stroke, land balanced and recover to the base.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Left rear corner',
+        instruction:
+          'Split step, turn side-on and move diagonally backward-left. Shadow a round-the-head overhead action, keep the chest controlled and recover to the base.',
+        amount: '3 reps · 20 secs',
+        durationSeconds: 20,
+      },
+      {
+        title: 'Round recovery',
+        instruction:
+          'Walk slowly, shake out the legs and breathe. Check that every marker is still in place before the next round begins.',
+        amount: 'Rest 40 secs',
+        durationSeconds: 40,
+        kind: 'rest',
+      },
     ],
   },
   'Lunge Balance and Leg Strength': {
@@ -161,10 +297,10 @@ export const buildHomePracticeSequence = (name: string, instructions: string) =>
     numberedSection.matchAll(/(?:^|\n)(\d+)\.\s+(.+?)(?=\n\d+\.|\n\nWork\/rest:|$)/gs),
   )
 
-  const steps = numberedSteps.map((match, index): HomePracticeStep => {
+  const parsedSteps = numberedSteps.map((match, index): HomePracticeStep => {
     const line = match[2].trim()
     const dividerIndex = line.indexOf(' — ')
-    const amount = config.amounts[index] || { amount: `Step ${index + 1}` }
+    const amount = config.amounts?.[index] || { amount: `Step ${index + 1}` }
 
     return {
       title: dividerIndex >= 0 ? line.slice(0, dividerIndex).trim() : `Step ${index + 1}`,
@@ -172,14 +308,20 @@ export const buildHomePracticeSequence = (name: string, instructions: string) =>
       ...amount,
     }
   })
+  const steps = config.steps || parsedSteps
 
   return {
-    setup: section(instructions, 'Setup', '\\n\\n1\\.'),
-    workRest: section(instructions, 'Work/rest', '\\nSafety:'),
-    safety: section(instructions, 'Safety'),
+    setup: config.setup || section(instructions, 'Setup', '\\n\\n1\\.'),
+    workRest: config.workRest || section(instructions, 'Work/rest', '\\nSafety:'),
+    safety: config.safety || section(instructions, 'Safety'),
+    rounds: config.rounds || getHomePracticeRounds(instructions),
     sheetURL: config.sheetURL,
     columns: config.columns,
     rows: config.rows,
     steps,
+    useGeneratedSteps: Boolean(config.steps),
+    equipment: config.equipment,
+    successTarget: config.successTarget,
+    easierVariation: config.easierVariation,
   }
 }

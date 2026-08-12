@@ -35,6 +35,17 @@ const statusTone: Record<string, string> = {
   missed: 'bg-[#fff0ee] text-[#b42318]',
 }
 
+const formatPracticeTime = (totalSeconds: number) => {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds))
+  const hours = Math.floor(safeSeconds / 3600)
+  const minutes = Math.floor((safeSeconds % 3600) / 60)
+  const seconds = safeSeconds % 60
+
+  return hours
+    ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    : `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
 export default async function CoachStudentWorkspace({
   params,
 }: {
@@ -344,6 +355,40 @@ export default async function CoachStudentWorkspace({
                   Completion target
                 </p>
                 <p className="mt-2 text-sm leading-6">{currentPractice.successCriteria}</p>
+              </div>
+              <div className="mt-4 rounded-2xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4">
+                <p className="text-xs font-black uppercase tracking-wider text-[#1677ff]">
+                  Recorded workout evidence
+                </p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-xl bg-white p-3 text-center">
+                    <p className="font-mono text-lg font-black tabular-nums text-[#092c59]">
+                      {formatPracticeTime(currentPractice.elapsedSeconds)}
+                    </p>
+                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Time</p>
+                  </div>
+                  <div className="rounded-xl bg-white p-3 text-center">
+                    <p className="text-lg font-black text-[#092c59]">
+                      {currentPractice.exerciseLogs?.length || 0}
+                    </p>
+                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Logs</p>
+                  </div>
+                  <div className="rounded-xl bg-white p-3 text-center">
+                    <p className="text-lg font-black text-[#092c59]">
+                      {
+                        new Set((currentPractice.exerciseLogs || []).map((log) => log.drillIndex))
+                          .size
+                      }
+                      /{currentPractice.drills.length}
+                    </p>
+                    <p className="mt-1 text-[10px] font-black uppercase text-[#718399]">Drills</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs font-semibold leading-5 text-[#4f647b]">
+                  Timer status:{' '}
+                  <span className="font-black capitalize">{currentPractice.timerStatus}</span>.
+                  Review unusually short times or missing logs with the student.
+                </p>
               </div>
               {currentPractice.coachFeedback ? (
                 <p className="mt-4 text-sm leading-6">

@@ -9,6 +9,7 @@ import {
 import { syncIndependentPractice } from './syncIndependentPractice'
 import { normalizeSkillProgressStage } from './normalizeSkillProgressStage'
 import { syncPracticeLibraryInstances } from './syncPracticeLibraryInstances'
+import { syncProgramHomePractices } from './syncProgramHomePractices'
 import { syncProgramIndependentPractices } from './syncProgramIndependentPractices'
 import { syncProgramLessonSkills } from './syncProgramLessonSkills'
 import { syncProgramTrainingSessions } from './syncProgramTrainingSessions'
@@ -46,7 +47,7 @@ export const Programs: CollectionConfig = {
     defaultColumns: ['name', 'level', 'durationWeeks'],
   },
   hooks: {
-    beforeValidate: [syncProgramLessonSkills],
+    beforeValidate: [syncProgramLessonSkills, syncProgramHomePractices],
     afterChange: [syncProgramIndependentPractices],
   },
   fields: [
@@ -119,11 +120,31 @@ export const Programs: CollectionConfig = {
               maxDepth: 1,
             },
             {
+              name: 'homeDrills',
+              label: 'Home Drills',
+              type: 'relationship',
+              relationTo: 'drills',
+              hasMany: true,
+              required: true,
+              minRows: 1,
+              maxDepth: 1,
+              filterOptions: { practiceSetting: { equals: 'home' } },
+              admin: {
+                description:
+                  'Exercises assigned for this lesson. Saving the program automatically builds and updates the student home-practice plan.',
+              },
+            },
+            {
               name: 'independentPractice',
+              label: 'Generated Home-Practice Plan',
               type: 'relationship',
               relationTo: 'practice-library',
               required: true,
               maxDepth: 1,
+              admin: {
+                readOnly: true,
+                description: 'Automatically generated from the selected Home Drills.',
+              },
             },
             { name: 'successCriteria', type: 'textarea', required: true },
             {
@@ -936,6 +957,17 @@ export const IndependentPractices: CollectionConfig = {
       },
     },
     {
+      name: 'currentRound',
+      type: 'number',
+      required: true,
+      min: 1,
+      defaultValue: 1,
+      admin: {
+        readOnly: true,
+        description: 'One-based round number inside the active home-practice drill.',
+      },
+    },
+    {
       name: 'currentStepElapsedSeconds',
       type: 'number',
       required: true,
@@ -945,6 +977,23 @@ export const IndependentPractices: CollectionConfig = {
         readOnly: true,
         description: 'Accumulated time for the active exercise.',
       },
+    },
+    {
+      name: 'exerciseLogs',
+      type: 'array',
+      labels: { singular: 'Exercise log', plural: 'Exercise logs' },
+      defaultValue: [],
+      admin: {
+        readOnly: true,
+        description: 'Elapsed time recorded whenever a student completes an exercise.',
+      },
+      fields: [
+        { name: 'drillIndex', type: 'number', required: true, min: 0 },
+        { name: 'round', type: 'number', required: true, min: 1 },
+        { name: 'stepIndex', type: 'number', required: true, min: 0 },
+        { name: 'elapsedSeconds', type: 'number', required: true, min: 0 },
+        { name: 'completedAt', type: 'date', required: true },
+      ],
     },
     { name: 'completedAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
     { name: 'coachFeedback', type: 'textarea' },
