@@ -17,7 +17,6 @@ import {
   Panel,
   ProgressBar,
   relationName,
-  Stat,
 } from '@/components/Dashboard/UI'
 import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPracticeCheck'
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
@@ -230,6 +229,11 @@ export default async function StudentDashboardPage() {
     }
   })
 
+  const visibleCategoryProgress = categoryProgress.filter((category) => category.value > 0)
+  const priorityCategoryProgress = (
+    visibleCategoryProgress.length ? visibleCategoryProgress : categoryProgress
+  ).slice(0, 4)
+  const prioritySkills = developingSkills.slice(0, 4)
   const videos = practiceDrills.flatMap((drill) =>
     drill.videoURL ? [{ title: drill.name, url: drill.videoURL, level: drill.level }] : [],
   )
@@ -238,14 +242,14 @@ export default async function StudentDashboardPage() {
     <DashboardShell
       eyebrow="Student dashboard"
       title={`Hi, ${profile.displayName}`}
-      description="Everything you need for your next session and the clearest view of where your game is improving."
+      description="Your focus, practice, and next session—all in one place."
     >
       <div className="grid gap-5 lg:grid-cols-12">
         <Panel
           tone="dark"
           className="lg:col-span-8"
-          title="Your next focus"
-          subtitle="This week's coaching priority"
+          title="This week's focus"
+          subtitle="Your coaching priority"
           icon={Target}
         >
           <p className="text-3xl font-black tracking-tight text-[#4cc9ff]">
@@ -254,105 +258,26 @@ export default async function StudentDashboardPage() {
           <p className="mt-3 max-w-3xl leading-7 text-white/75">
             {currentLesson?.objective || profile.focusExplanation}
           </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Stat
-              label="Current program"
-              value={program?.name || 'Not assigned'}
-              detail={
-                program
-                  ? `${currentPhase?.name || profile.currentPhase} · Week ${programWeek} of ${program.durationWeeks}`
-                  : profile.currentPhase
-              }
-            />
-            <Stat
-              label="Attendance"
-              value={`${profile.attendanceRate}%`}
-              detail="Current training cycle"
-            />
-            <Stat
-              label="Package balance"
-              value={profile.sessionsRemaining}
-              detail={`${profile.packageName} · ${profile.packageSessions} sessions`}
-            />
-          </div>
+          {program ? (
+            <p className="mt-6 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white/80">
+              {program.name} · Week {programWeek} of {program.durationWeeks}
+            </p>
+          ) : null}
         </Panel>
 
-        <Panel className="lg:col-span-4" title="Next training session" icon={CalendarDays}>
+        <Panel className="lg:col-span-4" title="Next session" icon={CalendarDays}>
           {nextSession ? (
             <>
-              <p className="text-2xl font-black">{nextSession.title}</p>
-              <p className="mt-2 font-bold text-[#1677ff]">{formatDate(nextSession.scheduledAt)}</p>
-              <p className="mt-2 text-sm text-[#718399]">
+              <p className="text-lg font-black text-[#092c59]">{nextSession.title}</p>
+              <p className="mt-3 text-xl font-black text-[#1677ff]">
+                {formatDate(nextSession.scheduledAt)}
+              </p>
+              <p className="mt-2 text-sm font-medium text-[#718399]">
                 {nextSession.location || 'Location to be confirmed'}
               </p>
-              <div className="mt-5 rounded-2xl bg-[#eaf3ff] p-4 text-sm">
-                <strong>Session plan:</strong>
-                <p className="mt-1 text-[#607286]">
-                  {nextSession.plan?.warmUp || 'Your coach is preparing the session plan.'}
-                </p>
-              </div>
             </>
           ) : (
-            <Empty text="No upcoming training session is scheduled." />
-          )}
-        </Panel>
-
-        <Panel
-          className="lg:col-span-12"
-          title="Your program plan"
-          subtitle={
-            program
-              ? `${program.name} · Week ${programWeek} of ${program.durationWeeks}`
-              : 'Your coach will assign the right pathway'
-          }
-          icon={BookOpen}
-        >
-          {program && currentLesson ? (
-            <div
-              className={
-                upcomingLessons.length
-                  ? 'grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)]'
-                  : ''
-              }
-            >
-              <div className="rounded-3xl bg-[#eaf3ff] p-6">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.12em] text-[#1677ff]">
-                  <span>{currentPhase?.name}</span>
-                  <span>·</span>
-                  <span>Week {currentLesson.week}</span>
-                  <span>·</span>
-                  <span>{currentLesson.lessonType.replace('-', ' ')}</span>
-                </div>
-                <h3 className="mt-3 text-2xl font-black">{currentLesson.title}</h3>
-                <p className="mt-2 leading-7 text-[#607286]">{currentLesson.objective}</p>
-                <div className="mt-5 rounded-2xl bg-white p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
-                    Success criteria
-                  </p>
-                  <p className="mt-2 text-sm leading-6">{currentLesson.successCriteria}</p>
-                </div>
-              </div>
-              {upcomingLessons.length ? (
-                <div className="border-t border-[#092c59]/10 pt-5 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-1">
-                  <p className="mb-3 text-sm font-black">Coming up next</p>
-                  <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
-                    {upcomingLessons.map((programLesson) => (
-                      <div
-                        key={programLesson.id || programLesson.week}
-                        className="rounded-2xl bg-[#f3f7fc] p-4"
-                      >
-                        <p className="text-xs font-black uppercase text-[#1677ff]">
-                          Week {programLesson.week}
-                        </p>
-                        <p className="mt-2 font-black">{programLesson.title}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <Empty text="No program has been assigned yet. Once your coach selects one, its current lesson and drills will appear here automatically." />
+            <Empty text="No upcoming session scheduled." />
           )}
         </Panel>
 
@@ -424,82 +349,125 @@ export default async function StudentDashboardPage() {
           )}
         </Panel>
 
-        <Panel className="lg:col-span-12" title="Coach feedback" icon={MessageSquareText}>
-          {latestFeedback ? (
-            <blockquote className="rounded-2xl bg-[#eaf3ff] p-5 text-lg font-semibold leading-8">
+        {latestFeedback ? (
+          <Panel className="lg:col-span-4" title="Coach note" icon={MessageSquareText}>
+            <blockquote className="rounded-2xl bg-[#eaf3ff] p-5 font-semibold leading-7 text-[#213b58]">
               “{latestFeedback}”
             </blockquote>
-          ) : (
-            <Empty text="Feedback will appear after your coach completes a session review." />
-          )}
-        </Panel>
+          </Panel>
+        ) : null}
 
         <Panel
-          className="lg:col-span-6"
-          title="Progress by development area"
-          subtitle="Separate categories show what is really changing"
+          className={latestFeedback ? 'lg:col-span-8' : 'lg:col-span-12'}
+          title="Your development"
+          subtitle={`${developingSkills.length} in progress · ${completedSkills.length} completed`}
           icon={Trophy}
         >
-          <div className="grid gap-5 sm:grid-cols-2">
-            {categoryProgress.map((category) => (
-              <ProgressBar key={category.label} label={category.label} value={category.value} />
-            ))}
-          </div>
-        </Panel>
-
-        <Panel
-          className="lg:col-span-6"
-          title="Skills in development"
-          subtitle={`${developingSkills.length} ${developingSkills.length === 1 ? 'skill' : 'skills'} in this program`}
-          icon={Target}
-        >
-          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-            {developingSkills.length ? (
-              developingSkills.map((item) => (
-                <div key={item.id}>
-                  <ProgressBar
-                    label={relationName(item.skill as Skill)}
-                    value={item.progress}
-                    trailing={stageLabels[displayedStage(item.progress, item.stage)]}
-                  />
-                  {item.coachFeedback ? (
-                    <p className="mt-2 whitespace-pre-line rounded-xl bg-[#f3f7fc] p-3 text-xs leading-5 text-[#607286]">
-                      {item.coachFeedback}
-                    </p>
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <div className="sm:col-span-2">
-                <Empty text="Skills from your current program lessons will appear here automatically." />
+          <div className="grid gap-6 xl:grid-cols-2">
+            <div>
+              <h3 className="text-sm font-black text-[#092c59]">Development areas</h3>
+              <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
+                {priorityCategoryProgress.map((category) => (
+                  <ProgressBar key={category.label} label={category.label} value={category.value} />
+                ))}
               </div>
-            )}
-          </div>
-          <div className="mt-6 border-t border-[#092c59]/10 pt-5">
-            <p className="mb-3 flex items-center gap-2 text-sm font-black">
-              <CheckCircle2 className="h-4 w-4 text-[#1677ff]" /> Skills completed
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {completedSkills.length ? (
-                completedSkills.map((item) => (
-                  <span
-                    key={item.id}
-                    className="rounded-full bg-[#eaf3ff] px-3 py-2 text-xs font-bold"
-                  >
-                    {relationName(item.skill as Skill)}
-                  </span>
-                ))
+            </div>
+            <div className="border-t border-[#092c59]/10 pt-6 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
+              <h3 className="text-sm font-black text-[#092c59]">Current skills</h3>
+              {prioritySkills.length ? (
+                <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
+                  {prioritySkills.map((item) => (
+                    <ProgressBar
+                      key={item.id}
+                      label={relationName(item.skill as Skill)}
+                      value={item.progress}
+                      trailing={stageLabels[displayedStage(item.progress, item.stage)]}
+                    />
+                  ))}
+                </div>
               ) : (
-                <span className="text-sm text-[#718399]">Completed skills will appear here.</span>
+                <p className="mt-4 text-sm text-[#718399]">No skills are currently in progress.</p>
               )}
+              <div className="mt-5 flex items-center gap-2 rounded-2xl bg-[#f3f7fc] p-4 text-sm font-bold text-[#607286]">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-[#1677ff]" />
+                {completedSkills.length} {completedSkills.length === 1 ? 'skill' : 'skills'}{' '}
+                completed
+              </div>
             </div>
           </div>
         </Panel>
 
-        <Panel className="lg:col-span-6" title="Upcoming assessment or tournament" icon={Trophy}>
-          <div className="space-y-3">
-            {events.docs.length ? (
-              events.docs.map((event) => (
+        <Panel
+          className="lg:col-span-12"
+          title="Program roadmap"
+          subtitle={
+            program
+              ? `${program.name} · Week ${programWeek} of ${program.durationWeeks}`
+              : 'No program assigned'
+          }
+          icon={BookOpen}
+        >
+          {program && currentLesson ? (
+            <div className="grid gap-5 lg:grid-cols-[minmax(240px,.7fr)_minmax(0,1.3fr)]">
+              <div className="rounded-2xl bg-[#eaf3ff] p-5">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
+                  Current phase
+                </p>
+                <h3 className="mt-2 text-xl font-black text-[#092c59]">
+                  {currentPhase?.name || profile.currentPhase}
+                </h3>
+                <p className="mt-1 text-sm text-[#607286]">
+                  Week {programWeek} of {program.durationWeeks}
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-3 border-t border-[#1677ff]/15 pt-4">
+                  <div>
+                    <p className="text-xs text-[#607286]">Attendance</p>
+                    <p className="mt-1 text-lg font-black text-[#092c59]">
+                      {profile.attendanceRate}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#607286]">Sessions left</p>
+                    <p className="mt-1 text-lg font-black text-[#092c59]">
+                      {profile.sessionsRemaining}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-[#092c59]">Up next</h3>
+                {upcomingLessons.length ? (
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    {upcomingLessons.map((programLesson) => (
+                      <div
+                        key={programLesson.id || programLesson.week}
+                        className="rounded-2xl bg-[#f3f7fc] p-4"
+                      >
+                        <p className="text-xs font-black uppercase text-[#1677ff]">
+                          Week {programLesson.week}
+                        </p>
+                        <p className="mt-2 font-black text-[#092c59]">{programLesson.title}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-[#718399]">No later lessons are scheduled.</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <Empty text="Your program roadmap will appear after a program is assigned." />
+          )}
+        </Panel>
+
+        {events.docs.length ? (
+          <Panel
+            className={videos.length ? 'lg:col-span-6' : 'lg:col-span-12'}
+            title="Upcoming events"
+            icon={Trophy}
+          >
+            <div className="space-y-3">
+              {events.docs.map((event) => (
                 <div
                   key={event.id}
                   className="flex items-center justify-between gap-4 rounded-2xl bg-[#f3f7fc] p-4"
@@ -514,22 +482,19 @@ export default async function StudentDashboardPage() {
                     {formatDate(event.startsAt, false)}
                   </time>
                 </div>
-              ))
-            ) : (
-              <Empty text="No upcoming assessment or tournament." />
-            )}
-          </div>
-        </Panel>
+              ))}
+            </div>
+          </Panel>
+        ) : null}
 
-        <Panel
-          className="lg:col-span-6"
-          title="Training videos"
-          subtitle="Demonstrations from your current lesson and assigned drills"
-          icon={PlayCircle}
-        >
-          <div className="space-y-3">
-            {videos.length ? (
-              videos.map((video) => (
+        {videos.length ? (
+          <Panel
+            className={events.docs.length ? 'lg:col-span-6' : 'lg:col-span-12'}
+            title="Training videos"
+            icon={PlayCircle}
+          >
+            <div className="space-y-3">
+              {videos.map((video) => (
                 <a
                   key={`${video.title}-${video.url}`}
                   href={video.url}
@@ -543,12 +508,10 @@ export default async function StudentDashboardPage() {
                   </span>
                   <PlayCircle className="h-6 w-6 text-[#1677ff]" />
                 </a>
-              ))
-            ) : (
-              <Empty text="Training videos will appear when a coach adds them to your drills." />
-            )}
-          </div>
-        </Panel>
+              ))}
+            </div>
+          </Panel>
+        ) : null}
       </div>
     </DashboardShell>
   )
