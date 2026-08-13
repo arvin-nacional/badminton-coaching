@@ -3,8 +3,6 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
-  Clock3,
-  House,
   MessageSquareText,
   PlayCircle,
   Target,
@@ -369,98 +367,57 @@ export default async function StudentDashboardPage() {
           icon={ClipboardList}
         >
           {currentLesson ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(280px,.7fr)_minmax(0,1.3fr)]">
-              <div className="self-start rounded-3xl bg-[#f6f9fd] p-5 md:p-6 xl:sticky xl:top-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
-                      This week&apos;s plan
-                    </p>
-                    <h3 className="mt-2 text-xl font-black leading-tight text-[#092c59]">
-                      {currentPractice?.title || currentLesson.title}
-                    </h3>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <span className="flex items-center gap-1.5 rounded-full bg-[#eaf3ff] px-3 py-1.5 text-xs font-bold text-[#1677ff]">
-                      <House className="h-4 w-4" /> At home
-                    </span>
-                    <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#607286]">
-                      <Clock3 className="h-4 w-4 text-[#1677ff]" /> Week {programWeek}
-                    </span>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-6 text-[#607286]">
-                  {practiceTemplate?.instructions || currentPractice?.instructions}
-                </p>
-
-                <div className="mt-6 rounded-2xl bg-white p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#718399]">
-                    Completion target
+            <div>
+              <div className="flex flex-col gap-3 rounded-2xl bg-[#f6f9fd] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
+                    Week {programWeek}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-[#213b58]">
-                    {practiceTemplate?.successCriteria ||
-                      currentPractice?.successCriteria ||
-                      currentLesson.successCriteria}
-                  </p>
+                  <h3 className="mt-1 text-lg font-black leading-tight text-[#092c59]">
+                    {currentPractice?.title || currentLesson.title}
+                  </h3>
                 </div>
-
-                {currentPractice ? (
-                  canCompleteCurrentPractice ? (
-                    <IndependentPracticeCheck
-                      practiceID={currentPractice.id}
-                      initialCompleted={currentPractice.status === 'completed'}
-                    />
-                  ) : null
-                ) : (
-                  <p className="mt-5 rounded-2xl border border-dashed border-[#9db1c8] p-4 text-sm font-semibold text-[#718399]">
-                    Your practice checklist is being prepared. Refresh after your coach saves the
-                    program.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
-                      Home practice drills
-                    </p>
-                    <h3 className="mt-1 text-xl font-black text-[#092c59]">Complete in order</h3>
-                    <p className="mt-1 text-sm text-[#718399]">
-                      Select a drill to view its full instructions.
-                    </p>
-                  </div>
-                  {practiceDrills.length ? (
-                    <div className="flex flex-wrap gap-2 text-xs font-bold text-[#607286]">
-                      <span className="rounded-full bg-[#f3f7fc] px-3 py-1.5">
-                        {practiceDrills.length} {practiceDrills.length === 1 ? 'drill' : 'drills'}
-                      </span>
-                      <span className="rounded-full bg-[#f3f7fc] px-3 py-1.5">
-                        {practiceDurationMinutes} min total
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-
                 {practiceDrills.length ? (
-                  <IndependentPracticeDrills
-                    drills={practiceDrills}
-                    practiceID={currentPractice?.id}
-                    initialTimerStatus={currentPractice?.timerStatus}
-                    initialTimerStartedAt={currentPractice?.timerStartedAt}
-                    initialElapsedSeconds={currentPractice?.elapsedSeconds}
-                    initialCurrentDrillIndex={currentPractice?.currentDrillIndex}
-                    initialCurrentDrillElapsedSeconds={currentPractice?.currentDrillElapsedSeconds}
-                    initialCurrentStepIndex={currentPractice?.currentStepIndex}
-                    initialCurrentRound={currentPractice?.currentRound}
-                    initialCurrentStepElapsedSeconds={currentPractice?.currentStepElapsedSeconds}
-                    initialExerciseLogs={currentPractice?.exerciseLogs}
-                    initialCompleted={currentPractice?.status === 'completed'}
-                  />
-                ) : (
-                  <Empty text="The drills for this home practice are being prepared." />
-                )}
+                  <p className="shrink-0 text-sm font-bold text-[#607286]">
+                    {practiceDrills.length} {practiceDrills.length === 1 ? 'drill' : 'drills'} ·{' '}
+                    {practiceDurationMinutes} min
+                  </p>
+                ) : null}
               </div>
+
+              <h3 className="mb-3 mt-5 text-base font-black text-[#092c59]">Drills</h3>
+              {practiceDrills.length ? (
+                <IndependentPracticeDrills
+                  drills={practiceDrills}
+                  practiceID={currentPractice?.id}
+                  initialTimerStatus={currentPractice?.timerStatus}
+                  initialTimerStartedAt={currentPractice?.timerStartedAt}
+                  initialElapsedSeconds={currentPractice?.elapsedSeconds}
+                  initialCurrentDrillIndex={currentPractice?.currentDrillIndex}
+                  initialCurrentDrillElapsedSeconds={currentPractice?.currentDrillElapsedSeconds}
+                  initialCurrentStepIndex={currentPractice?.currentStepIndex}
+                  initialCurrentRound={currentPractice?.currentRound}
+                  initialCurrentStepElapsedSeconds={currentPractice?.currentStepElapsedSeconds}
+                  initialExerciseLogs={currentPractice?.exerciseLogs}
+                  initialCompleted={currentPractice?.status === 'completed'}
+                />
+              ) : (
+                <Empty text="The drills for this home practice are being prepared." />
+              )}
+
+              {currentPractice ? (
+                canCompleteCurrentPractice ? (
+                  <IndependentPracticeCheck
+                    practiceID={currentPractice.id}
+                    initialCompleted={currentPractice.status === 'completed'}
+                  />
+                ) : null
+              ) : (
+                <p className="mt-5 rounded-2xl border border-dashed border-[#9db1c8] p-4 text-sm font-semibold text-[#718399]">
+                  Your practice checklist is being prepared. Refresh after your coach saves the
+                  program.
+                </p>
+              )}
             </div>
           ) : (
             <Empty text="Home practice will appear after a program is assigned." />
