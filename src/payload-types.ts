@@ -1269,6 +1269,46 @@ export interface StudentProfile {
   attendanceRate: number;
   assessmentStatus: 'required' | 'scheduled' | 'current';
   lastTrainingAt?: string | null;
+  /**
+   * Captured during student onboarding.
+   */
+  playingExperience?: ('new' | 'under-1-year' | '1-3-years' | 'over-3-years') | null;
+  /**
+   * Captured during student onboarding.
+   */
+  preferredEvent?: ('singles' | 'doubles' | 'both' | 'not-sure') | null;
+  /**
+   * What the student wants to achieve. Captured during onboarding.
+   */
+  goals?: string | null;
+  /**
+   * When the student is available to train. Captured during onboarding.
+   */
+  trainingAvailability?: string | null;
+  /**
+   * Any injuries or health notes. Captured during onboarding.
+   */
+  injuryConsiderations?: string | null;
+  /**
+   * Student self-rating from 1 (beginner) to 10 (advanced). Captured during onboarding.
+   */
+  skillSelfRating?: number | null;
+  /**
+   * How often the student can train. Captured during onboarding.
+   */
+  trainingFrequencyPerWeek?: ('1' | '2' | '3' | '4+') | null;
+  /**
+   * The student’s competitive ambition. Captured during onboarding.
+   */
+  competitionGoal?: ('casual' | 'club' | 'tournament' | 'national') | null;
+  /**
+   * Automatically derived from onboarding answers. The coach confirms the final program assignment.
+   */
+  recommendedProgramLevel?: ('foundations' | 'development' | 'competitive') | null;
+  /**
+   * Set when the student completes the self-onboarding form.
+   */
+  onboardingCompletedAt?: string | null;
   trainingSessions?: {
     docs?: (string | TrainingSession)[];
     hasNextPage?: boolean;
@@ -2500,6 +2540,16 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   attendanceRate?: T;
   assessmentStatus?: T;
   lastTrainingAt?: T;
+  playingExperience?: T;
+  preferredEvent?: T;
+  goals?: T;
+  trainingAvailability?: T;
+  injuryConsiderations?: T;
+  skillSelfRating?: T;
+  trainingFrequencyPerWeek?: T;
+  competitionGoal?: T;
+  recommendedProgramLevel?: T;
+  onboardingCompletedAt?: T;
   trainingSessions?: T;
   skillDevelopment?: T;
   independentPracticeProgress?: T;

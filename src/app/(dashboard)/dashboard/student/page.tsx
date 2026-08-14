@@ -9,6 +9,7 @@ import {
   Trophy,
 } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 import {
   DashboardShell,
@@ -57,6 +58,9 @@ export default async function StudentDashboardPage() {
     where: { user: { equals: user.id } },
   })
   const profile = profileResult.docs[0]
+
+  // Guide students through onboarding before showing the full dashboard.
+  if (profile && !profile.onboardingCompletedAt) redirect('/onboarding')
 
   if (!profile) {
     return (

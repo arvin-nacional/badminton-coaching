@@ -43,12 +43,13 @@ export default async function ActivateAccountPage({
           <XCircle className="h-6 w-6" />
         </div>
         <p className="mt-7 text-xs font-black uppercase tracking-[.18em] text-[#a53d3d]">
-          Invitation unavailable
+          Activation link unavailable
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-.04em]">This link can’t be used</h1>
         <p className="mt-3 text-sm leading-6 text-[#607286]">
-          This invitation has expired, has already been used, or was replaced by a newer link. If
-          you still need access, ask your coach to resend the invitation.
+          This activation link has expired, has already been used, or was replaced by a newer link.
+          If you signed up yourself, you can request a new link from the sign up page. If your coach
+          invited you, ask them to resend the invitation.
         </p>
         <Link
           href="/login"

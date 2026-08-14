@@ -545,6 +545,109 @@ export const StudentProfiles: CollectionConfig = {
     },
     { name: 'lastTrainingAt', type: 'date' },
     {
+      name: 'playingExperience',
+      type: 'select',
+      options: [
+        { label: 'New to badminton', value: 'new' },
+        { label: 'Less than 1 year', value: 'under-1-year' },
+        { label: '1–3 years', value: '1-3-years' },
+        { label: 'More than 3 years', value: 'over-3-years' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Captured during student onboarding.',
+      },
+    },
+    {
+      name: 'preferredEvent',
+      type: 'select',
+      options: ['singles', 'doubles', 'both', 'not-sure'],
+      admin: {
+        position: 'sidebar',
+        description: 'Captured during student onboarding.',
+      },
+    },
+    {
+      name: 'goals',
+      type: 'textarea',
+      admin: {
+        description: 'What the student wants to achieve. Captured during onboarding.',
+      },
+    },
+    {
+      name: 'trainingAvailability',
+      type: 'textarea',
+      admin: {
+        description: 'When the student is available to train. Captured during onboarding.',
+      },
+    },
+    {
+      name: 'injuryConsiderations',
+      type: 'textarea',
+      admin: {
+        description: 'Any injuries or health notes. Captured during onboarding.',
+      },
+    },
+    {
+      name: 'skillSelfRating',
+      type: 'number',
+      min: 1,
+      max: 10,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Student self-rating from 1 (beginner) to 10 (advanced). Captured during onboarding.',
+      },
+    },
+    {
+      name: 'trainingFrequencyPerWeek',
+      type: 'select',
+      options: [
+        { label: '1 session per week', value: '1' },
+        { label: '2 sessions per week', value: '2' },
+        { label: '3 sessions per week', value: '3' },
+        { label: '4 or more sessions per week', value: '4+' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'How often the student can train. Captured during onboarding.',
+      },
+    },
+    {
+      name: 'competitionGoal',
+      type: 'select',
+      options: [
+        { label: 'Casual / fitness', value: 'casual' },
+        { label: 'Club-level play', value: 'club' },
+        { label: 'Local tournaments', value: 'tournament' },
+        { label: 'National / high-performance', value: 'national' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'The student\u2019s competitive ambition. Captured during onboarding.',
+      },
+    },
+    {
+      name: 'recommendedProgramLevel',
+      type: 'select',
+      options: ['foundations', 'development', 'competitive'],
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'Automatically derived from onboarding answers. The coach confirms the final program assignment.',
+      },
+    },
+    {
+      name: 'onboardingCompletedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Set when the student completes the self-onboarding form.',
+      },
+    },
+    {
       name: 'trainingSessions',
       type: 'join',
       collection: 'training-sessions',

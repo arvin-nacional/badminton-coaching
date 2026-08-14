@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const password = typeof body?.password === 'string' ? body.password : ''
   const confirmPassword = typeof body?.confirmPassword === 'string' ? body.confirmPassword : ''
 
-  if (!token) return Response.json({ error: 'This invitation link is invalid.' }, { status: 400 })
+  if (!token) return Response.json({ error: 'This activation link is invalid.' }, { status: 400 })
   if (password.length < 8)
     return Response.json(
       { error: 'Your password must have at least 8 characters.' },
@@ -37,7 +37,8 @@ export async function POST(request: Request) {
   ) {
     return Response.json(
       {
-        error: 'This invitation has expired or has already been used. Ask your coach to resend it.',
+        error:
+          'This activation link has expired or has already been used. Request a new link from the sign up page or ask your coach to resend it.',
       },
       { status: 400 },
     )
@@ -53,7 +54,8 @@ export async function POST(request: Request) {
   } catch {
     return Response.json(
       {
-        error: 'This invitation has expired or has already been used. Ask your coach to resend it.',
+        error:
+          'This activation link has expired or has already been used. Request a new link from the sign up page or ask your coach to resend it.',
       },
       { status: 400 },
     )

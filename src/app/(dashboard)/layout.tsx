@@ -48,6 +48,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     <span className="hidden sm:inline">Back to website</span>
                   </Link>
                   <Link
+                    href="/signup"
+                    className="whitespace-nowrap rounded-full border border-[#092c59]/20 bg-white px-5 py-2.5 text-[#092c59]"
+                  >
+                    Sign up
+                  </Link>
+                  <Link
                     href="/login?redirect=/dashboard/student"
                     className="rounded-full bg-[#092c59] px-5 py-2.5 text-white"
                   >

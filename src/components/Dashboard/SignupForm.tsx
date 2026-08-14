@@ -1,35 +1,49 @@
 'use client'
 
-import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle } from 'lucide-react'
+import { ArrowRight, CheckCircle2, LoaderCircle, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 
-export function ActivateAccountForm({ token }: { token: string }) {
+export function SignupForm() {
   const [error, setError] = useState('')
   const [complete, setComplete] = useState(false)
   const [pending, setPending] = useState(false)
+  const [submittedEmail, setSubmittedEmail] = useState('')
 
-  async function activate(event: FormEvent<HTMLFormElement>) {
+  async function signup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
     const data = new FormData(event.currentTarget)
+    const name = String(data.get('name') || '')
+    const email = String(data.get('email') || '')
     const password = String(data.get('password') || '')
     const confirmPassword = String(data.get('confirmPassword') || '')
-    if (password !== confirmPassword) return setError('The passwords do not match.')
+
+    if (password !== confirmPassword) {
+      setError('The passwords do not match.')
+      return
+    }
 
     setPending(true)
-    const response = await fetch('/api/student-invitations/activate', {
+    const response = await fetch('/api/student-signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password, confirmPassword }),
+      body: JSON.stringify({ name, email, password, confirmPassword }),
     }).catch(() => null)
-    const result = (await response?.json().catch(() => null)) as { error?: string } | null
+    const result = (await response?.json().catch(() => null)) as {
+      error?: string
+      message?: string
+    } | null
+
     if (!response?.ok) {
-      setError(result?.error || 'Your account could not be activated.')
+      setError(result?.error || 'We could not create your account.')
       setPending(false)
       return
     }
+
+    setSubmittedEmail(email)
     setComplete(true)
+    setPending(false)
   }
 
   return (
@@ -40,33 +54,58 @@ export function ActivateAccountForm({ token }: { token: string }) {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef9f3] text-[#157347]">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h1 className="mt-7 text-3xl font-black tracking-[-.04em]">Your account is active</h1>
+            <h1 className="mt-7 text-3xl font-black tracking-[-.04em]">Check your email</h1>
             <p className="mt-3 text-sm leading-6 text-[#607286]">
-              Your email has been confirmed and your password is ready. Sign in to view your
-              training dashboard.
+              We sent a verification link to{' '}
+              <strong className="text-[#092c59]">{submittedEmail}</strong>. Open it to confirm your
+              email and create your password. The link expires in 48 hours.
             </p>
             <Link
-              href="/login?redirect=/dashboard/student"
-              className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white"
+              href="/login"
+              className="mt-7 flex w-full items-center justify-center gap-2 rounded-full border border-[#092c59]/20 bg-white px-6 py-3.5 font-bold text-[#092c59]"
             >
-              Sign in <ArrowRight className="h-5 w-5" />
+              Return to sign in <ArrowRight className="h-5 w-5" />
             </Link>
           </>
         ) : (
           <>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf3ff] text-[#1677ff]">
-              <KeyRound className="h-6 w-6" />
+              <UserPlus className="h-6 w-6" />
             </div>
             <p className="mt-7 text-xs font-black uppercase tracking-[.18em] text-[#1677ff]">
-              Student activation
+              Student sign up
             </p>
-            <h1 className="mt-2 text-3xl font-black tracking-[-.04em]">Create your password</h1>
+            <h1 className="mt-2 text-3xl font-black tracking-[-.04em]">
+              Create your student account
+            </h1>
             <p className="mt-3 text-sm leading-6 text-[#607286]">
-              This confirms your email and activates your Next Shot student dashboard.
+              Students can create an account to access their training dashboard. You will need to
+              verify your email before signing in.
             </p>
-            <form onSubmit={activate} className="mt-7 space-y-5">
+            <form onSubmit={signup} className="mt-7 space-y-5">
               <label className="block text-sm font-bold">
-                New password
+                Full name
+                <input
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  maxLength={120}
+                  required
+                  className="mt-2 w-full rounded-xl border border-[#9db1c8] bg-white px-4 py-3 outline-none focus:border-[#1677ff]"
+                />
+              </label>
+              <label className="block text-sm font-bold">
+                Email
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="mt-2 w-full rounded-xl border border-[#9db1c8] bg-white px-4 py-3 outline-none focus:border-[#1677ff]"
+                />
+              </label>
+              <label className="block text-sm font-bold">
+                Password
                 <input
                   name="password"
                   type="password"
@@ -100,15 +139,21 @@ export function ActivateAccountForm({ token }: { token: string }) {
               >
                 {pending ? (
                   <>
-                    <LoaderCircle className="h-5 w-5 animate-spin" /> Activating…
+                    <LoaderCircle className="h-5 w-5 animate-spin" /> Creating account…
                   </>
                 ) : (
                   <>
-                    Activate account <ArrowRight className="h-5 w-5" />
+                    Create student account <ArrowRight className="h-5 w-5" />
                   </>
                 )}
               </button>
             </form>
+            <p className="mt-6 text-center text-sm text-[#607286]">
+              Already have an account?{' '}
+              <Link href="/login" className="font-bold text-[#1677ff]">
+                Sign in
+              </Link>
+            </p>
           </>
         )}
       </div>
