@@ -10,8 +10,8 @@ import {
   highIntensityShadowIntervalsContent,
   lowServeFloorTargetContent,
   lungeBalanceLegStrengthContent,
-  matchVisualizationResetContent,
   overheadShadowTechniqueContent,
+  resetRallyRehearsalContent,
   reactiveSplitStepCuesContent,
   shoulderAndCoreControlContent,
   soloRacketControlContent,
@@ -52,7 +52,9 @@ for (const drill of homeDrills.docs) {
         ? badmintonBodyweightStrengthContent
         : {}),
       ...(drill.name === 'Shoulder and Core Control' ? shoulderAndCoreControlContent : {}),
-      ...(drill.name === 'Match Visualization and Reset' ? matchVisualizationResetContent : {}),
+      ...(['Reset and Rally Rehearsal', 'Match Visualization and Reset'].includes(drill.name)
+        ? { name: 'Reset and Rally Rehearsal', ...resetRallyRehearsalContent }
+        : {}),
       practiceSteps: sequence.steps,
       stepIllustrationColumns: sequence.columns,
       stepIllustrationRows: sequence.rows,

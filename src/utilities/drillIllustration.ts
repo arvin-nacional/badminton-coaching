@@ -15,6 +15,7 @@ const defaultIllustrations: Record<string, string> = {
   'Badminton Bodyweight Strength Circuit':
     '/images/drills/badminton-bodyweight-strength-circuit.png',
   'Shoulder and Core Control': '/images/drills/shoulder-core-control.png',
+  'Reset and Rally Rehearsal': '/images/drills/reactive-split-step-cues.png',
   'Match Visualization and Reset': '/images/drills/match-visualization-reset.png',
   'High-Intensity Shadow Intervals': '/images/drills/high-intensity-shadow-intervals.png',
 }

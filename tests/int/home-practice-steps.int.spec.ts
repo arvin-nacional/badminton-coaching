@@ -12,8 +12,8 @@ import {
   highIntensityShadowIntervalsContent,
   lowServeFloorTargetContent,
   lungeBalanceLegStrengthContent,
-  matchVisualizationResetContent,
   overheadShadowTechniqueContent,
+  resetRallyRehearsalContent,
   pickRandomDirectionCue,
   reactiveSplitStepCuesContent,
   shoulderAndCoreControlContent,
@@ -272,23 +272,32 @@ describe('home practice sequence progress', () => {
     expect(shoulderAndCoreControlContent.instructions).not.toContain('20 seconds per side')
   })
 
-  it('models each visualisation scenario as one complete automatic routine', () => {
+  it('combines a brief reset with physical rally-pattern rehearsal and no writing', () => {
     const sequence = buildHomePracticeSequence(
-      'Match Visualization and Reset',
+      'Reset and Rally Rehearsal',
       'Setup: Legacy setup.\n\n1. Legacy step.\n\nWork/rest: Complete 5 scenarios.\nSafety: Legacy safety.',
     )
+    const legacySequence = buildHomePracticeSequence(
+      'Match Visualization and Reset',
+      'Setup: Legacy setup.\n\n1. Legacy step.\n\nWork/rest: Complete 10 scenarios.\nSafety: Legacy safety.',
+    )
 
-    expect(sequence?.rounds).toBe(10)
+    expect(sequence?.rounds).toBe(2)
     expect(sequence?.columns).toBe(1)
     expect(sequence?.rows).toBe(1)
-    expect(sequence?.steps).toHaveLength(1)
-    expect(sequence?.steps[0]).toMatchObject({
-      title: 'Visualise and reset one scenario',
-      durationSeconds: 75,
-    })
-    expect(sequence?.sheetURL).toBe(matchVisualizationResetContent.stepIllustrationURL)
-    expect(matchVisualizationResetContent.instructions).toContain('advances automatically')
-    expect(matchVisualizationResetContent.instructions).toContain('controllable actions')
+    expect(sequence?.steps.map((step) => step.title)).toEqual([
+      'Build the reset',
+      'Serve and third shot',
+      'Return and first attack',
+      'Defend and recover',
+      'Round recovery',
+    ])
+    expect(sequence?.steps[0]).toMatchObject({ durationSeconds: 30 })
+    expect(sequence?.steps[1]).toMatchObject({ durationSeconds: 50 })
+    expect(sequence?.sheetURL).toBe(resetRallyRehearsalContent.stepIllustrationURL)
+    expect(legacySequence?.steps).toEqual(sequence?.steps)
+    expect(resetRallyRehearsalContent.instructions).toContain('game speed')
+    expect(resetRallyRehearsalContent.instructions).not.toMatch(/notebook|write|writing/i)
   })
 
   it('runs racket control hands-free with one racket and a real recovery step', () => {

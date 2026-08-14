@@ -4,7 +4,11 @@ import {
   homePracticeName,
   programHomePracticeSuccessCriteria,
 } from '@/collections/Coaching/syncProgramHomePractices'
-import { homeDrillsForLesson, type LessonSeed } from '@/endpoints/seed/coaching'
+import {
+  homeDrillsForLesson,
+  programHomeDrillAssignments,
+  type LessonSeed,
+} from '@/endpoints/seed/coaching'
 
 describe('program home-practice integration', () => {
   it('uses a stable program/week lesson name for generated home-practice plans', () => {
@@ -14,7 +18,20 @@ describe('program home-practice integration', () => {
     expect(programHomePracticeSuccessCriteria).toContain('saved workout time and exercise logs')
   })
 
-  it('assigns Week 1 baseline drills without premature match visualisation', () => {
+  it('reserves reset rehearsal for pressure and game-plan weeks', () => {
+    const development = programHomeDrillAssignments['Player Development']
+    const competitive = programHomeDrillAssignments['Competitive Performance']
+
+    expect(development[9]).toEqual(['Lunge Balance and Leg Strength', 'Reactive Split-Step Cues'])
+    expect(development[14]).toContain('Reset and Rally Rehearsal')
+    expect(competitive[1]).not.toContain('Reset and Rally Rehearsal')
+    expect(competitive[13]).toContain('Reset and Rally Rehearsal')
+    expect(competitive[20]).not.toContain('Reset and Rally Rehearsal')
+    expect(Object.values(development).flat()).not.toContain('Match Visualization and Reset')
+    expect(Object.values(competitive).flat()).not.toContain('Match Visualization and Reset')
+  })
+
+  it('assigns Week 1 baseline drills without premature reset rehearsal', () => {
     const weekOneLesson: LessonSeed = {
       week: 1,
       title: 'Starting profile and court orientation',
@@ -40,7 +57,7 @@ describe('program home-practice integration', () => {
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekOneLesson, 'foundations'),
-    ).not.toContain('Match Visualization and Reset')
+    ).not.toContain('Reset and Rally Rehearsal')
   })
 
   it('progresses Week 2 from grip control into serving without repeating strength work', () => {
@@ -290,7 +307,7 @@ describe('program home-practice integration', () => {
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekNineLesson, 'foundations'),
-    ).not.toContain('Match Visualization and Reset')
+    ).not.toContain('Reset and Rally Rehearsal')
     expect(weekNineLesson.independentPractice).not.toContain('Practise 20 serves')
     expect(weekNineLesson.independentPractice).toContain('first movement')
   })
@@ -321,7 +338,7 @@ describe('program home-practice integration', () => {
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekTenLesson, 'foundations'),
-    ).not.toContain('Match Visualization and Reset')
+    ).not.toContain('Reset and Rally Rehearsal')
     expect(weekTenLesson.independentPractice).not.toContain('longest rally')
     expect(weekTenLesson.independentPractice).toContain('recovery to base')
   })

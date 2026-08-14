@@ -550,49 +550,78 @@ export const shoulderAndCoreControlContent = {
     'Controls the shoulder and trunk without shrugging, twisting or discomfort through the final round.',
 }
 
-const matchVisualizationResetSteps: HomePracticeStep[] = [
+const resetRallyRehearsalSteps: HomePracticeStep[] = [
   {
-    title: 'Visualise and reset one scenario',
+    title: 'Build the reset',
     instruction:
-      'Use the first 10 seconds to read the next prompt. Close your eyes if comfortable and spend about 35 seconds imagining the score, court, opponent and one realistic rally built around controllable actions. Turn away, take one slow breath and use a short reset cue. Finish by writing one concise next-rally plan and resetting your posture.',
-    amount: '1 scenario · 75 secs',
-    durationSeconds: 75,
+      'Stand as if the last rally just ended. Turn away from the imaginary court, breathe out slowly, loosen the racket grip and shoulders, say “next rally”, then turn back into a balanced ready stance. Repeat the same sequence three times.',
+    amount: '3 resets · 30 secs',
+    durationSeconds: 30,
+  },
+  {
+    title: 'Serve and third shot',
+    instruction:
+      'Use the reset, then say a short plan aloud: serve target plus next shot. Picture the likely return for one breath, then shadow the serve, split step, third shot and recovery at game speed. Complete three clear rehearsals.',
+    amount: '3 patterns · 50 secs',
+    durationSeconds: 50,
+  },
+  {
+    title: 'Return and first attack',
+    instruction:
+      'Use the same reset and start in a receiving stance. Say one return target, picture the server contact for one breath, then split, shadow the return, move to the next attacking shot and recover. Complete three rehearsals at game speed.',
+    amount: '3 patterns · 50 secs',
+    durationSeconds: 50,
+  },
+  {
+    title: 'Defend and recover',
+    instruction:
+      'Use the reset after an imagined error. Rehearse three pressure replies in order: block and recover, drive and recover, then lift and recover. Keep the racket available and finish every pattern balanced rather than trying to imagine a perfect winner.',
+    amount: '3 choices · 50 secs',
+    durationSeconds: 50,
+  },
+  {
+    title: 'Round recovery',
+    instruction:
+      'Walk slowly, breathe normally and relax the hand and shoulders. Recall the four reset actions—turn, exhale, release and cue—then return to the ready stance for the next round.',
+    amount: 'Recover · 30 secs',
+    durationSeconds: 30,
+    kind: 'rest',
   },
 ]
 
-const matchVisualizationResetSetup =
-  'Sit or stand somewhere quiet with a notebook and pen. Prepare 10 numbered prompts from recent matches or coach-provided situations, such as serving at 18-all, responding after an error, returning at game point or protecting a small lead.'
-const matchVisualizationResetWorkRest =
-  'Press Start once. Each 75-second round guides one complete scenario and advances automatically to the next numbered prompt. Complete 10 scenarios.'
-const matchVisualizationResetSafety =
-  'Use realistic but manageable situations. If visualisation causes distress rather than ordinary competition nerves, open your eyes, slow the breathing, switch to a neutral practice scenario or stop and speak with your coach or a trusted adult.'
+const resetRallyRehearsalSetup =
+  'Clear a non-slip space for one split step and two controlled shadow movements. Place two floor markers for front and rear court, hold one racket and stand at a central base. The app provides every situation; no prompts or notes are needed.'
+const resetRallyRehearsalWorkRest =
+  'Press Start once. Complete the five guided steps for 2 rounds. Keep round 1 controlled, then make round 2 sharper while preserving the same brief reset and spoken plan.'
+const resetRallyRehearsalSafety =
+  'Check ceiling height and keep every swing controlled. Use a smaller movement range in a tight space, keep eyes open during all shadow actions and stop if movement causes pain, dizziness or loss of balance.'
 
-export const matchVisualizationResetContent = {
-  illustrationURL: '/images/drills/match-visualization-reset.png',
-  stepIllustrationURL: '/images/drills/match-visualization-reset.png',
+export const resetRallyRehearsalContent = {
+  illustrationURL: '/images/drills/reactive-split-step-cues.png',
+  stepIllustrationURL: '/images/drills/reactive-split-step-cues.png',
   stepIllustrationColumns: 1,
   stepIllustrationRows: 1,
-  durationMinutes: 13,
-  equipment: 'Notebook, pen and 10 numbered match-scenario prompts',
+  durationMinutes: 7,
+  equipment: 'One racket, two floor markers and a clear non-slip space',
   instructions: [
-    `Setup: ${matchVisualizationResetSetup}`,
-    matchVisualizationResetSteps
+    `Setup: ${resetRallyRehearsalSetup}`,
+    resetRallyRehearsalSteps
       .map((step, index) => `${index + 1}. ${step.title} — ${step.instruction}`)
       .join('\n'),
-    `Work/rest: ${matchVisualizationResetWorkRest}\nSafety: ${matchVisualizationResetSafety}`,
+    `Work/rest: ${resetRallyRehearsalWorkRest}\nSafety: ${resetRallyRehearsalSafety}`,
   ].join('\n\n'),
   coachingPoints:
-    'Make each image specific but realistic, rehearse controllable actions, keep the reset brief and choose one clear intention for the next rally.',
+    'Use the same short reset every time, keep each spoken plan to one controllable pattern and connect the mental picture immediately to balanced game-speed shadow movement.',
   commonMistakes:
-    'Trying to imagine a perfect outcome, replaying only mistakes, writing a long explanation and changing the reset routine every scenario.',
+    'Creating a long story, focusing on winning the rally, changing the reset each time, gripping tightly and performing the shadow pattern too slowly to resemble play.',
   successTarget:
-    'Complete the same reset sequence and write one clear, controllable next-rally plan for at least 9 of 10 scenarios.',
+    'Use the same turn-exhale-release-cue reset and state a clear first-three-shot intention before at least 5 of 6 rally patterns, then shadow each pattern at game speed with a balanced recovery.',
   easierVariation:
-    'Use five neutral coach-provided scenarios and keep a written checklist of the reset routine.',
+    'Complete one round, use only one movement after the serve or return and perform every shadow action at a controlled pace.',
   harderProgression:
-    'Use recent pressure situations and complete the reset and next-rally plan within the final 20 seconds.',
+    'Use an opponent-specific serve, return or defensive pattern, reduce the reset to five seconds and change the second shot when the imagined reply changes.',
   completionRequirement:
-    'Can rehearse a realistic rally, reset attention and state one controllable next-rally intention without relying on a perfect outcome.',
+    'Completes the reset without prompting, states one controllable rally intention and physically rehearses the opening pattern with balanced recovery.',
 }
 
 const soloRacketControlSteps: HomePracticeStep[] = [
@@ -937,18 +966,31 @@ const configs: Record<string, StepSheetConfig> = {
     easierVariation: shoulderAndCoreControlContent.easierVariation,
     steps: shoulderAndCoreControlSteps,
   },
+  'Reset and Rally Rehearsal': {
+    sheetURL: resetRallyRehearsalContent.stepIllustrationURL,
+    columns: resetRallyRehearsalContent.stepIllustrationColumns,
+    rows: resetRallyRehearsalContent.stepIllustrationRows,
+    setup: resetRallyRehearsalSetup,
+    workRest: resetRallyRehearsalWorkRest,
+    safety: resetRallyRehearsalSafety,
+    rounds: 2,
+    equipment: resetRallyRehearsalContent.equipment,
+    successTarget: resetRallyRehearsalContent.successTarget,
+    easierVariation: resetRallyRehearsalContent.easierVariation,
+    steps: resetRallyRehearsalSteps,
+  },
   'Match Visualization and Reset': {
-    sheetURL: matchVisualizationResetContent.stepIllustrationURL,
-    columns: matchVisualizationResetContent.stepIllustrationColumns,
-    rows: matchVisualizationResetContent.stepIllustrationRows,
-    setup: matchVisualizationResetSetup,
-    workRest: matchVisualizationResetWorkRest,
-    safety: matchVisualizationResetSafety,
-    rounds: 10,
-    equipment: matchVisualizationResetContent.equipment,
-    successTarget: matchVisualizationResetContent.successTarget,
-    easierVariation: matchVisualizationResetContent.easierVariation,
-    steps: matchVisualizationResetSteps,
+    sheetURL: resetRallyRehearsalContent.stepIllustrationURL,
+    columns: resetRallyRehearsalContent.stepIllustrationColumns,
+    rows: resetRallyRehearsalContent.stepIllustrationRows,
+    setup: resetRallyRehearsalSetup,
+    workRest: resetRallyRehearsalWorkRest,
+    safety: resetRallyRehearsalSafety,
+    rounds: 2,
+    equipment: resetRallyRehearsalContent.equipment,
+    successTarget: resetRallyRehearsalContent.successTarget,
+    easierVariation: resetRallyRehearsalContent.easierVariation,
+    steps: resetRallyRehearsalSteps,
   },
   'High-Intensity Shadow Intervals': {
     sheetURL: highIntensityShadowIntervalsContent.stepIllustrationURL,

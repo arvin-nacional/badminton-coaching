@@ -12,8 +12,8 @@ import {
   highIntensityShadowIntervalsContent,
   lowServeFloorTargetContent,
   lungeBalanceLegStrengthContent,
-  matchVisualizationResetContent,
   overheadShadowTechniqueContent,
+  resetRallyRehearsalContent,
   reactiveSplitStepCuesContent,
   shoulderAndCoreControlContent,
   soloRacketControlContent,
@@ -378,7 +378,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Use net pressure and the lift to change opponent position.',
             ['Lunge, Net and Recover', 'Net-Lift-Kill Progression'],
-            'Complete the lunge-and-balance circuit, then use match-visualisation prompts to rehearse when to stay at the net and when to lift.',
+            'Complete the lunge-and-balance circuit, then use reactive split-step cues: treat front calls as a net approach and rear calls as a lift-and-recover response.',
             'Creates a clear attacking chance in 6 of 10 rallies.',
           ),
           lesson(
@@ -387,7 +387,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Move the opponent deep before using the forecourt with purpose.',
             ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'],
-            'Complete the overhead-shadow circuit, then visualise clear-drop rallies in which a deep shot creates the next forecourt opportunity.',
+            'Complete the overhead-shadow circuit, then the compact-footwork circuit, alternating a deep-clear movement with a drop follow-up and balanced recovery.',
             'Makes the correct clear-or-drop choice in 8 of 10 reviewed rallies.',
           ),
           lesson(
@@ -396,7 +396,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Select a block, drive or lift according to balance and available space.',
             ['Drive Channel Exchange', 'Defence Choice Under Pressure'],
-            'Complete the wall-drive circuit, then visualise defensive scenarios and choose one clear intention: neutralise, counter or lift to reset.',
+            'Complete the wall-drive circuit, then use reactive split-step cues while cycling three defensive intentions: block to neutralise, drive to counter and lift to reset.',
             'Chooses an effective defensive response on 12 of 15 attacks.',
           ),
           lesson(
@@ -405,7 +405,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Transition between front-back and side-side formations as a pair.',
             ['Drive Channel Exchange', 'Attack-Defence Rotation'],
-            'Complete the compact-footwork circuit, then visualise attack-to-defence transitions and name the correct formation after each prompt.',
+            'Complete the compact-footwork circuit, then use reactive cues to shadow each transition into a front-back attacking base or side-side defensive base.',
             'Uses the correct formation after 8 of 10 transitions.',
           ),
         ],
@@ -432,7 +432,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Use high-percentage patterns and a reset routine at critical scores.',
             ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
-            'Complete the low-serve target circuit, then visualise critical-score serve and return scenarios using one repeatable reset and first-three-shot plan.',
+            'Complete the low-serve target circuit, then use the reset-and-rally rehearsal to state and shadow one high-percentage serve, return and third-shot plan.',
             'Follows the stated plan in 8 of 10 pressure rallies.',
           ),
           lesson(
@@ -441,7 +441,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Connect one reliable rally pattern to one attacking pattern.',
             ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
-            'Complete the overhead-shadow circuit, then use match visualisation to rehearse the opening actions and adjustment cue from a three-point match plan.',
+            'Complete the overhead-shadow circuit, then use the reset-and-rally rehearsal to say, picture briefly and physically shadow the opening actions and adjustment cue from the match plan.',
             'Starts at least 7 of 10 rallies with the intended tactical pattern.',
           ),
           lesson(
@@ -481,7 +481,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Repeat Movement Quality Intervals',
             ],
-            'Complete the high-intensity shadow benchmark, then visualise recent match scenarios and record one strength, one limiter and the first training priority.',
+            'Complete the high-intensity shadow benchmark and reactive split-step cues, then identify aloud one strength, one limiter and the first training priority to share with your coach.',
             'Produces a clear strength, limiting factor and first training priority.',
           ),
           lesson(
@@ -517,7 +517,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Translate baseline evidence into two measurable competition priorities.',
             ['Tournament Interval Simulation', 'Twenty-Shot Cooperative Rally'],
-            'Use match visualisation to rehearse two measurable process goals, then complete the shoulder-and-core circuit as a controlled physical reset.',
+            'Use the reset-and-rally rehearsal to state and physically shadow two controllable process goals, then complete the shoulder-and-core circuit with relaxed posture.',
             'Can state, demonstrate and measure both selected priorities.',
           ),
         ],
@@ -571,7 +571,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Apply the selected weapon without forcing it from poor situations.',
             ['Pressure Score: 18-All', 'Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'],
-            'Complete the overhead-shadow circuit, then visualise suitable and unsuitable attacking situations and record when the primary weapon should be used.',
+            'Complete the overhead-shadow circuit and reactive split-step cues, using the primary attack only after a balanced movement and choosing a safe recovery from a poor position.',
             'Creates the intended pattern in at least 6 of 10 suitable rallies.',
           ),
         ],
@@ -589,7 +589,7 @@ const programs: ProgramSeed[] = [
             'assessment',
             'Identify which improvements are transferring into scored games.',
             ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
-            'Use match visualisation to review transfer under pressure, then complete the shoulder-and-core circuit and record what improved, the current limiter and the next priority.',
+            'Complete the high-intensity shadow and shoulder-and-core circuits, then identify aloud what held up under pressure, the current limiter and the next priority.',
             'Supports the next priority with evidence from at least three rallies.',
           ),
           lesson(
@@ -598,7 +598,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Commit to a clear plan and appropriate risk at deuce scores.',
             ['Pressure Score: 18-All', 'Low Serve Gate'],
-            'Complete the low-serve target circuit using the same breathing cue, then visualise critical-score first-three-shot plans and record whether the intention stayed clear.',
+            'Complete the low-serve target circuit using the same breathing cue, then use the reset-and-rally rehearsal to state and shadow a critical-score first-three-shot plan.',
             'Follows the plan in 8 of 10 critical-score rallies.',
           ),
           lesson(
@@ -607,7 +607,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Use a short physical and mental reset after both wins and errors.',
             ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
-            'Complete the match-visualisation reset scenarios, then use the shoulder-and-core circuit to reinforce relaxed breathing, posture and physical control.',
+            'Complete the reset-and-rally rehearsal, then use the shoulder-and-core circuit to reinforce relaxed breathing, loose grip, stable posture and physical control.',
             'Completes the routine independently before 9 of 10 rallies.',
           ),
           lesson(
@@ -625,7 +625,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Make stable defensive choices when the opponent attacks at a critical score.',
             ['Defence Choice Under Pressure', 'Pressure Score: 18-All'],
-            'Complete the wall-drive circuit, then visualise pressure attacks and rehearse three intentions: neutralise, counter and reset.',
+            'Complete the wall-drive circuit, then use reactive split-step cues while cycling three pressure intentions: block to neutralise, drive to counter and lift to reset.',
             'Makes an effective choice in 12 of 15 pressure attacks.',
           ),
         ],
@@ -647,7 +647,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Repeat Movement Quality Intervals',
             ],
-            'Complete the high-intensity shadow circuit as the physical rehearsal, then use match visualisation to practise the planned interval cues and tournament routine.',
+            'Complete the high-intensity shadow circuit, then use the reset-and-rally rehearsal to practise the same between-rally cue and opening pattern planned for the tournament.',
             'Completes the simulation using the planned routine without coach reminders.',
           ),
           lesson(
@@ -656,7 +656,7 @@ const programs: ProgramSeed[] = [
             'tactical',
             'Apply the preferred game plan against a suitable opponent style.',
             ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
-            'Complete the overhead-shadow circuit, then visualise the opening, adjustment and closing patterns for game plan A against a suitable opponent style.',
+            'Complete the overhead-shadow circuit, then use the reset-and-rally rehearsal to state and physically shadow the opening and adjustment patterns for game plan A.',
             'Recognises and uses the planned pattern in 7 of 10 suitable rallies.',
           ),
           lesson(
@@ -669,7 +669,7 @@ const programs: ProgramSeed[] = [
               'Attack-Defence Rotation',
               'Net-Lift-Kill Progression',
             ],
-            'Complete the wall-drive circuit, then visualise two match signals that trigger the alternative plan and rehearse the first response to each.',
+            'Complete the wall-drive circuit, then use reactive split-step cues to switch between a neutralising response and a counterattacking response while recovering to base.',
             'Changes plan for a clear reason and improves rally control in conditioned play.',
           ),
           lesson(
@@ -678,7 +678,7 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Reduce volume while preserving sharpness, confidence and routine quality.',
             ['Low Serve Gate', 'Three-Shot Attack Pattern', 'Tournament Interval Simulation'],
-            'Complete the low-serve target circuit at controlled quality, then use match visualisation for a brief confidence rehearsal and finish physically fresh.',
+            'Complete the low-serve target circuit at controlled quality, then complete one sharp reset-and-rally rehearsal using the most trusted opening pattern and finish physically fresh.',
             'Meets key targets with low volume and finishes physically fresh.',
           ),
           lesson(
@@ -691,7 +691,7 @@ const programs: ProgramSeed[] = [
               'Pressure Score: 18-All',
               'Tournament Interval Simulation',
             ],
-            'Complete the high-intensity shadow benchmark, then use match visualisation to record what improved, the current limiter, the next focus and competition readiness.',
+            'Complete the high-intensity shadow benchmark and reactive split-step cues, then state what improved, the current limiter, the next focus and competition readiness to your coach.',
             'Explains what improved, the current limiter, the next focus and readiness to compete.',
           ),
         ],
@@ -951,12 +951,12 @@ const drills: DrillSeed[] = [
     difficulty: 'moderate',
   },
   {
-    name: 'Match Visualization and Reset',
+    name: 'Reset and Rally Rehearsal',
     skill: 'Between-rally routine',
-    level: 'competitive',
+    level: 'development',
     eventType: 'general',
     practiceSetting: 'home',
-    ...matchVisualizationResetContent,
+    ...resetRallyRehearsalContent,
     numberOfPlayers: 1,
     difficulty: 'moderate',
   },
@@ -1345,36 +1345,36 @@ export const programHomeDrillAssignments: Record<string, Record<number, string[]
     6: ['Overhead Shadow Technique', 'Wall Drive and Defence'],
     7: ['Wall Drive and Defence', 'Lunge Balance and Leg Strength'],
     8: ['Reactive Split-Step Cues', 'Overhead Shadow Technique', 'Wall Drive and Defence'],
-    9: ['Lunge Balance and Leg Strength', 'Match Visualization and Reset'],
-    10: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
-    11: ['Wall Drive and Defence', 'Match Visualization and Reset'],
-    12: ['Compact Home Footwork', 'Match Visualization and Reset'],
+    9: ['Lunge Balance and Leg Strength', 'Reactive Split-Step Cues'],
+    10: ['Overhead Shadow Technique', 'Compact Home Footwork'],
+    11: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+    12: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
     13: ['Overhead Shadow Technique', 'Compact Home Footwork'],
-    14: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
-    15: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
+    14: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
+    15: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
     16: ['Reactive Split-Step Cues', 'Overhead Shadow Technique', 'Wall Drive and Defence'],
   },
   'Competitive Performance': {
-    1: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
+    1: ['High-Intensity Shadow Intervals', 'Reactive Split-Step Cues'],
     2: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
     3: ['Overhead Shadow Technique', 'High-Intensity Shadow Intervals'],
     4: ['Low Serve Floor Targets', 'Wall Drive and Defence'],
-    5: ['Match Visualization and Reset', 'Shoulder and Core Control'],
+    5: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
     6: ['Overhead Shadow Technique', 'Shoulder and Core Control'],
     7: ['Overhead Shadow Technique', 'Wall Drive and Defence'],
     8: ['Lunge Balance and Leg Strength', 'Reactive Split-Step Cues'],
     9: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
-    10: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
-    11: ['Match Visualization and Reset', 'Shoulder and Core Control'],
-    12: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
-    13: ['Match Visualization and Reset', 'Shoulder and Core Control'],
+    10: ['Overhead Shadow Technique', 'Reactive Split-Step Cues'],
+    11: ['High-Intensity Shadow Intervals', 'Shoulder and Core Control'],
+    12: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
+    13: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
     14: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
-    15: ['Wall Drive and Defence', 'Match Visualization and Reset'],
-    16: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
-    17: ['Overhead Shadow Technique', 'Match Visualization and Reset'],
-    18: ['Wall Drive and Defence', 'Match Visualization and Reset'],
-    19: ['Low Serve Floor Targets', 'Match Visualization and Reset'],
-    20: ['High-Intensity Shadow Intervals', 'Match Visualization and Reset'],
+    15: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+    16: ['High-Intensity Shadow Intervals', 'Reset and Rally Rehearsal'],
+    17: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
+    18: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+    19: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
+    20: ['High-Intensity Shadow Intervals', 'Reactive Split-Step Cues'],
   },
 }
 
@@ -1412,7 +1412,7 @@ export const homeDrillsForLesson = (
     add(level === 'competitive' ? 'High-Intensity Shadow Intervals' : 'Compact Home Footwork')
   }
   if (/(pressure|match|tactical|decision|plan|assessment|tournament|routine|score)/.test(context)) {
-    add('Match Visualization and Reset')
+    add('Reset and Rally Rehearsal')
   }
 
   if (!selected.length) add('Solo Racket Control Circuit')
@@ -1454,12 +1454,18 @@ export async function seedCoachingLibrary(payload: Payload) {
     const skill = skillIDs.get(drill.skill)
     if (!skill) throw new Error(`Missing skill for drill: ${drill.name}`)
     const { skill: _skillName, ...data } = drill
+    const possibleNames =
+      drill.name === 'Reset and Rally Rehearsal'
+        ? ['Reset and Rally Rehearsal', 'Match Visualization and Reset']
+        : [drill.name]
     const existing = await payload.find({
       collection: 'drills',
       depth: 0,
-      limit: 1,
-      where: { name: { equals: drill.name } },
+      limit: possibleNames.length,
+      where: { name: { in: possibleNames } },
     })
+    const existingDrill =
+      existing.docs.find((document) => document.name === drill.name) || existing.docs[0]
     const sequence = buildHomePracticeSequence(drill.name, data.instructions)
     const drillData = {
       ...data,
@@ -1474,10 +1480,10 @@ export async function seedCoachingLibrary(payload: Payload) {
           }
         : {}),
     }
-    const document = existing.docs[0]
+    const document = existingDrill
       ? await payload.update({
           collection: 'drills',
-          id: existing.docs[0].id,
+          id: existingDrill.id,
           depth: 0,
           data: drillData,
         })
