@@ -1,8 +1,21 @@
-import { ArrowLeft, BookOpen, CheckCircle2, Clock3, Flag, MapPinned, Target } from 'lucide-react'
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  Clock3,
+  Flag,
+  House,
+  MapPinned,
+  Target,
+} from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { DashboardShell, Empty, Panel } from '@/components/Dashboard/UI'
+import type { Drill } from '@/payload-types'
 import { requireDashboardUser } from '@/utilities/dashboardAuth'
+import { drillIllustrationFor } from '@/utilities/drillIllustration'
 
 const dashboardLink = (
   <Link
@@ -231,6 +244,23 @@ export default async function StudentRoadmapPage() {
                           const isCurrent = lesson.week === currentWeek
                           const order = lessonOrder.get(lesson.week) || 0
                           const sitsRight = order % 2 === 1
+                          const practice =
+                            typeof lesson.independentPractice === 'object'
+                              ? lesson.independentPractice
+                              : null
+                          const drillReferences = lesson.homeDrills.length
+                            ? lesson.homeDrills
+                            : practice?.drills || []
+                          const homeDrills = drillReferences.filter(
+                            (drill): drill is Drill => typeof drill === 'object',
+                          )
+                          const practiceDuration =
+                            practice?.durationMinutes ||
+                            homeDrills.reduce((total, drill) => total + drill.durationMinutes, 0)
+                          const practiceTitle =
+                            practice?.name || `Week ${lesson.week} home practice`
+                          const practiceInstructions =
+                            lesson.homePracticeInstructions || practice?.instructions
 
                           return (
                             <div
@@ -250,7 +280,7 @@ export default async function StudentRoadmapPage() {
                                 }`}
                               />
                               <div
-                                className={`absolute left-2 top-6 z-20 flex h-9 w-9 items-center justify-center rounded-full border-4 border-[#edf5ff] text-xs font-black shadow-sm md:left-1/2 md:-translate-x-1/2 ${
+                                className={`absolute left-2 top-6 z-20 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border-4 border-[#edf5ff] text-xs font-black shadow-sm md:left-1/2 ${
                                   isCurrent
                                     ? 'bg-[#1677ff] text-white ring-4 ring-[#1677ff]/15'
                                     : isCompleted
@@ -268,7 +298,9 @@ export default async function StudentRoadmapPage() {
                               </div>
 
                               <article
-                                className={`ml-12 rounded-2xl border p-5 shadow-[0_14px_35px_-30px_rgba(9,44,89,.65)] md:ml-0 md:w-[calc(50%-3rem)] ${
+                                tabIndex={0}
+                                aria-label={`Week ${lesson.week}: ${lesson.title}. Focus or hover to preview home practice.`}
+                                className={`group ml-12 cursor-default rounded-2xl border p-5 shadow-[0_14px_35px_-30px_rgba(9,44,89,.65)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-30px_rgba(22,119,255,.6)] focus:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[#1677ff]/20 md:ml-0 md:w-[calc(50%-3rem)] ${
                                   sitsRight ? 'md:ml-auto' : 'md:mr-auto'
                                 } ${
                                   isCurrent
@@ -337,6 +369,127 @@ export default async function StudentRoadmapPage() {
                                     {lesson.successCriteria}
                                   </div>
                                 ) : null}
+
+                                <div
+                                  className={`mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-xs font-bold ${
+                                    isCurrent
+                                      ? 'border-white/15 text-white/65'
+                                      : 'border-[#092c59]/10 text-[#607286]'
+                                  }`}
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    <House
+                                      className={`h-4 w-4 ${
+                                        isCurrent ? 'text-[#4cc9ff]' : 'text-[#1677ff]'
+                                      }`}
+                                    />
+                                    Home practice
+                                  </span>
+                                  <span className="flex items-center gap-1.5">
+                                    {drillReferences.length}{' '}
+                                    {drillReferences.length === 1 ? 'drill' : 'drills'}
+                                    {practiceDuration ? ` · ${practiceDuration} min` : ''}
+                                    <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180 group-focus:rotate-180" />
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out group-hover:mt-3 group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus:mt-3 group-focus:grid-rows-[1fr] group-focus:opacity-100">
+                                  <div className="overflow-hidden">
+                                    <div
+                                      className={`rounded-xl border p-4 ${
+                                        isCurrent
+                                          ? 'border-white/10 bg-white/10'
+                                          : 'border-[#1677ff]/15 bg-[#f6f9fd]'
+                                      }`}
+                                    >
+                                      <p
+                                        className={`text-[10px] font-black uppercase tracking-[.14em] ${
+                                          isCurrent ? 'text-[#4cc9ff]' : 'text-[#1677ff]'
+                                        }`}
+                                      >
+                                        At-home plan
+                                      </p>
+                                      <h5
+                                        className={`mt-1 font-black ${
+                                          isCurrent ? 'text-white' : 'text-[#092c59]'
+                                        }`}
+                                      >
+                                        {practiceTitle}
+                                      </h5>
+                                      {practiceInstructions ? (
+                                        <p
+                                          className={`mt-2 text-sm leading-6 ${
+                                            isCurrent ? 'text-white/70' : 'text-[#607286]'
+                                          }`}
+                                        >
+                                          {practiceInstructions}
+                                        </p>
+                                      ) : null}
+                                      {!isCurrent ? (
+                                        <p className="mt-3 text-xs leading-5 text-[#607286]">
+                                          <strong className="text-[#092c59]">
+                                            Success target:
+                                          </strong>{' '}
+                                          {lesson.successCriteria}
+                                        </p>
+                                      ) : null}
+                                      {homeDrills.length ? (
+                                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                          {homeDrills.map((drill) => (
+                                            <div
+                                              key={drill.id}
+                                              className={`flex items-center gap-3 rounded-xl p-2 ${
+                                                isCurrent ? 'bg-white/10' : 'bg-white'
+                                              }`}
+                                            >
+                                              <div
+                                                className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg ${
+                                                  isCurrent ? 'bg-white/10' : 'bg-[#eef3f8]'
+                                                }`}
+                                              >
+                                                {drillIllustrationFor(drill) ? (
+                                                  <Image
+                                                    src={drillIllustrationFor(drill)!}
+                                                    alt=""
+                                                    fill
+                                                    sizes="56px"
+                                                    className="object-cover"
+                                                  />
+                                                ) : (
+                                                  <div className="flex h-full items-center justify-center">
+                                                    <Target
+                                                      className={`h-5 w-5 ${
+                                                        isCurrent
+                                                          ? 'text-[#4cc9ff]'
+                                                          : 'text-[#1677ff]'
+                                                      }`}
+                                                    />
+                                                  </div>
+                                                )}
+                                              </div>
+                                              <div className="min-w-0">
+                                                <p
+                                                  className={`text-xs font-black leading-4 ${
+                                                    isCurrent ? 'text-white' : 'text-[#092c59]'
+                                                  }`}
+                                                >
+                                                  {drill.name}
+                                                </p>
+                                                <p
+                                                  className={`mt-1 text-[10px] font-bold ${
+                                                    isCurrent ? 'text-white/55' : 'text-[#718399]'
+                                                  }`}
+                                                >
+                                                  {drill.durationMinutes} min · {drill.difficulty}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                </div>
                               </article>
                             </div>
                           )
