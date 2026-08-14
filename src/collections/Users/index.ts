@@ -22,10 +22,7 @@ export const Users: CollectionConfig = {
     beforeLogin: [
       ({ context, user }) => {
         if (user.accountStatus === 'pending' && !context.activatingStudent) {
-          throw new APIError(
-            'Activate your account from the invitation email before signing in.',
-            403,
-          )
+          throw new APIError('Activate your account from the email we sent before signing in.', 403)
         }
         return user
       },
