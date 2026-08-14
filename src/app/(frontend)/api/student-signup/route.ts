@@ -8,8 +8,6 @@ import { validateSignupInput } from '@/utilities/validateStudentSignup'
 type SignupBody = {
   email?: unknown
   name?: unknown
-  password?: unknown
-  confirmPassword?: unknown
 }
 
 const GENERIC_SUCCESS =

@@ -8,19 +8,17 @@ describe('student signup validation', () => {
     const result = validateSignupInput({
       name: '  Alice Tan  ',
       email: '  Alice@Example.COM  ',
-      password: 'secure1234',
-      confirmPassword: 'secure1234',
     })
     if (!result.valid) throw new Error('expected valid result')
     expect(result.name).toBe('Alice Tan')
     expect(result.email).toBe('alice@example.com')
-    expect(result.password).toBe('secure1234')
   })
 
   it('rejects an empty name', () => {
-    expect(
-      validateSignupInput({ email: 'a@b.com', password: 'long1234', confirmPassword: 'long1234' }),
-    ).toEqual({ valid: false, error: 'Enter your name.' })
+    expect(validateSignupInput({ email: 'a@b.com' })).toEqual({
+      valid: false,
+      error: 'Enter your name.',
+    })
   })
 
   it('rejects an invalid email', () => {
@@ -28,32 +26,8 @@ describe('student signup validation', () => {
       validateSignupInput({
         name: 'Alice',
         email: 'not-an-email',
-        password: 'long1234',
-        confirmPassword: 'long1234',
       }),
     ).toEqual({ valid: false, error: 'Enter a valid email address.' })
-  })
-
-  it('rejects a password shorter than 8 characters', () => {
-    expect(
-      validateSignupInput({
-        name: 'Alice',
-        email: 'a@b.com',
-        password: 'short',
-        confirmPassword: 'short',
-      }),
-    ).toEqual({ valid: false, error: 'Your password must have at least 8 characters.' })
-  })
-
-  it('rejects mismatched passwords', () => {
-    expect(
-      validateSignupInput({
-        name: 'Alice',
-        email: 'a@b.com',
-        password: 'long1234',
-        confirmPassword: 'different',
-      }),
-    ).toEqual({ valid: false, error: 'The passwords do not match.' })
   })
 
   it('trims and limits the name to 120 characters', () => {
@@ -61,17 +35,16 @@ describe('student signup validation', () => {
     const result = validateSignupInput({
       name: `  ${longName}  `,
       email: 'a@b.com',
-      password: 'long1234',
-      confirmPassword: 'long1234',
     })
     if (!result.valid) throw new Error('expected valid result')
     expect(result.name.length).toBe(120)
   })
 
   it('ignores non-string inputs safely', () => {
-    expect(
-      validateSignupInput({ name: 123, email: null, password: undefined, confirmPassword: {} }),
-    ).toEqual({ valid: false, error: 'Enter your name.' })
+    expect(validateSignupInput({ name: 123, email: null })).toEqual({
+      valid: false,
+      error: 'Enter your name.',
+    })
   })
 })
 

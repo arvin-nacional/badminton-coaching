@@ -1,8 +1,6 @@
 export type SignupInput = {
   name?: unknown
   email?: unknown
-  password?: unknown
-  confirmPassword?: unknown
 }
 
 export type SignupValidation =
@@ -14,7 +12,6 @@ export type SignupValidation =
       valid: true
       name: string
       email: string
-      password: string
     }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -26,20 +23,18 @@ const text = (value: unknown, max: number) =>
  * Validates public student signup input. Returns a normalized result with
  * trimmed values when valid, or a user-facing error message when invalid.
  * This is a pure function so it can be unit-tested without a database.
+ *
+ * Note: the password is NOT collected during signup. The user sets their
+ * password through the email verification / activation flow.
  */
 export function validateSignupInput(input: SignupInput): SignupValidation {
   const name = text(input.name, 120)
   const email = text(input.email, 254).toLowerCase()
-  const password = typeof input.password === 'string' ? input.password : ''
-  const confirmPassword = typeof input.confirmPassword === 'string' ? input.confirmPassword : ''
 
   if (!name) return { valid: false, error: 'Enter your name.' }
   if (!emailPattern.test(email)) return { valid: false, error: 'Enter a valid email address.' }
-  if (password.length < 8)
-    return { valid: false, error: 'Your password must have at least 8 characters.' }
-  if (password !== confirmPassword) return { valid: false, error: 'The passwords do not match.' }
 
-  return { valid: true, name, email, password }
+  return { valid: true, name, email }
 }
 
 export type OnboardingInput = {

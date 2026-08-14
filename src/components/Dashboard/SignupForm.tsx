@@ -16,19 +16,12 @@ export function SignupForm() {
     const data = new FormData(event.currentTarget)
     const name = String(data.get('name') || '')
     const email = String(data.get('email') || '')
-    const password = String(data.get('password') || '')
-    const confirmPassword = String(data.get('confirmPassword') || '')
-
-    if (password !== confirmPassword) {
-      setError('The passwords do not match.')
-      return
-    }
 
     setPending(true)
     const response = await fetch('/api/student-signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, confirmPassword }),
+      body: JSON.stringify({ name, email }),
     }).catch(() => null)
     const result = (await response?.json().catch(() => null)) as {
       error?: string
@@ -58,7 +51,7 @@ export function SignupForm() {
             <p className="mt-3 text-sm leading-6 text-[#607286]">
               We sent a verification link to{' '}
               <strong className="text-[#092c59]">{submittedEmail}</strong>. Open it to confirm your
-              email and create your password. The link expires in 48 hours.
+              email and set your password. The link expires in 48 hours.
             </p>
             <Link
               href="/login"
@@ -80,7 +73,7 @@ export function SignupForm() {
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#607286]">
               Students can create an account to access their training dashboard. You will need to
-              verify your email before signing in.
+              verify your email and set a password before signing in.
             </p>
             <form onSubmit={signup} className="mt-7 space-y-5">
               <label className="block text-sm font-bold">
@@ -104,29 +97,6 @@ export function SignupForm() {
                   className="mt-2 w-full rounded-xl border border-[#9db1c8] bg-white px-4 py-3 outline-none focus:border-[#1677ff]"
                 />
               </label>
-              <label className="block text-sm font-bold">
-                Password
-                <input
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                  className="mt-2 w-full rounded-xl border border-[#9db1c8] bg-white px-4 py-3 outline-none focus:border-[#1677ff]"
-                />
-              </label>
-              <label className="block text-sm font-bold">
-                Confirm password
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                  className="mt-2 w-full rounded-xl border border-[#9db1c8] bg-white px-4 py-3 outline-none focus:border-[#1677ff]"
-                />
-              </label>
-              <p className="text-xs text-[#718399]">Use at least 8 characters.</p>
               {error && (
                 <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
                   {error}
