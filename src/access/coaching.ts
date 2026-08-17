@@ -16,6 +16,13 @@ export async function isStaffOrBootstrap(req: PayloadRequest) {
   if (!req.user) return false
   if (isStaffUser(req.user as CoachingUser)) return true
 
+  // Cache the bootstrap-admin check on the request context so it runs at most
+  // once per request. Without this, every access-controlled query (find/findByID)
+  // re-runs the users collection lookup, adding a MongoDB round-trip per query.
+  if (req.context.isBootstrapAdminChecked) {
+    return req.context.isBootstrapAdmin === true
+  }
+
   const firstUser = await req.payload.find({
     collection: 'users',
     depth: 0,
@@ -25,7 +32,11 @@ export async function isStaffOrBootstrap(req: PayloadRequest) {
     sort: 'createdAt',
   })
 
-  return firstUser.docs[0]?.id === req.user.id
+  const isBootstrap = firstUser.docs[0]?.id === req.user.id
+  req.context.isBootstrapAdminChecked = true
+  req.context.isBootstrapAdmin = isBootstrap
+
+  return isBootstrap
 }
 
 export const staffOnly: Access = ({ req }) => isStaffOrBootstrap(req)

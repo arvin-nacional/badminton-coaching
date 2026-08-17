@@ -25,7 +25,15 @@ function LoginForm() {
       const result = await response.json()
       if (!response.ok)
         throw new Error(result?.errors?.[0]?.message || 'The email or password is incorrect.')
-      window.location.assign(searchParams.get('redirect') || '/dashboard')
+      // Route directly by role to avoid the extra /dashboard redirect hop.
+      const roles: string[] = result?.user?.roles || []
+      const roleHome =
+        !roles.length || roles.includes('admin') || roles.includes('coach')
+          ? '/dashboard/coach'
+          : '/dashboard/student'
+      const redirectParam = searchParams.get('redirect')
+      const target = redirectParam && redirectParam !== '/dashboard' ? redirectParam : roleHome
+      window.location.assign(target)
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : 'Unable to sign in.')
       setLoading(false)
