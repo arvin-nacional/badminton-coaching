@@ -49,9 +49,10 @@ const categoryLabels: Record<string, string> = {
 
 export default async function StudentDashboardPage() {
   const { payload, user } = await requireDashboardUser()
+  // depth 0: only scalar fields and the program ID are used from the profile.
   const profileResult = await payload.find({
     collection: 'student-profiles',
-    depth: 2,
+    depth: 0,
     limit: 1,
     overrideAccess: false,
     user,
@@ -89,20 +90,27 @@ export default async function StudentDashboardPage() {
 
   const now = new Date().toISOString()
   const programID = typeof profile.program === 'string' ? profile.program : profile.program?.id
+  // Keep depth as low as possible: every extra depth level makes Payload run
+  // population queries for each relationship on each returned doc, which was
+  // the main cause of slow dashboard loads.
   const [program, practices, sessions, skillProgress, events, completedSessions] =
     await Promise.all([
       programID
         ? payload.findByID({
             collection: 'programs',
             id: programID,
-            depth: 2,
+            // depth 1 populates phases[].lessons[].independentPractice, which
+            // is the only nested relationship this page reads from the program.
+            depth: 1,
             overrideAccess: false,
             user,
           })
         : Promise.resolve(null),
       payload.find({
         collection: 'independent-practices',
-        depth: 2,
+        // depth 1 populates the practice template; drill docs are fetched
+        // separately below so drill IDs are enough here.
+        depth: 1,
         limit: 100,
         sort: '-updatedAt',
         overrideAccess: false,
@@ -111,7 +119,7 @@ export default async function StudentDashboardPage() {
       }),
       payload.find({
         collection: 'training-sessions',
-        depth: 2,
+        depth: 0,
         limit: 5,
         sort: 'scheduledAt',
         overrideAccess: false,
@@ -126,7 +134,8 @@ export default async function StudentDashboardPage() {
       }),
       payload.find({
         collection: 'skill-progress',
-        depth: 2,
+        // depth 1 populates the skill relationship used for names/categories.
+        depth: 1,
         limit: 100,
         sort: '-updatedAt',
         overrideAccess: false,
@@ -135,7 +144,7 @@ export default async function StudentDashboardPage() {
       }),
       payload.find({
         collection: 'coaching-events',
-        depth: 1,
+        depth: 0,
         limit: 5,
         sort: 'startsAt',
         overrideAccess: false,
@@ -146,7 +155,7 @@ export default async function StudentDashboardPage() {
       }),
       payload.find({
         collection: 'training-sessions',
-        depth: 1,
+        depth: 0,
         limit: 1,
         sort: '-scheduledAt',
         overrideAccess: false,
@@ -191,7 +200,8 @@ export default async function StudentDashboardPage() {
   const drillResult = drillIDs.length
     ? await payload.find({
         collection: 'drills',
-        depth: 1,
+        // Only scalar drill fields are rendered, so no population is needed.
+        depth: 0,
         limit: drillIDs.length,
         overrideAccess: false,
         user,
