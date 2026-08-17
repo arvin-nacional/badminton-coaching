@@ -17,10 +17,22 @@ export const sessionPlanDrillAssignments = (drillIDs: string[]) => ({
 
 export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfile> = async ({
   doc,
+  previousDoc,
   req,
 }) => {
   const programID = relationshipID(doc.program)
   const coachID = relationshipID(doc.coach)
+
+  // Skip the expensive session sync if neither the program nor the coach
+  // changed in this update. This is the single biggest onboarding speedup:
+  // without this guard, every profile save re-fetches all training sessions
+  // and the full program document even when nothing program-related changed.
+  const previousProgramID = relationshipID(previousDoc?.program)
+  const previousCoachID = relationshipID(previousDoc?.coach)
+  if (previousDoc?.id && previousProgramID === programID && previousCoachID === coachID) {
+    return doc
+  }
+
   const existingSessions = await req.payload.find({
     collection: 'training-sessions',
     depth: 0,
@@ -51,7 +63,9 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
   const program = (await req.payload.findByID({
     collection: 'programs',
     id: programID,
-    depth: 2,
+    // depth 1 populates phases[].lessons[].independentPractice and
+    // phases[].lessons[].drills. depth 2 was causing excessive population.
+    depth: 1,
     overrideAccess: true,
     req,
   })) as Program

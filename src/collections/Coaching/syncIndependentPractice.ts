@@ -11,15 +11,33 @@ const relationshipID = (value: unknown): string | null => {
 
 export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> = async ({
   doc,
+  previousDoc,
   req,
 }) => {
   const programID = relationshipID(doc.program)
   if (!programID) return doc
 
+  // Skip the sync if the program relationship didn't change in this update.
+  // This avoids re-fetching the program and re-syncing the practice record on
+  // every profile update (e.g. onboarding field saves that don't touch the
+  // program).
+  const previousProgramID = relationshipID(previousDoc?.program)
+  const previousWeek = previousDoc?.currentProgramWeek
+  if (
+    previousProgramID === programID &&
+    previousWeek === doc.currentProgramWeek &&
+    previousDoc?.id
+  ) {
+    return doc
+  }
+
   const program = (await req.payload.findByID({
     collection: 'programs',
     id: programID,
-    depth: 2,
+    // depth 1 populates phases[].lessons[].independentPractice, which is the
+    // only nested relationship this hook reads. depth 2 was causing the same
+    // population fan-out that slowed the dashboard.
+    depth: 1,
     req,
   })) as Program
   const week = Math.min(Math.max(doc.currentProgramWeek || 1, 1), program.durationWeeks)
