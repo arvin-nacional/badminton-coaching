@@ -52,7 +52,7 @@ export function MobileNavigation() {
               <LogIn className="h-4 w-4" /> Student login
             </Link>
             <Link
-              href="/#contact"
+              href="/signup"
               onClick={() => setOpen(false)}
               className="mt-1 rounded-full bg-[#092c59] px-5 py-3 text-center text-white"
             >

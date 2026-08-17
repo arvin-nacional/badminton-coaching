@@ -31,7 +31,7 @@ export async function Header() {
             <span className="sm:hidden">Login</span>
           </Link>
           <Link
-            href="/#contact"
+            href="/signup"
             className="hidden items-center gap-2 rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white sm:flex"
           >
             Get started <ArrowUpRight className="h-4 w-4" />
