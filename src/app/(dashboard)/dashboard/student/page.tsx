@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
+  CalendarCheck,
   MessageSquareText,
   PlayCircle,
   Target,
@@ -287,21 +288,48 @@ export default async function StudentDashboardPage() {
           ) : null}
         </Panel>
 
-        <Panel className="lg:col-span-4" title="Next session" icon={CalendarDays}>
-          {nextSession ? (
-            <>
-              <p className="text-lg font-black text-[#092c59]">{nextSession.title}</p>
-              <p className="mt-3 text-xl font-black text-[#1677ff]">
-                {formatDate(nextSession.scheduledAt)}
-              </p>
-              <p className="mt-2 text-sm font-medium text-[#718399]">
-                {nextSession.location || 'Location to be confirmed'}
-              </p>
-            </>
-          ) : (
-            <Empty text="No upcoming session scheduled." />
-          )}
-        </Panel>
+        {profile.assessmentStatus === 'required' || profile.assessmentStatus === 'scheduled' ? (
+          <Panel
+            className="lg:col-span-4"
+            title="Initial assessment"
+            subtitle={
+              profile.assessmentStatus === 'scheduled'
+                ? 'Your assessment is scheduled'
+                : 'Book your first session'
+            }
+            icon={CalendarCheck}
+          >
+            <p className="text-sm leading-7 text-[#607286]">
+              {profile.assessmentStatus === 'scheduled'
+                ? 'Your coach will assess your current skills and build your training plan. Check the times below.'
+                : 'A 60-minute session where your coach evaluates your game and sets your training priorities.'}
+            </p>
+            <Link
+              href="/book-assessment"
+              className="mt-5 inline-flex items-center justify-center rounded-full bg-[#092c59] px-5 py-3 text-sm font-black text-white transition hover:bg-[#1677ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
+            >
+              {profile.assessmentStatus === 'scheduled'
+                ? 'View booking details'
+                : 'Book assessment'}
+            </Link>
+          </Panel>
+        ) : (
+          <Panel className="lg:col-span-4" title="Next session" icon={CalendarDays}>
+            {nextSession ? (
+              <>
+                <p className="text-lg font-black text-[#092c59]">{nextSession.title}</p>
+                <p className="mt-3 text-xl font-black text-[#1677ff]">
+                  {formatDate(nextSession.scheduledAt)}
+                </p>
+                <p className="mt-2 text-sm font-medium text-[#718399]">
+                  {nextSession.location || 'Location to be confirmed'}
+                </p>
+              </>
+            ) : (
+              <Empty text="No upcoming session scheduled." />
+            )}
+          </Panel>
+        )}
 
         <Panel
           className="lg:col-span-12"

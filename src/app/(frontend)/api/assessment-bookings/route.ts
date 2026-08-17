@@ -51,15 +51,61 @@ export async function POST(request: Request) {
   }
 
   const slot = text(body.slot, 100)
-  const playerName = text(body.playerName, 120)
-  const email = text(body.email, 254).toLowerCase()
-  const phone = text(body.phone, 40)
   const notes = text(body.notes, 1000)
-  const playingExperience = text(body.playingExperience, 30)
-  const preferredEvent = text(body.preferredEvent, 30)
-  const goals = text(body.goals, 1000)
-  const trainingAvailability = text(body.trainingAvailability, 500)
-  const injuryConsiderations = text(body.injuryConsiderations, 1000)
+
+  const payload = await getPayload({ config: configPromise })
+  const { user: authenticatedUser } = await payload.auth({ headers: await headers() })
+  const user = authenticatedUser as User | null
+
+  // Authenticated students: pull profile data from their student-profile so the
+  // booking form only needs to collect a slot (+ optional notes).
+  let studentProfileID: string | undefined
+  let playerName: string
+  let email: string
+  let phone: string
+  let playingExperience: string
+  let preferredEvent: string
+  let goals: string
+  let trainingAvailability: string
+  let injuryConsiderations: string
+
+  if (user?.roles?.includes('student')) {
+    const profileResult = await payload.find({
+      collection: 'student-profiles',
+      depth: 0,
+      limit: 1,
+      overrideAccess: false,
+      user,
+      where: { user: { equals: user.id } },
+    })
+    const profile = profileResult.docs[0]
+    if (!profile) {
+      return Response.json(
+        { error: 'Complete your onboarding before booking an assessment.' },
+        { status: 400 },
+      )
+    }
+    studentProfileID = profile.id
+    playerName = profile.displayName || user.name || user.email
+    email = user.email
+    phone = ''
+    playingExperience = profile.playingExperience || ''
+    preferredEvent = profile.preferredEvent || ''
+    goals = Array.isArray(profile.goals) ? profile.goals.join(', ') : profile.goals || ''
+    trainingAvailability = profile.trainingAvailability || ''
+    injuryConsiderations = profile.injuryConsiderations || ''
+  } else {
+    // Unauthenticated visitor: collect everything from the form.
+    playerName = text(body.playerName, 120)
+    email = text(body.email, 254).toLowerCase()
+    phone = text(body.phone, 40)
+    playingExperience = text(body.playingExperience, 30)
+    preferredEvent = text(body.preferredEvent, 30)
+    goals = text(body.goals, 1000)
+    trainingAvailability = text(body.trainingAvailability, 500)
+    injuryConsiderations = text(body.injuryConsiderations, 1000)
+  }
+
   const validPlayingExperience = playingExperienceOptions.includes(
     playingExperience as (typeof playingExperienceOptions)[number],
   )
@@ -71,22 +117,28 @@ export async function POST(request: Request) {
     ? (preferredEvent as (typeof preferredEventOptions)[number])
     : undefined
 
-  if (
-    !slot ||
-    !playerName ||
-    !/^\S+@\S+\.\S+$/.test(email) ||
-    !validPlayingExperience ||
-    !validPreferredEvent ||
-    !goals ||
-    !trainingAvailability
-  ) {
-    return Response.json(
-      { error: 'Choose a slot and complete the required player profile questions.' },
-      { status: 400 },
-    )
+  // For authenticated students, profile fields may be empty (e.g. optional
+  // onboarding answers). Only require them for unauthenticated visitors.
+  if (!slot) {
+    return Response.json({ error: 'Please choose an available time.' }, { status: 400 })
+  }
+  if (!user?.roles?.includes('student')) {
+    if (
+      !playerName ||
+      !/^\S+@\S+\.\S+$/.test(email) ||
+      !validPlayingExperience ||
+      !validPreferredEvent ||
+      !goals ||
+      !trainingAvailability
+    ) {
+      return Response.json(
+        { error: 'Choose a slot and complete the required player profile questions.' },
+        { status: 400 },
+      )
+    }
   }
 
-  const payload = await getPayload({ config: configPromise })
+  // payload was already resolved above for the auth check
   let bookingData: {
     bookingKey: string
     slot?: string
@@ -157,6 +209,7 @@ export async function POST(request: Request) {
       overrideAccess: true,
       data: {
         ...bookingData,
+        ...(studentProfileID ? { student: studentProfileID } : {}),
         playerName,
         email,
         phone: phone || undefined,
