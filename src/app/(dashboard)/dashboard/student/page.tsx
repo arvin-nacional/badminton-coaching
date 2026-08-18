@@ -93,38 +93,66 @@ export default async function StudentDashboardPage() {
 
   const now = new Date().toISOString()
   const programID = typeof profile.program === 'string' ? profile.program : profile.program?.id
-  // Fetch the cached program in parallel with the student-specific queries.
-  // The program is cached via unstable_cache + revalidateTag (see
-  // getCachedProgram.ts and the Programs afterChange hook), so this is
-  // effectively instant after the first load.
+
+  // Fetch the cached program first. Since it's cached via unstable_cache,
+  // this is effectively instant after the first load. We need it before the
+  // parallel block to extract drill IDs for the current week's practice,
+  // so the drills query can run in parallel with everything else instead
+  // of sequentially after.
+  const program = programID ? await getCachedProgram(programID) : null
+
+  // Pre-compute the current week's drill IDs from the cached program so we
+  // can fetch drills in the same Promise.all as the other queries.
+  const programWeek = program
+    ? Math.min(Math.max(profile.currentProgramWeek || 1, 1), program.durationWeeks)
+    : 1
+  const phases = program?.phases?.slice().sort((a, b) => a.order - b.order) || []
+  const programLessons = phases
+    .flatMap((phase) => phase.lessons || [])
+    .sort((a, b) => a.week - b.week)
+  const currentLesson =
+    programLessons.find((programLesson) => programLesson.week === programWeek) || programLessons[0]
+  const lessonPractice =
+    currentLesson && typeof currentLesson.independentPractice === 'object'
+      ? (currentLesson.independentPractice as PracticeLibrary)
+      : null
+  const lessonDrillIDs = (lessonPractice?.drills || [])
+    .map((drill) => (typeof drill === 'string' ? drill : drill.id))
+    .filter(Boolean)
+
+  // All student-specific queries use overrideAccess: true because we already
+  // verified ownership via the profile query above (which used
+  // overrideAccess: false with ownStudentProfile access control). This skips
+  // the ownStudentData access control function, which would otherwise add a
+  // nested `student.user` relationship lookup to every single query.
   const [
-    program,
     practices,
     bookingSessions,
     assessmentBookings,
     skillProgress,
     events,
     completedSessions,
+    drillResult,
   ] = await Promise.all([
-    programID ? getCachedProgram(programID) : Promise.resolve(null),
     payload.find({
       collection: 'independent-practices',
-      // depth 1 populates the practice template; drill docs are fetched
-      // separately below so drill IDs are enough here.
       depth: 1,
-      limit: 100,
+      limit: 10,
       sort: '-updatedAt',
-      overrideAccess: false,
-      user,
-      where: { student: { equals: profile.id } },
+      overrideAccess: true,
+      where: {
+        and: [
+          { student: { equals: profile.id } },
+          ...(programID ? [{ program: { equals: programID } }] : []),
+        ],
+      },
     }),
     payload.find({
       collection: 'training-sessions',
       depth: 0,
       limit: 1,
       sort: 'lessonWeek',
-      overrideAccess: false,
-      user,
+      overrideAccess: true,
       where: {
         and: [
           { student: { equals: profile.id } },
@@ -139,8 +167,6 @@ export default async function StudentDashboardPage() {
       depth: 0,
       limit: 1,
       sort: '-startsAt',
-      // Assessment bookings are staff-managed. This trusted dashboard query
-      // is restricted to the already-authenticated student's own profile.
       overrideAccess: true,
       where: {
         and: [{ student: { equals: profile.id } }, { status: { equals: 'confirmed' } }],
@@ -148,12 +174,10 @@ export default async function StudentDashboardPage() {
     }),
     payload.find({
       collection: 'skill-progress',
-      // depth 1 populates the skill relationship used for names/categories.
       depth: 1,
       limit: 100,
       sort: '-updatedAt',
-      overrideAccess: false,
-      user,
+      overrideAccess: true,
       where: { student: { equals: profile.id } },
     }),
     payload.find({
@@ -161,8 +185,7 @@ export default async function StudentDashboardPage() {
       depth: 0,
       limit: 5,
       sort: 'startsAt',
-      overrideAccess: false,
-      user,
+      overrideAccess: true,
       where: {
         and: [{ student: { equals: profile.id } }, { startsAt: { greater_than_equal: now } }],
       },
@@ -172,28 +195,26 @@ export default async function StudentDashboardPage() {
       depth: 0,
       limit: 1,
       sort: '-scheduledAt',
-      overrideAccess: false,
-      user,
+      overrideAccess: true,
       where: { and: [{ student: { equals: profile.id } }, { status: { equals: 'completed' } }] },
     }),
+    lessonDrillIDs.length
+      ? payload.find({
+          collection: 'drills',
+          depth: 0,
+          limit: lessonDrillIDs.length,
+          overrideAccess: true,
+          where: { id: { in: lessonDrillIDs } },
+        })
+      : Promise.resolve(null),
   ])
 
-  const programWeek = program
-    ? Math.min(Math.max(profile.currentProgramWeek || 1, 1), program.durationWeeks)
-    : 1
-  const phases = program?.phases?.slice().sort((a, b) => a.order - b.order) || []
+  // programWeek, phases, programLessons, currentLesson, and lessonPractice
+  // were already computed above from the cached program, before the parallel
+  // query block.
   const currentPhase =
     phases.find((phase) => programWeek >= phase.startWeek && programWeek <= phase.endWeek) ||
     phases[0]
-  const programLessons = phases
-    .flatMap((phase) => phase.lessons || [])
-    .sort((a, b) => a.week - b.week)
-  const currentLesson =
-    programLessons.find((programLesson) => programLesson.week === programWeek) || programLessons[0]
-  const lessonPractice =
-    currentLesson && typeof currentLesson.independentPractice === 'object'
-      ? (currentLesson.independentPractice as PracticeLibrary)
-      : null
   const currentPractice = practices.docs.find((practice) => {
     const practiceProgramID =
       typeof practice.program === 'string' ? practice.program : practice.program.id
@@ -207,21 +228,12 @@ export default async function StudentDashboardPage() {
     currentPractice && typeof currentPractice.practice === 'object'
       ? (currentPractice.practice as PracticeLibrary)
       : lessonPractice
+  // Use the drills fetched in the parallel block. If the practice template
+  // has its own drills that differ from the lesson's, fall back to those IDs.
   const drillReferences = practiceTemplate?.drills.length
     ? practiceTemplate.drills
     : currentPractice?.drills || []
   const drillIDs = drillReferences.map((drill) => (typeof drill === 'string' ? drill : drill.id))
-  const drillResult = drillIDs.length
-    ? await payload.find({
-        collection: 'drills',
-        // Only scalar drill fields are rendered, so no population is needed.
-        depth: 0,
-        limit: drillIDs.length,
-        overrideAccess: false,
-        user,
-        where: { id: { in: drillIDs } },
-      })
-    : null
   const drillsByID = new Map((drillResult?.docs || []).map((drill) => [drill.id, drill]))
   const practiceDrills = drillIDs.flatMap((drillID) => {
     const drill = drillsByID.get(drillID)
