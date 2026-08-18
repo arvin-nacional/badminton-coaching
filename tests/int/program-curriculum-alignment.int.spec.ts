@@ -4,7 +4,10 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { programHomePracticeInstructions } from '@/collections/Coaching/syncProgramHomePractices'
-import { sessionPlanDrillAssignments } from '@/collections/Coaching/syncProgramTrainingSessions'
+import {
+  programSessionDuration,
+  sessionPlanDrillAssignments,
+} from '@/collections/Coaching/syncProgramTrainingSessions'
 import {
   coachingDrills,
   coachingPrograms,
@@ -12,6 +15,16 @@ import {
   programHomeDrillAssignments,
 } from '@/endpoints/seed/coaching'
 import { drillIllustrationFor } from '@/utilities/drillIllustration'
+import {
+  programLessonDrillsForEvent,
+  programLessonHomeDrillsForEvent,
+} from '@/utilities/programEventBranches'
+import {
+  buildSessionTiming,
+  normalizeSessionDuration,
+  sessionDurationOptions,
+  stripSessionTimePrefix,
+} from '@/utilities/sessionTiming'
 
 describe('program curriculum alignment', () => {
   const drillByName = new Map(coachingDrills.map((drill) => [drill.name, drill]))
@@ -90,6 +103,123 @@ describe('program curriculum alignment', () => {
     }
   })
 
+  it('defaults program lessons to one hour and exactly rebalances each duration preset', () => {
+    for (const program of coachingPrograms) {
+      for (const lesson of program.phases.flatMap((phase) => phase.lessons)) {
+        expect(lesson.durationMinutes).toBe(60)
+      }
+    }
+
+    for (const duration of sessionDurationOptions) {
+      for (const drillCount of [2, 3]) {
+        const timing = buildSessionTiming(duration, drillCount)
+        expect(timing.durationMinutes).toBe(duration)
+        expect(timing.total).toBe(duration)
+        expect(timing.drillMinutes).toHaveLength(drillCount)
+        expect(timing.drillMinutes.every((minutes) => minutes > 0)).toBe(true)
+      }
+    }
+
+    expect(normalizeSessionDuration(undefined)).toBe(60)
+    expect(normalizeSessionDuration(90)).toBe(90)
+    expect(programSessionDuration(60, 90, 90)).toBe(60)
+    expect(programSessionDuration(120, 60, 60)).toBe(120)
+    expect(programSessionDuration(undefined, 90, 60)).toBe(90)
+    expect(programSessionDuration(60, 120, 60, true)).toBe(120)
+    expect(stripSessionTimePrefix('10 min — Rehearse split steps.')).toBe('Rehearse split steps.')
+  })
+
+  it('selects compatible singles and doubles branches for every competitive week', () => {
+    const competitive = coachingPrograms.find(
+      (program) => program.name === 'Competitive Performance',
+    )
+    expect(competitive).toBeDefined()
+
+    for (const lesson of competitive!.phases.flatMap((phase) => phase.lessons)) {
+      expect(lesson.eventVariants).toBeDefined()
+
+      for (const event of ['singles', 'doubles'] as const) {
+        const sessionDrills = programLessonDrillsForEvent(lesson, event)
+        const homeDrills = programLessonHomeDrillsForEvent(lesson, event)
+
+        expect(sessionDrills.length).toBeGreaterThanOrEqual(2)
+        expect(homeDrills.length).toBeGreaterThanOrEqual(2)
+        expect(buildSessionTiming(90, sessionDrills.length).total).toBe(90)
+
+        for (const drillName of sessionDrills) {
+          const drill = drillByName.get(drillName)
+          expect(drill, `${event} week ${lesson.week}: ${drillName}`).toBeDefined()
+          expect(['general', event]).toContain(drill?.eventType)
+          expect(drill?.practiceSetting).not.toBe('home')
+        }
+
+        for (const drillName of homeDrills) {
+          const drill = drillByName.get(drillName)
+          expect(drill, `${event} home week ${lesson.week}: ${drillName}`).toBeDefined()
+          expect(['general', event]).toContain(drill?.eventType)
+          expect(drill?.practiceSetting).toBe('home')
+        }
+      }
+    }
+
+    const lessons = competitive!.phases.flatMap((phase) => phase.lessons)
+    expect(programLessonDrillsForEvent(lessons[0], 'both')).toEqual(
+      lessons[0].eventVariants?.singlesDrills,
+    )
+    expect(programLessonDrillsForEvent(lessons[1], 'both')).toEqual(
+      lessons[1].eventVariants?.doublesDrills,
+    )
+  })
+
+  it('limits repeated competitive scenarios and removes the fixed 18-all prescription', () => {
+    const competitive = coachingPrograms.find(
+      (program) => program.name === 'Competitive Performance',
+    )!
+    const lessons = competitive.phases.flatMap((phase) => phase.lessons)
+
+    for (const event of ['singles', 'doubles'] as const) {
+      const selectedSessions = lessons.map((lesson) => programLessonDrillsForEvent(lesson, event))
+      const allDrills = selectedSessions.flat()
+      const sequenceCounts = new Map<string, number>()
+
+      for (const sessionDrills of selectedSessions) {
+        const key = sessionDrills.join('|')
+        sequenceCounts.set(key, (sequenceCounts.get(key) || 0) + 1)
+      }
+
+      expect(allDrills).not.toContain('Pressure Score: 18-All')
+      expect(allDrills.filter((name) => name === 'Progressive Score Scenarios')).toHaveLength(5)
+      expect(Math.max(...sequenceCounts.values())).toBeLessThanOrEqual(2)
+    }
+
+    const scenario = drillByName.get('Progressive Score Scenarios')
+    expect(scenario?.instructions).toContain('15-11 lead')
+    expect(scenario?.instructions).toContain('16-18 behind')
+    expect(scenario?.instructions).toContain('20-all deuce')
+  })
+
+  it('keeps between-rally resets separate from regulation intervals', () => {
+    const interval = drillByName.get('Regulation Interval Simulation')
+    expect(interval?.instructions).toMatch(/leading score reaches 11/i)
+    expect(interval?.instructions).toMatch(/60-second interval/i)
+    expect(interval?.instructions).toMatch(/between games/i)
+    expect(interval?.instructions).toMatch(/120 seconds/i)
+    expect(interval?.instructions).toMatch(/ordinary rally breaks as intervals/i)
+
+    const competitive = coachingPrograms.find(
+      (program) => program.name === 'Competitive Performance',
+    )!
+    const resetLesson = competitive.phases
+      .flatMap((phase) => phase.lessons)
+      .find((lesson) => lesson.week === 13)!
+    expect(programLessonDrillsForEvent(resetLesson, 'singles')).not.toContain(
+      'Regulation Interval Simulation',
+    )
+    expect(programLessonDrillsForEvent(resetLesson, 'doubles')).not.toContain(
+      'Regulation Interval Simulation',
+    )
+  })
+
   it('does not mistake preserve for a serving lesson in fallback mappings', () => {
     const movementLesson = coachingPrograms[1].phases[0].lessons[1]
     const homeDrills = homeDrillsForLesson(
@@ -122,5 +252,15 @@ describe('program curriculum alignment', () => {
     expect(drillIllustrationFor({ name: 'Low Serve Gate', illustrationURL: null })).toBe(
       '/images/drills/low-serve-gate.png',
     )
+  })
+
+  it('uses dedicated artwork for reset rehearsal instead of the split-step illustration', () => {
+    const resetIllustration = drillIllustrationFor({
+      name: 'Reset and Rally Rehearsal',
+      illustrationURL: null,
+    })
+    expect(resetIllustration).toBe('/images/drills/reset-and-rally-rehearsal.png')
+    expect(resetIllustration).not.toBe('/images/drills/reactive-split-step-cues.png')
+    expect(existsSync(path.join(process.cwd(), 'public', resetIllustration!))).toBe(true)
   })
 })

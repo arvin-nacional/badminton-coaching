@@ -2,7 +2,10 @@ import type { CollectionAfterChangeHook } from 'payload'
 
 import type { Program } from '@/payload-types'
 
-export const syncProgramIndependentPractices: CollectionAfterChangeHook<Program> = async ({ doc, req }) => {
+export const syncProgramIndependentPractices: CollectionAfterChangeHook<Program> = async ({
+  doc,
+  req,
+}) => {
   const profiles = await req.payload.find({
     collection: 'student-profiles',
     depth: 0,
@@ -18,6 +21,7 @@ export const syncProgramIndependentPractices: CollectionAfterChangeHook<Program>
       id: profile.id,
       depth: 0,
       data: { currentProgramWeek: profile.currentProgramWeek || 1 },
+      context: { forceProgramSync: true },
       overrideAccess: true,
       req,
     })

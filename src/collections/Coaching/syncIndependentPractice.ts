@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
 import type { PracticeLibrary, Program, StudentProfile } from '@/payload-types'
+import { programLessonHomeDrillsForEvent } from '@/utilities/programEventBranches'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
@@ -24,8 +25,10 @@ export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> 
   const previousProgramID = relationshipID(previousDoc?.program)
   const previousWeek = previousDoc?.currentProgramWeek
   if (
+    !req.context.forceProgramSync &&
     previousProgramID === programID &&
     previousWeek === doc.currentProgramWeek &&
+    previousDoc.preferredEvent === doc.preferredEvent &&
     previousDoc?.id
   ) {
     return doc
@@ -58,12 +61,18 @@ export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> 
           depth: 1,
           req,
         })
-  const drills = practice.drills.map(relationshipID).filter((id): id is string => Boolean(id))
-  if (!drills.length) return doc
+  const drills = programLessonHomeDrillsForEvent(lesson, doc.preferredEvent)
+    .map(relationshipID)
+    .filter((id): id is string => Boolean(id))
+  const fallbackDrills = practice.drills
+    .map(relationshipID)
+    .filter((id): id is string => Boolean(id))
+  const selectedDrills = drills.length ? drills : fallbackDrills
+  if (!selectedDrills.length) return doc
 
   const practiceKey = `${doc.id}:${program.id}:${week}`
   const practiceData = {
-    drills,
+    drills: selectedDrills,
     instructions: practice.instructions,
     lessonWeek: week,
     phase: phase.name,

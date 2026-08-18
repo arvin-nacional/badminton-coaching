@@ -52,6 +52,7 @@ export async function POST(request: Request) {
 
   const slot = text(body.slot, 100)
   const notes = text(body.notes, 1000)
+  const studentCourt = text(body.location, 200)
 
   const payload = await getPayload({ config: configPromise })
   const { user: authenticatedUser } = await payload.auth({ headers: await headers() })
@@ -122,6 +123,12 @@ export async function POST(request: Request) {
   if (!slot) {
     return Response.json({ error: 'Please choose an available time.' }, { status: 400 })
   }
+  if (studentCourt.length < 3) {
+    return Response.json(
+      { error: 'Enter the court name and branch or address that you booked.' },
+      { status: 400 },
+    )
+  }
   if (!user?.roles?.includes('student')) {
     if (
       !playerName ||
@@ -168,7 +175,7 @@ export async function POST(request: Request) {
         coach,
         startsAt: availability.startsAt,
         durationMinutes: availability.durationMinutes,
-        location: availability.location,
+        location: studentCourt,
       }
   } else if (slot.startsWith('rule:')) {
     const secondColon = slot.indexOf(':', 5)
@@ -193,7 +200,7 @@ export async function POST(request: Request) {
         coach: generated.coachID,
         startsAt: generated.startsAt,
         durationMinutes: generated.durationMinutes,
-        location: generated.location,
+        location: studentCourt,
       }
   }
 
@@ -222,6 +229,22 @@ export async function POST(request: Request) {
         status: 'confirmed',
       },
     })
+    if (studentProfileID) {
+      await payload
+        .update({
+          collection: 'student-profiles',
+          id: studentProfileID,
+          depth: 0,
+          overrideAccess: true,
+          data: { assessmentStatus: 'scheduled' },
+        })
+        .catch((profileError) =>
+          payload.logger.error({
+            err: profileError,
+            msg: 'Assessment was booked, but the student profile status was not updated',
+          }),
+        )
+    }
     await sendAssessmentBookingEmails(payload, {
       coachID: bookingData.coach,
       playerName,

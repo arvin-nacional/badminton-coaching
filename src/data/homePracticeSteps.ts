@@ -597,8 +597,8 @@ const resetRallyRehearsalSafety =
   'Check ceiling height and keep every swing controlled. Use a smaller movement range in a tight space, keep eyes open during all shadow actions and stop if movement causes pain, dizziness or loss of balance.'
 
 export const resetRallyRehearsalContent = {
-  illustrationURL: '/images/drills/reactive-split-step-cues.png',
-  stepIllustrationURL: '/images/drills/reactive-split-step-cues.png',
+  illustrationURL: '/images/drills/reset-and-rally-rehearsal.png',
+  stepIllustrationURL: '/images/drills/reset-and-rally-rehearsal.png',
   stepIllustrationColumns: 1,
   stepIllustrationRows: 1,
   durationMinutes: 7,

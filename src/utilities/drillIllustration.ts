@@ -15,7 +15,7 @@ const defaultIllustrations: Record<string, string> = {
   'Badminton Bodyweight Strength Circuit':
     '/images/drills/badminton-bodyweight-strength-circuit.png',
   'Shoulder and Core Control': '/images/drills/shoulder-core-control.png',
-  'Reset and Rally Rehearsal': '/images/drills/reactive-split-step-cues.png',
+  'Reset and Rally Rehearsal': '/images/drills/reset-and-rally-rehearsal.png',
   'Match Visualization and Reset': '/images/drills/match-visualization-reset.png',
   'High-Intensity Shadow Intervals': '/images/drills/high-intensity-shadow-intervals.png',
   'Grip Change Tap-Ups': '/images/drills/grip-change-tap-ups.png',
@@ -33,8 +33,8 @@ const defaultIllustrations: Record<string, string> = {
   'Drive Channel Exchange': '/images/drills/drive-channel-exchange.png',
   'Attack-Defence Rotation': '/images/drills/attack-defence-rotation.png',
   'Defence Choice Under Pressure': '/images/drills/defence-choice-under-pressure.png',
-  'Pressure Score: 18-All': '/images/drills/pressure-score-18-all.png',
-  'Tournament Interval Simulation': '/images/drills/tournament-interval-simulation.png',
+  'Progressive Score Scenarios': '/images/drills/pressure-score-18-all.png',
+  'Regulation Interval Simulation': '/images/drills/tournament-interval-simulation.png',
   'Repeat Movement Quality Intervals': '/images/drills/repeat-movement-quality-intervals.png',
 }
 

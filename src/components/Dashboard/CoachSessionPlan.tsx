@@ -1,15 +1,28 @@
 import type { ReactNode } from 'react'
 
 import type { Drill, Skill, TrainingSession } from '@/payload-types'
+import { buildSessionTiming, stripSessionTimePrefix } from '@/utilities/sessionTiming'
 
-function Step({ number, title, children }: { number: string; title: string; children: ReactNode }) {
+function Step({
+  number,
+  title,
+  minutes,
+  children,
+}: {
+  number: string
+  title: string
+  minutes: number
+  children: ReactNode
+}) {
   return (
     <div className="rounded-2xl border border-[#092c59]/10 bg-white p-4">
       <div className="flex items-center gap-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#eaf3ff] text-[10px] font-black text-[#1677ff]">
           {number}
         </span>
-        <p className="text-xs font-black uppercase tracking-wider text-[#607286]">{title}</p>
+        <p className="text-xs font-black uppercase tracking-wider text-[#607286]">
+          {title} · {minutes} min
+        </p>
       </div>
       <div className="mt-3 text-sm leading-6 text-[#334b65]">{children}</div>
     </div>
@@ -38,9 +51,13 @@ function DrillDetail({ drill }: { drill: string | Drill | null | undefined }) {
 
 export function CoachSessionPlan({ session }: { session: TrainingSession }) {
   const skills = (session.skills || []).filter((skill): skill is Skill => typeof skill === 'object')
-  const additionalDrills = (session.plan?.additionalDrills || []).filter(
-    (drill): drill is Drill => typeof drill === 'object',
-  )
+  const technicalDrill = session.plan?.technicalDrill
+  const progressiveDrill = session.plan?.progressiveDrill
+  const allAdditionalDrills = session.plan?.additionalDrills || []
+  const drillCount = 2 + allAdditionalDrills.length
+  const timing = buildSessionTiming(session.durationMinutes, drillCount)
+  let drillTimingIndex = 0
+  const nextDrillMinutes = () => timing.drillMinutes[drillTimingIndex++] || 0
 
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -51,7 +68,8 @@ export function CoachSessionPlan({ session }: { session: TrainingSession }) {
               Skills developed and scored
             </p>
             <p className="mt-1 text-sm leading-6 text-[#526b85]">
-              Use every activity below to gather evidence for these lesson outcomes.
+              Use every activity below to gather evidence for these lesson outcomes. This plan is
+              balanced to exactly {timing.durationMinutes} minutes.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -70,31 +88,46 @@ export function CoachSessionPlan({ session }: { session: TrainingSession }) {
           </div>
         </div>
       </div>
-      <Step number="01" title="Warm-up">
-        <p>{session.plan?.warmUp || 'Add the warm-up plan.'}</p>
+      <Step number="01" title="Warm-up" minutes={timing.warmUp}>
+        <p>{stripSessionTimePrefix(session.plan?.warmUp || 'Add the warm-up plan.')}</p>
       </Step>
-      <Step number="02" title="Movement preparation">
-        <p>{session.plan?.movementPreparation || 'Add the movement preparation.'}</p>
+      <Step number="02" title="Movement preparation" minutes={timing.movementPreparation}>
+        <p>
+          {stripSessionTimePrefix(
+            session.plan?.movementPreparation || 'Add the movement preparation.',
+          )}
+        </p>
       </Step>
-      <Step number="03" title="Technical drill">
-        <DrillDetail drill={session.plan?.technicalDrill} />
+      <Step number="03" title="Technical drill" minutes={nextDrillMinutes()}>
+        <DrillDetail drill={technicalDrill} />
       </Step>
-      <Step number="04" title="Progressive drill">
-        <DrillDetail drill={session.plan?.progressiveDrill} />
+      <Step number="04" title="Progressive drill" minutes={nextDrillMinutes()}>
+        <DrillDetail drill={progressiveDrill} />
       </Step>
-      {additionalDrills.map((drill, index) => (
-        <Step key={drill.id} number={`04.${index + 1}`} title="Additional lesson drill">
+      {allAdditionalDrills.map((drill, index) => (
+        <Step
+          key={typeof drill === 'string' ? drill : drill.id}
+          number={`04.${index + 1}`}
+          title="Additional lesson drill"
+          minutes={nextDrillMinutes()}
+        >
           <DrillDetail drill={drill} />
         </Step>
       ))}
-      <Step number="05" title="Conditioned game">
-        <p>{session.plan?.conditionedGame || 'Add the conditioned game.'}</p>
+      <Step number="05" title="Conditioned game" minutes={timing.conditionedGame}>
+        <p>
+          {stripSessionTimePrefix(session.plan?.conditionedGame || 'Add the conditioned game.')}
+        </p>
       </Step>
-      <Step number="06" title="Match play">
-        <p>{session.plan?.matchPlay || 'Add the match-play conditions.'}</p>
+      <Step number="06" title="Match play" minutes={timing.matchPlay}>
+        <p>{stripSessionTimePrefix(session.plan?.matchPlay || 'Add the match-play conditions.')}</p>
       </Step>
-      <Step number="07" title="Cooldown and feedback">
-        <p>{session.plan?.cooldownAndFeedback || 'Add the cooldown and feedback prompts.'}</p>
+      <Step number="07" title="Cooldown and feedback" minutes={timing.cooldownAndFeedback}>
+        <p>
+          {stripSessionTimePrefix(
+            session.plan?.cooldownAndFeedback || 'Add the cooldown and feedback prompts.',
+          )}
+        </p>
       </Step>
       <div className="rounded-2xl bg-[#092c59] p-4 text-white">
         <div className="flex items-center gap-2">

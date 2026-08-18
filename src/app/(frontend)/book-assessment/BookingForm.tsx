@@ -8,9 +8,17 @@ export type AssessmentSlot = {
   id: string
   startsAt: string
   durationMinutes: number
-  location: string
   coachName: string
 }
+
+export type ExistingAssessmentBooking = {
+  durationMinutes: number
+  location: string
+  startsAt: string
+}
+
+const logisticsFeeNote =
+  'Travel and logistics fees may apply for courts outside Metro Manila or venues requiring extended travel. Any additional charge will be discussed and confirmed before the session.'
 
 const dateKey = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Manila',
@@ -37,10 +45,12 @@ export function BookingForm({
   slots,
   isAuthenticated,
   displayName,
+  existingBooking,
 }: {
   slots: AssessmentSlot[]
   isAuthenticated: boolean
   displayName?: string
+  existingBooking?: ExistingAssessmentBooking
 }) {
   const dates = Array.from(new Set(slots.map((slot) => dateKey.format(new Date(slot.startsAt)))))
   const [selectedDate, setSelectedDate] = useState(dates[0] || '')
@@ -91,6 +101,35 @@ export function BookingForm({
             Back to dashboard <ArrowRight className="h-4 w-4" />
           </Link>
         )}
+      </div>
+    )
+
+  if (existingBooking)
+    return (
+      <div className="rounded-[2rem] bg-white p-8 shadow-sm">
+        <CheckCircle2 className="h-12 w-12 text-[#24734b]" />
+        <h2 className="mt-5 text-3xl font-black">Your assessment is already booked.</h2>
+        <div className="mt-6 grid gap-3 rounded-2xl bg-[#f3f7fc] p-5 text-sm font-bold text-[#607286] sm:grid-cols-3">
+          <span className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-[#1677ff]" />
+            {fullDate.format(new Date(existingBooking.startsAt))}
+          </span>
+          <span className="flex items-center gap-2">
+            <Clock3 className="h-4 w-4 text-[#1677ff]" />
+            {time.format(new Date(existingBooking.startsAt))} · {existingBooking.durationMinutes}{' '}
+            minutes
+          </span>
+          <span className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-[#1677ff]" />
+            {existingBooking.location}
+          </span>
+        </div>
+        <Link
+          href="/dashboard/student"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white"
+        >
+          Back to dashboard <ArrowRight className="h-4 w-4" />
+        </Link>
       </div>
     )
 
@@ -179,14 +218,10 @@ export function BookingForm({
             ))}
           </div>
           {selectedSlot && (
-            <div className="mt-6 grid gap-2 border-t border-[#092c59]/10 pt-5 text-sm text-[#607286] sm:grid-cols-3">
+            <div className="mt-6 grid gap-2 border-t border-[#092c59]/10 pt-5 text-sm text-[#607286] sm:grid-cols-2">
               <span className="flex items-center gap-2">
                 <Clock3 className="h-4 w-4 text-[#1677ff]" />
                 {selectedSlot.durationMinutes} minutes
-              </span>
-              <span className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-[#1677ff]" />
-                {selectedSlot.location}
               </span>
               <span className="flex items-center gap-2">
                 <UserRound className="h-4 w-4 text-[#1677ff]" />
@@ -212,6 +247,23 @@ export function BookingForm({
               : "We'll use the details from your profile."}
           </p>
           <div className="mt-6 grid gap-5">
+            <label className="grid gap-2 text-sm font-bold">
+              Court you booked
+              <input
+                required
+                name="location"
+                maxLength={200}
+                placeholder="Court name, branch, address and court number"
+                className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
+              />
+              <span className="text-xs font-normal leading-5 text-[#718399]">
+                Coordinate and reserve the venue directly. Your coach will use this location to meet
+                you.
+              </span>
+            </label>
+            <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
+              {logisticsFeeNote}
+            </p>
             <label className="grid gap-2 text-sm font-bold">
               Notes for your coach (optional)
               <textarea
@@ -249,6 +301,23 @@ export function BookingForm({
             Your answers help the coach prepare before you arrive.
           </p>
           <div className="mt-6 grid gap-5">
+            <label className="grid gap-2 text-sm font-bold">
+              Court you booked
+              <input
+                required
+                name="location"
+                maxLength={200}
+                placeholder="Court name, branch, address and court number"
+                className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
+              />
+              <span className="text-xs font-normal leading-5 text-[#718399]">
+                Coordinate and reserve the venue directly. The coach will use this location to meet
+                you.
+              </span>
+            </label>
+            <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
+              {logisticsFeeNote}
+            </p>
             <label className="grid gap-2 text-sm font-bold">
               Name
               <input

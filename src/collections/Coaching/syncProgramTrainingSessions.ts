@@ -1,6 +1,8 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
 import type { Drill, Program, StudentProfile } from '@/payload-types'
+import { programLessonDrillsForEvent } from '@/utilities/programEventBranches'
+import { normalizeSessionDuration } from '@/utilities/sessionTiming'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
@@ -14,6 +16,18 @@ export const sessionPlanDrillAssignments = (drillIDs: string[]) => ({
   progressiveDrill: drillIDs[1] || drillIDs[0],
   additionalDrills: drillIDs.slice(2),
 })
+
+export const programSessionDuration = (
+  profileDuration: unknown,
+  existingSessionDuration: unknown,
+  lessonDuration: unknown,
+  preserveWeeklyOverride = false,
+) =>
+  normalizeSessionDuration(
+    preserveWeeklyOverride
+      ? existingSessionDuration
+      : (profileDuration ?? existingSessionDuration ?? lessonDuration),
+  )
 
 export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfile> = async ({
   doc,
@@ -29,7 +43,15 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
   // and the full program document even when nothing program-related changed.
   const previousProgramID = relationshipID(previousDoc?.program)
   const previousCoachID = relationshipID(previousDoc?.coach)
-  if (previousDoc?.id && previousProgramID === programID && previousCoachID === coachID) {
+  if (
+    !req.context.forceProgramSync &&
+    !req.context.resetSessionDurationOverrides &&
+    previousDoc?.id &&
+    previousProgramID === programID &&
+    previousCoachID === coachID &&
+    previousDoc.preferredEvent === doc.preferredEvent &&
+    previousDoc.trainingDurationMinutes === doc.trainingDurationMinutes
+  ) {
     return doc
   }
 
@@ -74,9 +96,13 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
     new Set(
       program.phases
         .flatMap((phase) => phase.lessons || [])
-        .flatMap((lesson) =>
-          lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id)),
-        ),
+        .flatMap((lesson) => [
+          ...(lesson.drills || []),
+          ...(lesson.eventVariants?.singlesDrills || []),
+          ...(lesson.eventVariants?.doublesDrills || []),
+        ])
+        .map(relationshipID)
+        .filter((id): id is string => Boolean(id)),
     ),
   )
   const programDrills = programDrillIDs.length
@@ -93,20 +119,32 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
 
   for (const phase of program.phases.slice().sort((a, b) => a.order - b.order)) {
     for (const lesson of (phase.lessons || []).slice().sort((a, b) => a.week - b.week)) {
-      const drillIDs = lesson.drills.map(relationshipID).filter((id): id is string => Boolean(id))
+      const drillIDs = programLessonDrillsForEvent(lesson, doc.preferredEvent)
+        .map(relationshipID)
+        .filter((id): id is string => Boolean(id))
       const plannedSkillIDs = (lesson.skills || [])
         .map(relationshipID)
         .filter((id): id is string => Boolean(id))
       const drillSkillIDs = drillIDs
         .map((drillID) => relationshipID(drillsByID.get(drillID)?.skill))
         .filter((id): id is string => Boolean(id))
-      const skillIDs = Array.from(new Set(plannedSkillIDs.length ? plannedSkillIDs : drillSkillIDs))
+      const skillIDs = Array.from(new Set([...plannedSkillIDs, ...drillSkillIDs]))
       const sessionKey = `${doc.id}:${program.id}:${lesson.week}`
       validSessionKeys.add(sessionKey)
+      const existing = existingSessions.docs.find((session) => session.sessionKey === sessionKey)
+      const preserveWeeklyOverride = Boolean(
+        existing?.durationIsOverride && !req.context.resetSessionDurationOverrides,
+      )
 
       const sessionData = {
         coach: coachID,
-        durationMinutes: lesson.durationMinutes,
+        durationMinutes: programSessionDuration(
+          doc.trainingDurationMinutes,
+          existing?.durationMinutes,
+          lesson.durationMinutes,
+          preserveWeeklyOverride,
+        ),
+        durationIsOverride: preserveWeeklyOverride,
         lessonWeek: lesson.week,
         objective: lesson.objective,
         phase: phase.name,
@@ -126,7 +164,6 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
         successCriteria: lesson.successCriteria,
         title: `Week ${lesson.week}: ${lesson.title}`,
       }
-      const existing = existingSessions.docs.find((session) => session.sessionKey === sessionKey)
 
       if (existing) {
         await req.payload.update({

@@ -4,20 +4,30 @@ import type { Drill, Program } from '@/payload-types'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
-  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string') return value.id
+  if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string')
+    return value.id
   return null
 }
 
-export const syncProgramLessonSkills: CollectionBeforeValidateHook<Program> = async ({ data, req }) => {
+export const syncProgramLessonSkills: CollectionBeforeValidateHook<Program> = async ({
+  data,
+  req,
+}) => {
   if (!data?.phases) return data
 
-  const drillIDs = Array.from(new Set(
-    data.phases
-      .flatMap((phase) => phase.lessons || [])
-      .flatMap((lesson) => lesson.drills || [])
-      .map(relationshipID)
-      .filter((id): id is string => Boolean(id)),
-  ))
+  const drillIDs = Array.from(
+    new Set(
+      data.phases
+        .flatMap((phase) => phase.lessons || [])
+        .flatMap((lesson) => [
+          ...(lesson.drills || []),
+          ...(lesson.eventVariants?.singlesDrills || []),
+          ...(lesson.eventVariants?.doublesDrills || []),
+        ])
+        .map(relationshipID)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  )
   const drills = drillIDs.length
     ? await req.payload.find({
         collection: 'drills',
@@ -36,12 +46,18 @@ export const syncProgramLessonSkills: CollectionBeforeValidateHook<Program> = as
     ...phase,
     lessons: (phase.lessons || []).map((lesson) => ({
       ...lesson,
-      skills: Array.from(new Set(
-        (lesson.drills || [])
-          .map(relationshipID)
-          .map((drillID) => drillID ? skillByDrillID.get(drillID) : null)
-          .filter((skillID): skillID is string => Boolean(skillID)),
-      )),
+      skills: Array.from(
+        new Set(
+          [
+            ...(lesson.drills || []),
+            ...(lesson.eventVariants?.singlesDrills || []),
+            ...(lesson.eventVariants?.doublesDrills || []),
+          ]
+            .map(relationshipID)
+            .map((drillID) => (drillID ? skillByDrillID.get(drillID) : null))
+            .filter((skillID): skillID is string => Boolean(skillID)),
+        ),
+      ),
     })),
   }))
 

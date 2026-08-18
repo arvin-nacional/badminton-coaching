@@ -15,6 +15,10 @@ import { DashboardShell, Empty, Panel } from '@/components/Dashboard/UI'
 import type { Drill } from '@/payload-types'
 import { requireDashboardUser } from '@/utilities/dashboardAuth'
 import { drillIllustrationFor } from '@/utilities/drillIllustration'
+import {
+  programLessonDrillsForEvent,
+  programLessonHomeDrillsForEvent,
+} from '@/utilities/programEventBranches'
 
 const dashboardLink = (
   <Link
@@ -300,11 +304,19 @@ export default async function StudentRoadmapPage() {
                             typeof lesson.independentPractice === 'object'
                               ? lesson.independentPractice
                               : null
-                          const sessionDrills = lesson.drills.filter(
+                          const sessionDrillReferences = programLessonDrillsForEvent(
+                            lesson,
+                            profile.preferredEvent,
+                          )
+                          const sessionDrills = sessionDrillReferences.filter(
                             (drill): drill is Drill => typeof drill === 'object',
                           )
-                          const drillReferences = lesson.homeDrills.length
-                            ? lesson.homeDrills
+                          const selectedHomeDrills = programLessonHomeDrillsForEvent(
+                            lesson,
+                            profile.preferredEvent,
+                          )
+                          const drillReferences = selectedHomeDrills.length
+                            ? selectedHomeDrills
                             : practice?.drills || []
                           const homeDrills = drillReferences.filter(
                             (drill): drill is Drill => typeof drill === 'object',
@@ -438,7 +450,8 @@ export default async function StudentRoadmapPage() {
                                     Session + home drills
                                   </span>
                                   <span className="flex items-center gap-1.5">
-                                    {lesson.drills.length} coached · {drillReferences.length} home
+                                    {sessionDrillReferences.length} coached ·{' '}
+                                    {drillReferences.length} home
                                     <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180 group-focus:rotate-180" />
                                   </span>
                                 </div>

@@ -128,8 +128,17 @@ export default async function CoachDashboardPage() {
       }),
     ])
 
+  const bookedAssessmentStudentIDs = new Set(
+    assessmentBookings.docs
+      .filter((booking) => booking.status === 'confirmed')
+      .map((booking) =>
+        typeof booking.student === 'object' ? booking.student?.id : booking.student,
+      )
+      .filter((studentID): studentID is string => Boolean(studentID)),
+  )
   const assessmentNeeded = profiles.docs.filter(
-    (profile) => profile.assessmentStatus === 'required',
+    (profile) =>
+      profile.assessmentStatus === 'required' && !bookedAssessmentStudentIDs.has(profile.id),
   )
   const inactiveStudents = profiles.docs.filter(
     (profile) => !profile.lastTrainingAt || new Date(profile.lastTrainingAt) < fourteenDaysAgo,
@@ -168,7 +177,8 @@ export default async function CoachDashboardPage() {
         return sessionStudentID === profile.id && session.source === 'program'
       })
     return {
-      assessmentRequired: profile.assessmentStatus === 'required',
+      assessmentRequired:
+        profile.assessmentStatus === 'required' && !bookedAssessmentStudentIDs.has(profile.id),
       attendance: profile.attendanceRate,
       currentWeek: profile.currentProgramWeek,
       lessonTitle:
@@ -257,7 +267,7 @@ export default async function CoachDashboardPage() {
           <Stat
             label="Program sessions"
             value={sessions.totalDocs}
-            detail={`${plannedSessions.length} ready to schedule · ${scheduledSessions.length} scheduled`}
+            detail={`${plannedSessions.length} awaiting student booking · ${scheduledSessions.length} scheduled`}
           />
         </Panel>
         <Panel title="Package balance" icon={WalletCards}>
@@ -401,7 +411,7 @@ export default async function CoachDashboardPage() {
                 </Link>
               ))
             ) : (
-              <Empty text="No sessions are on the calendar yet. Use the roster below to schedule each prepared lesson." />
+              <Empty text="No sessions are on the calendar yet. Students confirm their booked courts from their dashboards." />
             )}
           </div>
         </Panel>

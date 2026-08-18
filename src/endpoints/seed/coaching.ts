@@ -38,6 +38,12 @@ export type LessonSeed = {
   objective: string
   durationMinutes: number
   drills: string[]
+  eventVariants?: {
+    singlesDrills: string[]
+    doublesDrills: string[]
+    singlesHomeDrills: string[]
+    doublesHomeDrills: string[]
+  }
   independentPractice: string
   successCriteria: string
   sessionPlan: {
@@ -73,19 +79,17 @@ const lesson = (
   independentPractice: string,
   successCriteria: string,
 ): LessonSeed => {
-  const primaryDrill = drills[0]
-  const progressiveDrill = drills[1] || drills[0]
   const warmUpByType: Record<LessonType, string> = {
     assessment:
-      '10 min — Raise body temperature, mobilise ankles, hips and shoulders, then complete familiar racket contacts without corrective coaching so the starting level is observable.',
+      'Raise body temperature, mobilise ankles, hips and shoulders, then complete familiar racket contacts without corrective coaching so the starting level is observable.',
     technical:
-      '10 min — Use light court movement, shoulder mobility and relaxed racket contacts. Gradually increase range while keeping grip changes and preparation clean.',
+      'Use light court movement, shoulder mobility and relaxed racket contacts. Gradually increase range while keeping grip changes and preparation clean.',
     movement:
-      '10 min — Raise body temperature, mobilise ankles and hips, then rehearse split steps, directional pushes and controlled lunges at increasing speed.',
+      'Raise body temperature, mobilise ankles and hips, then rehearse split steps, directional pushes and controlled lunges at increasing speed.',
     tactical:
-      '10 min — Combine dynamic movement with cooperative rallying. Call the intended target before each shot to connect preparation with decision-making.',
+      'Combine dynamic movement with cooperative rallying. Call the intended target before each shot to connect preparation with decision-making.',
     'match-play':
-      '10 min — Complete a match-ready dynamic warm-up followed by cooperative length, net and flat exchanges. Finish with serve and return rehearsal.',
+      'Complete a match-ready dynamic warm-up followed by cooperative length, net and flat exchanges. Finish with serve and return rehearsal.',
   }
 
   return {
@@ -93,19 +97,20 @@ const lesson = (
     title,
     lessonType,
     objective,
-    durationMinutes: 90,
+    durationMinutes: 60,
     drills,
     independentPractice,
     successCriteria,
     sessionPlan: {
       warmUp: warmUpByType[lessonType],
-      movementPreparation: `10 min — Rehearse the movement pattern needed for ${primaryDrill}. Begin without a shuttle, add a partner cue, then increase speed only while balance and recovery remain controlled.`,
-      conditionedGame: `15 min — Use ${progressiveDrill} as the starting pattern, then play the rally out. Award a bonus point when the player demonstrates the session objective: ${objective}`,
+      movementPreparation:
+        'Rehearse the movement pattern needed for the first technical drill. Begin without a shuttle, add a partner cue, then increase speed only while balance and recovery remain controlled.',
+      conditionedGame: `Use the progressive drill as the starting pattern, then play the rally out. Award a bonus point when the player demonstrates the session objective: ${objective}`,
       matchPlay:
         lessonType === 'assessment'
-          ? `20 min — Play scored rallies with minimal intervention. Record evidence against this standard: ${successCriteria}`
-          : `20 min — Play a scored game with one process goal linked to the session objective. Coach only at agreed intervals and record whether the trained pattern transfers without prompting.`,
-      cooldownAndFeedback: `10 min — Reduce intensity with easy movement and mobility. Ask the player what improved, what limited performance and what should be practised next. Record progress against: ${successCriteria}`,
+          ? `Play scored rallies with minimal intervention. Record evidence against this standard: ${successCriteria}`
+          : `Play a scored game with one process goal linked to the session objective. Coach only at pre-agreed review points and record whether the trained pattern transfers without prompting.`,
+      cooldownAndFeedback: `Reduce intensity with easy movement and mobility. Ask the player what improved, what limited performance and what should be practised next. Record progress against: ${successCriteria}`,
     },
   }
 }
@@ -431,7 +436,7 @@ const programs: ProgramSeed[] = [
             'Pressure score decisions',
             'match-play',
             'Use high-percentage patterns and a reset routine at critical scores.',
-            ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
+            ['Regulation Interval Simulation', 'Progressive Score Scenarios'],
             'Complete the low-serve target circuit, then use the reset-and-rally rehearsal to state and shadow one high-percentage serve, return and third-shot plan.',
             'Follows the stated plan in 8 of 10 pressure rallies.',
           ),
@@ -440,7 +445,11 @@ const programs: ProgramSeed[] = [
             'Personal match plan',
             'match-play',
             'Connect one reliable rally pattern to one attacking pattern.',
-            ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
+            [
+              'Clear-Drop Decision Rally',
+              'Three-Shot Attack Pattern',
+              'Progressive Score Scenarios',
+            ],
             'Complete the overhead-shadow circuit, then use the reset-and-rally rehearsal to say, picture briefly and physically shadow the opening actions and adjustment cue from the match plan.',
             'Starts at least 7 of 10 rallies with the intended tactical pattern.',
           ),
@@ -449,7 +458,11 @@ const programs: ProgramSeed[] = [
             'Development progress assessment',
             'assessment',
             'Demonstrate technical, movement and tactical progress in match conditions.',
-            ['Random Six-Corner Feeding', 'Net-Lift-Kill Progression', 'Pressure Score: 18-All'],
+            [
+              'Random Six-Corner Feeding',
+              'Net-Lift-Kill Progression',
+              'Progressive Score Scenarios',
+            ],
             'Complete the reactive-cue, overhead-shadow and wall-drive benchmarks, then use the lowest result to identify the next independent-practice priority.',
             'Meets two drill targets under pressure and explains the next training priority.',
           ),
@@ -478,7 +491,7 @@ const programs: ProgramSeed[] = [
             'Establish technical, movement, tactical and pressure baselines.',
             [
               'Random Six-Corner Feeding',
-              'Pressure Score: 18-All',
+              'Progressive Score Scenarios',
               'Repeat Movement Quality Intervals',
             ],
             'Complete the high-intensity shadow benchmark and reactive split-step cues, then identify aloud one strength, one limiter and the first training priority to share with your coach.',
@@ -507,7 +520,7 @@ const programs: ProgramSeed[] = [
             'Serve and return pressure',
             'tactical',
             'Use placement and the third shot to gain the first advantage.',
-            ['Low Serve Gate', 'Drive Channel Exchange', 'Pressure Score: 18-All'],
+            ['Low Serve Gate', 'Drive Channel Exchange', 'Progressive Score Scenarios'],
             'Complete the low-serve target and wall-drive circuits, linking accurate serve placement to compact return and third-shot preparation.',
             'Wins or neutralises the first three shots in 7 of 10 rallies.',
           ),
@@ -516,7 +529,7 @@ const programs: ProgramSeed[] = [
             'Confirm the performance plan',
             'assessment',
             'Translate baseline evidence into two measurable competition priorities.',
-            ['Tournament Interval Simulation', 'Twenty-Shot Cooperative Rally'],
+            ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
             'Use the reset-and-rally rehearsal to state and physically shadow two controllable process goals, then complete the shoulder-and-core circuit with relaxed posture.',
             'Can state, demonstrate and measure both selected priorities.',
           ),
@@ -570,7 +583,11 @@ const programs: ProgramSeed[] = [
             'Weapon test in conditioned games',
             'assessment',
             'Apply the selected weapon without forcing it from poor situations.',
-            ['Pressure Score: 18-All', 'Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'],
+            [
+              'Progressive Score Scenarios',
+              'Three-Shot Attack Pattern',
+              'Net-Lift-Kill Progression',
+            ],
             'Complete the overhead-shadow circuit and reactive split-step cues, using the primary attack only after a balanced movement and choosing a safe recovery from a poor position.',
             'Creates the intended pattern in at least 6 of 10 suitable rallies.',
           ),
@@ -588,7 +605,7 @@ const programs: ProgramSeed[] = [
             'Mid-cycle match review',
             'assessment',
             'Identify which improvements are transferring into scored games.',
-            ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
+            ['Regulation Interval Simulation', 'Progressive Score Scenarios'],
             'Complete the high-intensity shadow and shoulder-and-core circuits, then identify aloud what held up under pressure, the current limiter and the next priority.',
             'Supports the next priority with evidence from at least three rallies.',
           ),
@@ -597,7 +614,7 @@ const programs: ProgramSeed[] = [
             'Critical-score execution',
             'match-play',
             'Commit to a clear plan and appropriate risk at deuce scores.',
-            ['Pressure Score: 18-All', 'Low Serve Gate'],
+            ['Progressive Score Scenarios', 'Low Serve Gate'],
             'Complete the low-serve target circuit using the same breathing cue, then use the reset-and-rally rehearsal to state and shadow a critical-score first-three-shot plan.',
             'Follows the plan in 8 of 10 critical-score rallies.',
           ),
@@ -606,7 +623,7 @@ const programs: ProgramSeed[] = [
             'Between-rally reset',
             'match-play',
             'Use a short physical and mental reset after both wins and errors.',
-            ['Tournament Interval Simulation', 'Pressure Score: 18-All'],
+            ['Twenty-Shot Cooperative Rally', 'Three-Shot Attack Pattern'],
             'Complete the reset-and-rally rehearsal, then use the shoulder-and-core circuit to reinforce relaxed breathing, loose grip, stable posture and physical control.',
             'Completes the routine independently before 9 of 10 rallies.',
           ),
@@ -624,7 +641,7 @@ const programs: ProgramSeed[] = [
             'Defence under scoreboard pressure',
             'match-play',
             'Make stable defensive choices when the opponent attacks at a critical score.',
-            ['Defence Choice Under Pressure', 'Pressure Score: 18-All'],
+            ['Defence Choice Under Pressure', 'Progressive Score Scenarios'],
             'Complete the wall-drive circuit, then use reactive split-step cues while cycling three pressure intentions: block to neutralise, drive to counter and lift to reset.',
             'Makes an effective choice in 12 of 15 pressure attacks.',
           ),
@@ -643,8 +660,8 @@ const programs: ProgramSeed[] = [
             'match-play',
             'Rehearse warm-up, intervals, coaching cues and post-match review.',
             [
-              'Tournament Interval Simulation',
-              'Pressure Score: 18-All',
+              'Regulation Interval Simulation',
+              'Progressive Score Scenarios',
               'Repeat Movement Quality Intervals',
             ],
             'Complete the high-intensity shadow circuit, then use the reset-and-rally rehearsal to practise the same between-rally cue and opening pattern planned for the tournament.',
@@ -655,7 +672,7 @@ const programs: ProgramSeed[] = [
             'Primary game plan',
             'tactical',
             'Apply the preferred game plan against a suitable opponent style.',
-            ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Pressure Score: 18-All'],
+            ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'],
             'Complete the overhead-shadow circuit, then use the reset-and-rally rehearsal to state and physically shadow the opening and adjustment patterns for game plan A.',
             'Recognises and uses the planned pattern in 7 of 10 suitable rallies.',
           ),
@@ -677,7 +694,7 @@ const programs: ProgramSeed[] = [
             'Taper and confidence rehearsal',
             'match-play',
             'Reduce volume while preserving sharpness, confidence and routine quality.',
-            ['Low Serve Gate', 'Three-Shot Attack Pattern', 'Tournament Interval Simulation'],
+            ['Low Serve Gate', 'Three-Shot Attack Pattern', 'Regulation Interval Simulation'],
             'Complete the low-serve target circuit at controlled quality, then complete one sharp reset-and-rally rehearsal using the most trusted opening pattern and finish physically fresh.',
             'Meets key targets with low volume and finishes physically fresh.',
           ),
@@ -688,8 +705,8 @@ const programs: ProgramSeed[] = [
             'Confirm progress, readiness, next priorities and independent practice.',
             [
               'Random Six-Corner Feeding',
-              'Pressure Score: 18-All',
-              'Tournament Interval Simulation',
+              'Progressive Score Scenarios',
+              'Regulation Interval Simulation',
             ],
             'Complete the high-intensity shadow benchmark and reactive split-step cues, then state what improved, the current limiter, the next focus and competition readiness to your coach.',
             'Explains what improved, the current limiter, the next focus and readiness to compete.',
@@ -699,6 +716,191 @@ const programs: ProgramSeed[] = [
     ],
   },
 ]
+
+export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
+  1: {
+    singlesDrills: [
+      'Random Six-Corner Feeding',
+      'Progressive Score Scenarios',
+      'Repeat Movement Quality Intervals',
+    ],
+    doublesDrills: [
+      'Attack-Defence Rotation',
+      'Progressive Score Scenarios',
+      'Repeat Movement Quality Intervals',
+    ],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Reactive Split-Step Cues'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Reactive Split-Step Cues'],
+  },
+  2: {
+    singlesDrills: ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'],
+    doublesDrills: ['Repeat Movement Quality Intervals', 'Attack-Defence Rotation'],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Compact Home Footwork'],
+  },
+  3: {
+    singlesDrills: ['Rear-Court Clear and Recovery', 'Random Six-Corner Feeding'],
+    doublesDrills: ['Rear-Court Clear and Recovery', 'Attack-Defence Rotation'],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'High-Intensity Shadow Intervals'],
+    doublesHomeDrills: ['Overhead Shadow Technique', 'Reactive Split-Step Cues'],
+  },
+  4: {
+    singlesDrills: ['Clear-Drop Decision Rally', 'Three-Shot Attack Pattern'],
+    doublesDrills: ['Low Serve Gate', 'Drive Channel Exchange', 'Three-Shot Attack Pattern'],
+    singlesHomeDrills: ['Reset and Rally Rehearsal', 'Wall Drive and Defence'],
+    doublesHomeDrills: ['Low Serve Floor Targets', 'Wall Drive and Defence'],
+  },
+  5: {
+    singlesDrills: ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
+    doublesDrills: ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
+    singlesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
+    doublesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
+  },
+  6: {
+    singlesDrills: ['Three-Shot Attack Pattern', 'Clear-Drop Decision Rally'],
+    doublesDrills: ['Three-Shot Attack Pattern', 'Attack-Defence Rotation'],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'High-Intensity Shadow Intervals'],
+    doublesHomeDrills: ['Overhead Shadow Technique', 'Shoulder and Core Control'],
+  },
+  7: {
+    singlesDrills: ['Three-Shot Attack Pattern', 'Net-Lift-Kill Progression'],
+    doublesDrills: ['Three-Shot Attack Pattern', 'Drive Channel Exchange'],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'Reactive Split-Step Cues'],
+    doublesHomeDrills: ['Overhead Shadow Technique', 'Wall Drive and Defence'],
+  },
+  8: {
+    singlesDrills: ['Net-Lift-Kill Progression', 'Lunge, Net and Recover'],
+    doublesDrills: ['Attack-Defence Rotation', 'Drive Channel Exchange'],
+    singlesHomeDrills: ['Lunge Balance and Leg Strength', 'High-Intensity Shadow Intervals'],
+    doublesHomeDrills: ['Lunge Balance and Leg Strength', 'Reactive Split-Step Cues'],
+  },
+  9: {
+    singlesDrills: ['Defence Choice Under Pressure', 'Clear-Drop Decision Rally'],
+    doublesDrills: ['Defence Choice Under Pressure', 'Drive Channel Exchange'],
+    singlesHomeDrills: ['Wall Drive and Defence', 'High-Intensity Shadow Intervals'],
+    doublesHomeDrills: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+  },
+  10: {
+    singlesDrills: [
+      'Progressive Score Scenarios',
+      'Three-Shot Attack Pattern',
+      'Net-Lift-Kill Progression',
+    ],
+    doublesDrills: [
+      'Progressive Score Scenarios',
+      'Three-Shot Attack Pattern',
+      'Attack-Defence Rotation',
+    ],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
+    doublesHomeDrills: ['Shoulder and Core Control', 'Reset and Rally Rehearsal'],
+  },
+  11: {
+    singlesDrills: ['Regulation Interval Simulation', 'Clear-Drop Decision Rally'],
+    doublesDrills: ['Regulation Interval Simulation', 'Attack-Defence Rotation'],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Shoulder and Core Control'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Shoulder and Core Control'],
+  },
+  12: {
+    singlesDrills: ['Progressive Score Scenarios', 'Clear-Drop Decision Rally'],
+    doublesDrills: ['Progressive Score Scenarios', 'Low Serve Gate'],
+    singlesHomeDrills: ['Reset and Rally Rehearsal', 'Overhead Shadow Technique'],
+    doublesHomeDrills: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
+  },
+  13: {
+    singlesDrills: ['Twenty-Shot Cooperative Rally', 'Three-Shot Attack Pattern'],
+    doublesDrills: ['Twenty-Shot Cooperative Rally', 'Drive Channel Exchange'],
+    singlesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
+    doublesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
+  },
+  14: {
+    singlesDrills: ['Repeat Movement Quality Intervals', 'Random Six-Corner Feeding'],
+    doublesDrills: ['Repeat Movement Quality Intervals', 'Attack-Defence Rotation'],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Badminton Bodyweight Strength Circuit'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Lunge Balance and Leg Strength'],
+  },
+  15: {
+    singlesDrills: ['Defence Choice Under Pressure', 'Progressive Score Scenarios'],
+    doublesDrills: ['Defence Choice Under Pressure', 'Progressive Score Scenarios'],
+    singlesHomeDrills: ['Wall Drive and Defence', 'Reset and Rally Rehearsal'],
+    doublesHomeDrills: ['Wall Drive and Defence', 'Reset and Rally Rehearsal'],
+  },
+  16: {
+    singlesDrills: [
+      'Regulation Interval Simulation',
+      'Progressive Score Scenarios',
+      'Random Six-Corner Feeding',
+    ],
+    doublesDrills: [
+      'Regulation Interval Simulation',
+      'Progressive Score Scenarios',
+      'Attack-Defence Rotation',
+    ],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Reset and Rally Rehearsal'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Reset and Rally Rehearsal'],
+  },
+  17: {
+    singlesDrills: [
+      'Clear-Drop Decision Rally',
+      'Three-Shot Attack Pattern',
+      'Net-Lift-Kill Progression',
+    ],
+    doublesDrills: [
+      'Attack-Defence Rotation',
+      'Three-Shot Attack Pattern',
+      'Drive Channel Exchange',
+    ],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
+    doublesHomeDrills: ['Wall Drive and Defence', 'Reset and Rally Rehearsal'],
+  },
+  18: {
+    singlesDrills: [
+      'Defence Choice Under Pressure',
+      'Clear-Drop Decision Rally',
+      'Net-Lift-Kill Progression',
+    ],
+    doublesDrills: [
+      'Defence Choice Under Pressure',
+      'Attack-Defence Rotation',
+      'Drive Channel Exchange',
+    ],
+    singlesHomeDrills: ['Wall Drive and Defence', 'High-Intensity Shadow Intervals'],
+    doublesHomeDrills: ['Wall Drive and Defence', 'Reactive Split-Step Cues'],
+  },
+  19: {
+    singlesDrills: [
+      'Three-Shot Attack Pattern',
+      'Clear-Drop Decision Rally',
+      'Regulation Interval Simulation',
+    ],
+    doublesDrills: [
+      'Low Serve Gate',
+      'Three-Shot Attack Pattern',
+      'Regulation Interval Simulation',
+    ],
+    singlesHomeDrills: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
+    doublesHomeDrills: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
+  },
+  20: {
+    singlesDrills: [
+      'Random Six-Corner Feeding',
+      'Regulation Interval Simulation',
+      'Repeat Movement Quality Intervals',
+    ],
+    doublesDrills: [
+      'Attack-Defence Rotation',
+      'Regulation Interval Simulation',
+      'Repeat Movement Quality Intervals',
+    ],
+    singlesHomeDrills: ['High-Intensity Shadow Intervals', 'Reactive Split-Step Cues'],
+    doublesHomeDrills: ['Badminton Bodyweight Strength Circuit', 'Reactive Split-Step Cues'],
+  },
+}
+
+const competitiveProgram = programs.find((program) => program.name === 'Competitive Performance')
+for (const competitiveLesson of competitiveProgram?.phases.flatMap((phase) => phase.lessons) ||
+  []) {
+  competitiveLesson.eventVariants = competitiveEventBranches[competitiveLesson.week]
+}
 
 export const coachingPrograms = programs
 
@@ -1254,7 +1456,7 @@ const drills: DrillSeed[] = [
     name: 'Defence Choice Under Pressure',
     skill: 'Defending under pressure',
     level: 'competitive',
-    eventType: 'doubles',
+    eventType: 'general',
     illustrationURL: '/images/drills/defence-choice-under-pressure.png',
     equipment: 'Rackets and multi-shuttle basket',
     numberOfPlayers: 3,
@@ -1273,7 +1475,7 @@ const drills: DrillSeed[] = [
       'Neutralises or counterattacks without relying on one defensive response.',
   },
   {
-    name: 'Pressure Score: 18-All',
+    name: 'Progressive Score Scenarios',
     skill: 'Score management',
     level: 'competitive',
     eventType: 'general',
@@ -1282,20 +1484,21 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 2,
     durationMinutes: 18,
     instructions:
-      'Play repeated mini-games beginning at 18-all. Before each rally, state the serve/return plan and intended risk level.',
+      'Play three progressive score scenarios: protect a 15-11 lead, recover from 16-18 behind, then manage 20-all deuce. Before each rally, state the serve or return plan and intended risk level.',
     coachingPoints:
       'Use the between-rally routine, commit to a clear first-three-shot plan and select high-percentage targets.',
     commonMistakes:
       'Rushing after errors, changing tactics without evidence and aiming for lines unnecessarily.',
     difficulty: 'challenging',
     successTarget: 'Follow the stated plan in at least 8 of 10 pressure rallies.',
-    easierVariation: 'Start at 15-all with coach prompts between rallies.',
-    harderProgression: 'Add consequences or play best-of-five deuce scenarios.',
+    easierVariation: 'Begin at 7-all and allow one short coach prompt before each rally.',
+    harderProgression:
+      'Randomly draw lead, chase, game-point and deuce scenarios without advance warning.',
     completionRequirement: 'Makes composed, explainable decisions at critical scores.',
   },
   {
-    name: 'Tournament Interval Simulation',
-    skill: 'Between-rally routine',
+    name: 'Regulation Interval Simulation',
+    skill: 'Score management',
     level: 'competitive',
     eventType: 'general',
     illustrationURL: '/images/drills/tournament-interval-simulation.png',
@@ -1303,16 +1506,19 @@ const drills: DrillSeed[] = [
     numberOfPlayers: 2,
     durationMinutes: 20,
     instructions:
-      'Play timed rally blocks with only the regulation-like interval to breathe, review one cue and prepare for the next rally.',
+      'Play a full practice match. When the leading score reaches 11 in each game, use no more than the regulation 60-second interval. Between games, use no more than 120 seconds. Continue normal between-rally play without treating ordinary rally breaks as intervals.',
     coachingPoints:
-      'Turn away briefly, control breathing, use one useful cue and establish serve/return readiness.',
+      'Use the 60-second interval at 11 for breathing, hydration and one tactical cue; use the 120-second interval between games for review and a clear opening plan. Keep ordinary between-rally resets brief so play remains continuous.',
     commonMistakes:
       'Replaying the previous error, taking too many instructions and returning without a plan.',
     difficulty: 'moderate',
-    successTarget: 'Complete the personal reset routine before 9 of 10 rallies.',
-    easierVariation: 'Allow coach-led prompts and a longer reset.',
-    harderProgression: 'Add score pressure, noise and restricted coaching.',
-    completionRequirement: 'Uses the routine independently throughout a full practice game.',
+    successTarget:
+      'Returns ready before both regulation intervals expire and begins the next rally or game with one clear plan.',
+    easierVariation: 'Use visible 60- and 120-second countdowns with one coach-led cue.',
+    harderProgression:
+      'Add match noise and require the player to manage both intervals independently.',
+    completionRequirement:
+      'Uses the correct interval only at 11 and between games, without delaying ordinary between-rally play.',
   },
   {
     name: 'Repeat Movement Quality Intervals',
@@ -1578,8 +1784,25 @@ export async function seedCoachingLibrary(payload: Payload) {
             }),
           ),
         )
+        const eventVariants = programLesson.eventVariants
+          ? Object.fromEntries(
+              Object.entries(programLesson.eventVariants).map(([branchName, branchDrills]) => [
+                branchName,
+                branchDrills.map((drillName) => {
+                  const drillID = drillIDs.get(drillName)
+                  if (!drillID) {
+                    throw new Error(
+                      `Missing ${branchName} drill for ${program.name}, week ${programLesson.week}: ${drillName}`,
+                    )
+                  }
+                  return drillID
+                }),
+              ]),
+            )
+          : undefined
         return {
           ...lessonData,
+          eventVariants,
           homePracticeInstructions,
           homeDrills: homeDrillsForLesson(program.name, programLesson, program.level).map(
             (drillName) => {

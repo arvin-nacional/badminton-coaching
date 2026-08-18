@@ -22,6 +22,7 @@ import {
 } from '@/components/Dashboard/UI'
 import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPracticeCheck'
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
+import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
 import type { PracticeLibrary, Skill } from '@/payload-types'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 
@@ -94,76 +95,96 @@ export default async function StudentDashboardPage() {
   // Keep depth as low as possible: every extra depth level makes Payload run
   // population queries for each relationship on each returned doc, which was
   // the main cause of slow dashboard loads.
-  const [program, practices, sessions, skillProgress, events, completedSessions] =
-    await Promise.all([
-      programID
-        ? payload.findByID({
-            collection: 'programs',
-            id: programID,
-            // depth 1 populates phases[].lessons[].independentPractice, which
-            // is the only nested relationship this page reads from the program.
-            depth: 1,
-            overrideAccess: false,
-            user,
-          })
-        : Promise.resolve(null),
-      payload.find({
-        collection: 'independent-practices',
-        // depth 1 populates the practice template; drill docs are fetched
-        // separately below so drill IDs are enough here.
-        depth: 1,
-        limit: 100,
-        sort: '-updatedAt',
-        overrideAccess: false,
-        user,
-        where: { student: { equals: profile.id } },
-      }),
-      payload.find({
-        collection: 'training-sessions',
-        depth: 0,
-        limit: 5,
-        sort: 'scheduledAt',
-        overrideAccess: false,
-        user,
-        where: {
-          and: [
-            { student: { equals: profile.id } },
-            { scheduledAt: { greater_than_equal: now } },
-            { status: { equals: 'scheduled' } },
-          ],
-        },
-      }),
-      payload.find({
-        collection: 'skill-progress',
-        // depth 1 populates the skill relationship used for names/categories.
-        depth: 1,
-        limit: 100,
-        sort: '-updatedAt',
-        overrideAccess: false,
-        user,
-        where: { student: { equals: profile.id } },
-      }),
-      payload.find({
-        collection: 'coaching-events',
-        depth: 0,
-        limit: 5,
-        sort: 'startsAt',
-        overrideAccess: false,
-        user,
-        where: {
-          and: [{ student: { equals: profile.id } }, { startsAt: { greater_than_equal: now } }],
-        },
-      }),
-      payload.find({
-        collection: 'training-sessions',
-        depth: 0,
-        limit: 1,
-        sort: '-scheduledAt',
-        overrideAccess: false,
-        user,
-        where: { and: [{ student: { equals: profile.id } }, { status: { equals: 'completed' } }] },
-      }),
-    ])
+  const [
+    program,
+    practices,
+    bookingSessions,
+    assessmentBookings,
+    skillProgress,
+    events,
+    completedSessions,
+  ] = await Promise.all([
+    programID
+      ? payload.findByID({
+          collection: 'programs',
+          id: programID,
+          // depth 1 populates phases[].lessons[].independentPractice, which
+          // is the only nested relationship this page reads from the program.
+          depth: 1,
+          overrideAccess: false,
+          user,
+        })
+      : Promise.resolve(null),
+    payload.find({
+      collection: 'independent-practices',
+      // depth 1 populates the practice template; drill docs are fetched
+      // separately below so drill IDs are enough here.
+      depth: 1,
+      limit: 100,
+      sort: '-updatedAt',
+      overrideAccess: false,
+      user,
+      where: { student: { equals: profile.id } },
+    }),
+    payload.find({
+      collection: 'training-sessions',
+      depth: 0,
+      limit: 1,
+      sort: 'lessonWeek',
+      overrideAccess: false,
+      user,
+      where: {
+        and: [
+          { student: { equals: profile.id } },
+          { source: { equals: 'program' } },
+          { lessonWeek: { equals: profile.currentProgramWeek || 1 } },
+          { status: { in: ['planned', 'scheduled'] } },
+        ],
+      },
+    }),
+    payload.find({
+      collection: 'assessment-bookings',
+      depth: 0,
+      limit: 1,
+      sort: '-startsAt',
+      // Assessment bookings are staff-managed. This trusted dashboard query
+      // is restricted to the already-authenticated student's own profile.
+      overrideAccess: true,
+      where: {
+        and: [{ student: { equals: profile.id } }, { status: { equals: 'confirmed' } }],
+      },
+    }),
+    payload.find({
+      collection: 'skill-progress',
+      // depth 1 populates the skill relationship used for names/categories.
+      depth: 1,
+      limit: 100,
+      sort: '-updatedAt',
+      overrideAccess: false,
+      user,
+      where: { student: { equals: profile.id } },
+    }),
+    payload.find({
+      collection: 'coaching-events',
+      depth: 0,
+      limit: 5,
+      sort: 'startsAt',
+      overrideAccess: false,
+      user,
+      where: {
+        and: [{ student: { equals: profile.id } }, { startsAt: { greater_than_equal: now } }],
+      },
+    }),
+    payload.find({
+      collection: 'training-sessions',
+      depth: 0,
+      limit: 1,
+      sort: '-scheduledAt',
+      overrideAccess: false,
+      user,
+      where: { and: [{ student: { equals: profile.id } }, { status: { equals: 'completed' } }] },
+    }),
+  ])
 
   const programWeek = program
     ? Math.min(Math.max(profile.currentProgramWeek || 1, 1), program.durationWeeks)
@@ -221,7 +242,9 @@ export default async function StudentDashboardPage() {
   const upcomingLessons = programLessons
     .filter((programLesson) => programLesson.week > programWeek)
     .slice(0, 3)
-  const nextSession = sessions.docs[0]
+  const bookingSession = bookingSessions.docs[0]
+  const assessmentBooking = assessmentBookings.docs[0]
+  const assessmentStatus = assessmentBooking ? 'scheduled' : profile.assessmentStatus
   const completedSkills = skillProgress.docs.filter((item) =>
     ['game-ready', 'pressure-ready'].includes(item.stage),
   )
@@ -288,45 +311,57 @@ export default async function StudentDashboardPage() {
           ) : null}
         </Panel>
 
-        {profile.assessmentStatus === 'required' || profile.assessmentStatus === 'scheduled' ? (
+        {assessmentStatus === 'required' || assessmentStatus === 'scheduled' ? (
           <Panel
             className="lg:col-span-4"
             title="Initial assessment"
             subtitle={
-              profile.assessmentStatus === 'scheduled'
+              assessmentStatus === 'scheduled'
                 ? 'Your assessment is scheduled'
                 : 'Book your first session'
             }
             icon={CalendarCheck}
           >
             <p className="text-sm leading-7 text-[#607286]">
-              {profile.assessmentStatus === 'scheduled'
-                ? 'Your coach will assess your current skills and build your training plan. Check the times below.'
+              {assessmentStatus === 'scheduled'
+                ? 'Your coach will assess your current skills and build your training plan.'
                 : 'A 60-minute session where your coach evaluates your game and sets your training priorities.'}
             </p>
-            <Link
-              href="/book-assessment"
-              className="mt-5 inline-flex items-center justify-center rounded-full bg-[#092c59] px-5 py-3 text-sm font-black text-white transition hover:bg-[#1677ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
-            >
-              {profile.assessmentStatus === 'scheduled'
-                ? 'View booking details'
-                : 'Book assessment'}
-            </Link>
+            {assessmentStatus === 'scheduled' ? (
+              <div className="mt-5 rounded-2xl bg-[#f3f7fc] p-4">
+                <p className="font-black text-[#1677ff]">
+                  {formatDate(assessmentBooking?.startsAt)}
+                </p>
+                <p className="mt-1 text-sm font-bold text-[#607286]">
+                  {assessmentBooking?.location || 'Court details are confirmed with your coach.'}
+                </p>
+              </div>
+            ) : (
+              <Link
+                href="/book-assessment"
+                className="mt-5 inline-flex items-center justify-center rounded-full bg-[#092c59] px-5 py-3 text-sm font-black text-white transition hover:bg-[#1677ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
+              >
+                Book assessment
+              </Link>
+            )}
           </Panel>
         ) : (
-          <Panel className="lg:col-span-4" title="Next session" icon={CalendarDays}>
-            {nextSession ? (
-              <>
-                <p className="text-lg font-black text-[#092c59]">{nextSession.title}</p>
-                <p className="mt-3 text-xl font-black text-[#1677ff]">
-                  {formatDate(nextSession.scheduledAt)}
-                </p>
-                <p className="mt-2 text-sm font-medium text-[#718399]">
-                  {nextSession.location || 'Location to be confirmed'}
-                </p>
-              </>
+          <Panel
+            className="lg:col-span-4"
+            title="Book your training court"
+            subtitle="You arrange the venue for this session"
+            icon={CalendarDays}
+          >
+            {bookingSession ? (
+              <StudentCourtBooking
+                durationMinutes={bookingSession.durationMinutes}
+                location={bookingSession.location}
+                scheduledAt={bookingSession.scheduledAt}
+                sessionID={bookingSession.id}
+                title={bookingSession.title}
+              />
             ) : (
-              <Empty text="No upcoming session scheduled." />
+              <Empty text="No program session is currently ready for court booking." />
             )}
           </Panel>
         )}

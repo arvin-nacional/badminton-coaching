@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  MapPin,
   Target,
   TrendingUp,
   UserRound,
@@ -26,9 +27,11 @@ import {
   Stat,
 } from '@/components/Dashboard/UI'
 import { SessionSkillScoring, type SkillScoreRow } from '@/components/Dashboard/SessionSkillScoring'
+import { SessionDurationControl } from '@/components/Dashboard/SessionDurationControl'
 import { StartAssessmentButton } from '@/components/Dashboard/StartAssessmentButton'
 import type { Drill, Skill, TrainingSession } from '@/payload-types'
 import { isAdmin, isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
+import { programLessonHomeDrillsForEvent } from '@/utilities/programEventBranches'
 
 const statusTone: Record<string, string> = {
   planned: 'bg-[#eaf3ff] text-[#1677ff]',
@@ -161,9 +164,12 @@ export default async function CoachStudentWorkspace({
   const practiceSuccessCriteria =
     currentPractice?.successCriteria || selectedProgramLesson?.successCriteria
   const practiceStatus = currentPractice?.status || 'planned'
+  const selectedHomeDrills = selectedProgramLesson
+    ? programLessonHomeDrillsForEvent(selectedProgramLesson, profile.preferredEvent)
+    : []
   const currentHomeDrills = (
     currentPractice?.drills ||
-    selectedProgramLesson?.homeDrills ||
+    selectedHomeDrills ||
     plannedPracticeTemplate?.drills ||
     []
   ).filter((drill): drill is Drill => typeof drill === 'object')
@@ -321,19 +327,30 @@ export default async function CoachStudentWorkspace({
               </div>
               <div className="flex flex-col items-start gap-3 xl:items-end">
                 <div className="xl:text-right">
-                  <p className="text-xs font-bold uppercase text-white/50">Session date</p>
+                  <p className="text-xs font-bold uppercase text-white/50">Student court booking</p>
                   <p className="mt-1 font-black">
                     {currentSession.scheduledAt
                       ? formatDate(currentSession.scheduledAt)
-                      : 'Ready to schedule'}
+                      : 'Waiting for the student'}
+                  </p>
+                  <p className="mt-2 flex max-w-sm items-start gap-1.5 text-sm font-bold text-white/65 xl:justify-end">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#4cc9ff]" />
+                    {currentSession.location || 'Court has not been confirmed yet'}
                   </p>
                 </div>
-                <Link
-                  href={`/admin/collections/training-sessions/${currentSession.id}`}
-                  className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#092c59]"
-                >
-                  Schedule or edit session
-                </Link>
+                {currentSession.status !== 'completed' && currentSession.status !== 'cancelled' ? (
+                  <SessionDurationControl
+                    sessionID={currentSession.id}
+                    durationMinutes={currentSession.durationMinutes}
+                    durationIsOverride={currentSession.durationIsOverride}
+                    programDurationMinutes={profile.trainingDurationMinutes}
+                  />
+                ) : null}
+                <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black text-white/70">
+                  {currentSession.courtBookedByStudent
+                    ? 'Court confirmed by student'
+                    : 'Student is responsible for booking'}
+                </span>
               </div>
             </div>
           ) : (
@@ -514,6 +531,9 @@ export default async function CoachStudentWorkspace({
                         </p>
                         <p className="mt-3 text-xs font-bold text-[#607286]">
                           {session.scheduledAt ? formatDate(session.scheduledAt) : 'Not scheduled'}
+                        </p>
+                        <p className="mt-1 line-clamp-1 text-xs text-[#718399]">
+                          {session.location || 'Waiting for student court booking'}
                         </p>
                       </Link>
                     ))}

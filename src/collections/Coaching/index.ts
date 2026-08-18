@@ -6,6 +6,7 @@ import {
   ownStudentProfile,
   staffOnly,
 } from '@/access/coaching'
+import { isSessionDuration } from '@/utilities/sessionTiming'
 import { syncIndependentPractice } from './syncIndependentPractice'
 import { normalizeSkillProgressStage } from './normalizeSkillProgressStage'
 import { syncPracticeLibraryInstances } from './syncPracticeLibraryInstances'
@@ -94,7 +95,22 @@ export const Programs: CollectionConfig = {
               ],
             },
             { name: 'objective', type: 'textarea', required: true },
-            { name: 'durationMinutes', type: 'number', required: true, min: 30, defaultValue: 90 },
+            {
+              name: 'durationMinutes',
+              label: 'Default training duration',
+              type: 'number',
+              required: true,
+              min: 60,
+              max: 120,
+              defaultValue: 60,
+              validate: (value: unknown) =>
+                isSessionDuration(value) || 'Choose a duration of 60, 90, or 120 minutes.',
+              admin: {
+                step: 30,
+                description:
+                  'Program sessions start at 60 minutes. Coaches can adjust an individual session to 90 or 120 minutes.',
+              },
+            },
             {
               name: 'skills',
               label: 'Skills developed and scored',
@@ -118,6 +134,51 @@ export const Programs: CollectionConfig = {
               required: true,
               minRows: 1,
               maxDepth: 1,
+            },
+            {
+              name: 'eventVariants',
+              label: 'Singles and doubles branches',
+              type: 'group',
+              admin: {
+                description:
+                  'Optional event-specific court and home drills. The player’s preferred event selects the matching branch.',
+              },
+              fields: [
+                {
+                  name: 'singlesDrills',
+                  label: 'Singles session drills',
+                  type: 'relationship',
+                  relationTo: 'drills',
+                  hasMany: true,
+                  maxDepth: 1,
+                },
+                {
+                  name: 'doublesDrills',
+                  label: 'Doubles session drills',
+                  type: 'relationship',
+                  relationTo: 'drills',
+                  hasMany: true,
+                  maxDepth: 1,
+                },
+                {
+                  name: 'singlesHomeDrills',
+                  label: 'Singles home-practice drills',
+                  type: 'relationship',
+                  relationTo: 'drills',
+                  hasMany: true,
+                  maxDepth: 1,
+                  filterOptions: { practiceSetting: { equals: 'home' } },
+                },
+                {
+                  name: 'doublesHomeDrills',
+                  label: 'Doubles home-practice drills',
+                  type: 'relationship',
+                  relationTo: 'drills',
+                  hasMany: true,
+                  maxDepth: 1,
+                  filterOptions: { practiceSetting: { equals: 'home' } },
+                },
+              ],
             },
             {
               name: 'homePracticeInstructions',
@@ -568,6 +629,22 @@ export const StudentProfiles: CollectionConfig = {
       },
     },
     {
+      name: 'trainingDurationMinutes',
+      label: 'Program training duration',
+      type: 'number',
+      min: 60,
+      max: 120,
+      defaultValue: 60,
+      validate: (value: unknown) =>
+        value == null || isSessionDuration(value) || 'Choose a duration of 60, 90, or 120 minutes.',
+      admin: {
+        position: 'sidebar',
+        step: 30,
+        description:
+          'Applies to every planned and scheduled lesson in this player’s current program.',
+      },
+    },
+    {
       name: 'goals',
       type: 'textarea',
       admin: {
@@ -730,7 +807,32 @@ export const TrainingSessions: CollectionConfig = {
     { name: 'lessonWeek', type: 'number', min: 1, index: true },
     { name: 'objective', type: 'textarea' },
     { name: 'successCriteria', type: 'textarea' },
-    { name: 'durationMinutes', type: 'number', min: 1, defaultValue: 90 },
+    {
+      name: 'durationMinutes',
+      label: 'Training duration',
+      type: 'number',
+      required: true,
+      min: 60,
+      max: 120,
+      defaultValue: 60,
+      validate: (value: unknown) =>
+        isSessionDuration(value) || 'Choose a duration of 60, 90, or 120 minutes.',
+      admin: {
+        step: 30,
+        description:
+          'Choose 60, 90, or 120 minutes. The coaching plan redistributes time across all session blocks.',
+      },
+    },
+    {
+      name: 'durationIsOverride',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        hidden: true,
+        description:
+          'True when this session intentionally differs from the player’s program duration.',
+      },
+    },
     {
       name: 'skills',
       label: 'Skills developed and scored',
@@ -745,15 +847,42 @@ export const TrainingSessions: CollectionConfig = {
     },
     {
       name: 'scheduledAt',
+      label: 'Student-booked session time',
       type: 'date',
       index: true,
       admin: {
         description:
-          'Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.',
+          'The student books the court and confirms the reserved date and time from their dashboard.',
         date: { pickerAppearance: 'dayAndTime' },
       },
     },
-    { name: 'location', type: 'text' },
+    {
+      name: 'location',
+      label: 'Booked court',
+      type: 'text',
+      admin: {
+        description:
+          'Court name, branch and address supplied by the student after booking the venue.',
+      },
+    },
+    {
+      name: 'courtBookedByStudent',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        readOnly: true,
+        description: 'Confirms that the student supplied this court booking.',
+      },
+    },
+    {
+      name: 'courtBookingUpdatedAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'Most recent time the student confirmed or changed the court booking.',
+      },
+    },
     {
       name: 'status',
       type: 'select',
@@ -1167,8 +1296,9 @@ export const CoachAvailability: CollectionConfig = {
   admin: {
     group: 'Training',
     useAsTitle: 'startsAt',
-    defaultColumns: ['startsAt', 'coach', 'durationMinutes', 'location', 'status'],
-    description: 'Add the times that players can choose when booking an initial assessment.',
+    defaultColumns: ['startsAt', 'coach', 'durationMinutes', 'status'],
+    description:
+      'Add the times that players can choose. The player coordinates and supplies the booked court.',
   },
   fields: [
     {
@@ -1187,7 +1317,6 @@ export const CoachAvailability: CollectionConfig = {
       admin: { date: { pickerAppearance: 'dayAndTime' } },
     },
     { name: 'durationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
-    { name: 'location', type: 'text', required: true },
     {
       name: 'status',
       type: 'select',
@@ -1213,7 +1342,7 @@ export const CoachAvailabilityRules: CollectionConfig = {
     useAsTitle: 'label',
     defaultColumns: ['label', 'coach', 'weekday', 'startTime', 'endTime', 'active'],
     description:
-      'Set a repeating weekly window. Individual assessment times are created automatically from it.',
+      'Set a repeating weekly time window. Students choose one of these times and supply the court they booked.',
   },
   fields: [
     {
@@ -1259,7 +1388,6 @@ export const CoachAvailabilityRules: CollectionConfig = {
       admin: { description: '24-hour Manila time. Must be later than the start time.' },
     },
     { name: 'slotDurationMinutes', type: 'number', required: true, min: 15, defaultValue: 60 },
-    { name: 'location', type: 'text', required: true },
     { name: 'active', type: 'checkbox', required: true, defaultValue: true, index: true },
   ],
 }

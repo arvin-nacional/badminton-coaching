@@ -1038,12 +1038,24 @@ export interface Program {
       title: string;
       lessonType: 'technical' | 'movement' | 'tactical' | 'match-play' | 'assessment';
       objective: string;
+      /**
+       * Program sessions start at 60 minutes. Coaches can adjust an individual session to 90 or 120 minutes.
+       */
       durationMinutes: number;
       /**
        * Automatically derived from the lesson drills. Generated sessions and coach scorecards use this exact list.
        */
       skills: (string | Skill)[];
       drills: (string | Drill)[];
+      /**
+       * Optional event-specific court and home drills. The player’s preferred event selects the matching branch.
+       */
+      eventVariants?: {
+        singlesDrills?: (string | Drill)[] | null;
+        doublesDrills?: (string | Drill)[] | null;
+        singlesHomeDrills?: (string | Drill)[] | null;
+        doublesHomeDrills?: (string | Drill)[] | null;
+      };
       /**
        * Weekly guidance shown to the student above the generated home-practice drills.
        */
@@ -1278,6 +1290,10 @@ export interface StudentProfile {
    */
   preferredEvent?: ('singles' | 'doubles' | 'both' | 'not-sure') | null;
   /**
+   * Applies to every planned and scheduled lesson in this player’s current program.
+   */
+  trainingDurationMinutes?: number | null;
+  /**
    * What the student wants to achieve. Captured during onboarding.
    */
   goals?: string | null;
@@ -1343,16 +1359,34 @@ export interface TrainingSession {
   lessonWeek?: number | null;
   objective?: string | null;
   successCriteria?: string | null;
-  durationMinutes?: number | null;
+  /**
+   * Choose 60, 90, or 120 minutes. The coaching plan redistributes time across all session blocks.
+   */
+  durationMinutes: number;
+  /**
+   * True when this session intentionally differs from the player’s program duration.
+   */
+  durationIsOverride?: boolean | null;
   /**
    * The session plan and coach scorecards share this list. Program sessions copy it from the program lesson.
    */
   skills?: (string | Skill)[] | null;
   /**
-   * Program sessions begin as planned. Set a date and change the status to Scheduled when confirmed.
+   * The student books the court and confirms the reserved date and time from their dashboard.
    */
   scheduledAt?: string | null;
+  /**
+   * Court name, branch and address supplied by the student after booking the venue.
+   */
   location?: string | null;
+  /**
+   * Confirms that the student supplied this court booking.
+   */
+  courtBookedByStudent?: boolean | null;
+  /**
+   * Most recent time the student confirmed or changed the court booking.
+   */
+  courtBookingUpdatedAt?: string | null;
   status: 'planned' | 'scheduled' | 'completed' | 'cancelled' | 'missed';
   completedAt?: string | null;
   attendance?: ('pending' | 'present' | 'late' | 'absent' | 'excused') | null;
@@ -1453,7 +1487,7 @@ export interface CoachingEvent {
   createdAt: string;
 }
 /**
- * Add the times that players can choose when booking an initial assessment.
+ * Add the times that players can choose. The player coordinates and supplies the booked court.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "coach-availability".
@@ -1463,13 +1497,12 @@ export interface CoachAvailability {
   coach: string | User;
   startsAt: string;
   durationMinutes: number;
-  location: string;
   status: 'open' | 'blocked';
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Set a repeating weekly window. Individual assessment times are created automatically from it.
+ * Set a repeating weekly time window. Students choose one of these times and supply the court they booked.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "coach-availability-rules".
@@ -1491,7 +1524,6 @@ export interface CoachAvailabilityRule {
    */
   endTime: string;
   slotDurationMinutes: number;
-  location: string;
   active: boolean;
   updatedAt: string;
   createdAt: string;
@@ -2437,6 +2469,14 @@ export interface ProgramsSelect<T extends boolean = true> {
               durationMinutes?: T;
               skills?: T;
               drills?: T;
+              eventVariants?:
+                | T
+                | {
+                    singlesDrills?: T;
+                    doublesDrills?: T;
+                    singlesHomeDrills?: T;
+                    doublesHomeDrills?: T;
+                  };
               homePracticeInstructions?: T;
               homeDrills?: T;
               independentPractice?: T;
@@ -2542,6 +2582,7 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   lastTrainingAt?: T;
   playingExperience?: T;
   preferredEvent?: T;
+  trainingDurationMinutes?: T;
   goals?: T;
   trainingAvailability?: T;
   injuryConsiderations?: T;
@@ -2572,9 +2613,12 @@ export interface TrainingSessionsSelect<T extends boolean = true> {
   objective?: T;
   successCriteria?: T;
   durationMinutes?: T;
+  durationIsOverride?: T;
   skills?: T;
   scheduledAt?: T;
   location?: T;
+  courtBookedByStudent?: T;
+  courtBookingUpdatedAt?: T;
   status?: T;
   completedAt?: T;
   attendance?: T;
@@ -2710,7 +2754,6 @@ export interface CoachAvailabilitySelect<T extends boolean = true> {
   coach?: T;
   startsAt?: T;
   durationMinutes?: T;
-  location?: T;
   status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2726,7 +2769,6 @@ export interface CoachAvailabilityRulesSelect<T extends boolean = true> {
   startTime?: T;
   endTime?: T;
   slotDurationMinutes?: T;
-  location?: T;
   active?: T;
   updatedAt?: T;
   createdAt?: T;
