@@ -27,6 +27,7 @@ import {
   Stat,
 } from '@/components/Dashboard/UI'
 import type { Drill, Skill, StudentProfile } from '@/payload-types'
+import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
 import { isAdmin, isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 
 export default async function CoachDashboardPage() {
@@ -138,7 +139,10 @@ export default async function CoachDashboardPage() {
   )
   const assessmentNeeded = profiles.docs.filter(
     (profile) =>
-      profile.assessmentStatus === 'required' && !bookedAssessmentStudentIDs.has(profile.id),
+      resolveAssessmentStatus(
+        profile.assessmentStatus,
+        bookedAssessmentStudentIDs.has(profile.id),
+      ) === 'required',
   )
   const inactiveStudents = profiles.docs.filter(
     (profile) => !profile.lastTrainingAt || new Date(profile.lastTrainingAt) < fourteenDaysAgo,
@@ -178,7 +182,10 @@ export default async function CoachDashboardPage() {
       })
     return {
       assessmentRequired:
-        profile.assessmentStatus === 'required' && !bookedAssessmentStudentIDs.has(profile.id),
+        resolveAssessmentStatus(
+          profile.assessmentStatus,
+          bookedAssessmentStudentIDs.has(profile.id),
+        ) === 'required',
       attendance: profile.attendanceRate,
       currentWeek: profile.currentProgramWeek,
       lessonTitle:

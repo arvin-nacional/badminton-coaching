@@ -17,6 +17,7 @@ import { syncProgramLessonSkills } from './syncProgramLessonSkills'
 import { syncProgramTrainingSessions } from './syncProgramTrainingSessions'
 import { syncSessionSkillScores } from './syncSessionSkillScores'
 import { syncSkillProgressFromScore } from './syncSkillProgressFromScore'
+import { syncStudentProfileAfterAssessmentDelete } from './syncStudentProfileAfterAssessmentDelete'
 import { syncStudentProfileFromTrainingSession } from './syncStudentProfileFromTrainingSession'
 
 const relationshipID = (value: unknown): string | null => {
@@ -1428,6 +1429,7 @@ export const CoachAvailabilityRules: CollectionConfig = {
 export const AssessmentBookings: CollectionConfig = {
   slug: 'assessment-bookings',
   labels: { singular: 'Assessment Booking', plural: 'Assessment Bookings' },
+  hooks: { afterDelete: [syncStudentProfileAfterAssessmentDelete] },
   access: {
     create: staffOnly,
     delete: staffOnly,

@@ -24,6 +24,7 @@ import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPrac
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
 import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
 import type { PracticeLibrary, Skill } from '@/payload-types'
+import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 import { getCachedProgram } from '@/utilities/getCachedProgram'
 
@@ -248,7 +249,10 @@ export default async function StudentDashboardPage() {
     .slice(0, 3)
   const bookingSession = bookingSessions.docs[0]
   const assessmentBooking = assessmentBookings.docs[0]
-  const assessmentStatus = assessmentBooking ? 'scheduled' : profile.assessmentStatus
+  const assessmentStatus = resolveAssessmentStatus(
+    profile.assessmentStatus,
+    Boolean(assessmentBooking),
+  )
   const completedSkills = skillProgress.docs.filter((item) =>
     ['game-ready', 'pressure-ready'].includes(item.stage),
   )
