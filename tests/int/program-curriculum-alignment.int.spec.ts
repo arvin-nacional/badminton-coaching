@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { programHomePracticeInstructions } from '@/collections/Coaching/syncProgramHomePractices'
@@ -8,6 +11,7 @@ import {
   homeDrillsForLesson,
   programHomeDrillAssignments,
 } from '@/endpoints/seed/coaching'
+import { drillIllustrationFor } from '@/utilities/drillIllustration'
 
 describe('program curriculum alignment', () => {
   const drillByName = new Map(coachingDrills.map((drill) => [drill.name, drill]))
@@ -99,5 +103,24 @@ describe('program curriculum alignment', () => {
     )
 
     expect(homeDrills).not.toContain('Low Serve Floor Targets')
+  })
+
+  it('provides a local illustration for every court drill', () => {
+    const courtDrills = coachingDrills.filter((drill) => drill.practiceSetting !== 'home')
+    const illustrationURLs = courtDrills.map((drill) => drill.illustrationURL)
+
+    expect(courtDrills).toHaveLength(18)
+    expect(illustrationURLs.every(Boolean)).toBe(true)
+    expect(new Set(illustrationURLs).size).toBe(courtDrills.length)
+
+    for (const illustrationURL of illustrationURLs) {
+      expect(existsSync(path.join(process.cwd(), 'public', illustrationURL!))).toBe(true)
+    }
+  })
+
+  it('falls back to the reviewed court artwork for existing drill records', () => {
+    expect(drillIllustrationFor({ name: 'Low Serve Gate', illustrationURL: null })).toBe(
+      '/images/drills/low-serve-gate.png',
+    )
   })
 })
