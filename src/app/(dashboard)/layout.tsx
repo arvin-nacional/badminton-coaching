@@ -34,7 +34,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 <>
                   <LogoutButton />
                   <Link
-                    href="/dashboard"
+                    href={
+                      !user.roles?.length ||
+                      user.roles.includes('admin') ||
+                      user.roles.includes('coach')
+                        ? '/dashboard/coach'
+                        : '/dashboard/student'
+                    }
                     className="rounded-full bg-[#092c59] px-5 py-2.5 text-white"
                   >
                     My dashboard

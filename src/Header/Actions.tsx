@@ -22,10 +22,18 @@ export function HeaderActions({ data, mobile = false }: { data: Header; mobile?:
       />
     )
 
-  if (user)
+  if (user) {
+    // Route directly to the role-specific dashboard to avoid the extra
+    // /dashboard → /dashboard/student (or /dashboard/coach) redirect hop.
+    const roles = user.roles || []
+    const dashboardHref =
+      !roles.length || roles.includes('admin') || roles.includes('coach')
+        ? '/dashboard/coach'
+        : '/dashboard/student'
+
     return (
       <Link
-        href="/dashboard"
+        href={dashboardHref}
         className={`${
           mobile ? 'w-full justify-center' : ''
         } flex items-center gap-2 rounded-full bg-[#092c59] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#1677ff]`}
@@ -33,6 +41,7 @@ export function HeaderActions({ data, mobile = false }: { data: Header; mobile?:
         <LayoutDashboard className="h-4 w-4" /> My dashboard
       </Link>
     )
+  }
 
   return (
     <>
