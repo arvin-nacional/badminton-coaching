@@ -1,12 +1,10 @@
-import config from '@payload-config'
 import type { Metadata } from 'next'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { headers } from 'next/headers'
 import Link from 'next/link'
-import { getPayload } from 'payload'
 
 import { LogoutButton } from '@/components/Dashboard/LogoutButton'
+import { getDashboardUser } from '@/utilities/dashboardAuth'
 import { cn } from '@/utilities/ui'
 
 import '../(frontend)/globals.css'
@@ -14,8 +12,9 @@ import '../(frontend)/globals.css'
 export const metadata: Metadata = { title: 'Dashboard | Next Shot' }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
+  // getDashboardUser is wrapped in React cache(), so this shares the same
+  // payload.auth() result as the dashboard page — no duplicate auth call.
+  const { user } = await getDashboardUser()
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} data-theme="light" lang="en">
