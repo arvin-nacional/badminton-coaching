@@ -129,10 +129,16 @@ describe('program curriculum alignment', () => {
     expect(stripSessionTimePrefix('10 min — Rehearse split steps.')).toBe('Rehearse split steps.')
   })
 
-  it('selects dedicated, compatible singles and doubles branches for every program week', () => {
+  it('uses compatible event branches only where the curriculum calls for specialization', () => {
     for (const program of coachingPrograms) {
+      const expectedBranchedWeeks =
+        program.name === 'Badminton Foundations'
+          ? [9, 10, 11]
+          : Array.from({ length: program.durationWeeks }, (_, index) => index + 1)
+
       for (const lesson of program.phases.flatMap((phase) => phase.lessons)) {
-        expect(lesson.eventVariants).toBeDefined()
+        expect(Boolean(lesson.eventVariants)).toBe(expectedBranchedWeeks.includes(lesson.week))
+        if (!lesson.eventVariants) continue
 
         for (const event of ['singles', 'doubles'] as const) {
           const sessionDrills = programLessonDrillsForEvent(lesson, event)
@@ -141,9 +147,10 @@ describe('program curriculum alignment', () => {
           expect(sessionDrills.length).toBeGreaterThanOrEqual(2)
           expect(homeDrills.length).toBeGreaterThanOrEqual(2)
           expect(buildSessionTiming(90, sessionDrills.length).total).toBe(90)
-          expect(sessionDrills.some((name) => drillByName.get(name)?.eventType === event)).toBe(
-            true,
-          )
+          expect(
+            sessionDrills.some((name) => drillByName.get(name)?.eventType === event),
+            `${program.name} ${event} week ${lesson.week} needs an event-specific session drill`,
+          ).toBe(true)
           expect(homeDrills.some((name) => drillByName.get(name)?.eventType === event)).toBe(true)
 
           for (const drillName of sessionDrills) {
@@ -179,6 +186,41 @@ describe('program curriculum alignment', () => {
     expect(programLessonDrillsForEvent(lessons[1], 'both')).toEqual(
       lessons[1].eventVariants?.doublesDrills,
     )
+  })
+
+  it('keeps Foundations shared until late-phase event introductions', () => {
+    const foundations = coachingPrograms.find(
+      (program) => program.name === 'Badminton Foundations',
+    )!
+    const lessons = foundations.phases.flatMap((phase) => phase.lessons)
+
+    for (const lesson of lessons) {
+      if (lesson.week <= 8 || lesson.week === 12) {
+        expect(lesson.eventVariants).toBeUndefined()
+        expect(programLessonDrillsForEvent(lesson, 'singles')).toEqual(lesson.drills)
+        expect(programLessonDrillsForEvent(lesson, 'doubles')).toEqual(lesson.drills)
+      }
+
+      for (const event of ['singles', 'doubles'] as const) {
+        const selected = programLessonDrillsForEvent(lesson, event)
+        expect(selected).not.toContain('Singles Corner Pressure Rally')
+        expect(selected).not.toContain('Doubles First Four Shots')
+        expect(selected.every((name) => (drillByName.get(name)?.numberOfPlayers || 0) <= 2)).toBe(
+          true,
+        )
+        if ([9, 10, 11].includes(lesson.week)) expect(selected).toHaveLength(2)
+      }
+    }
+
+    expect(lessons.find((lesson) => lesson.week === 1)?.eventVariants).toBeUndefined()
+    expect(lessons.find((lesson) => lesson.week === 12)?.eventVariants).toBeUndefined()
+    expect(drillByName.get('Low Serve Gate')?.eventType).toBe('general')
+    expect(drillByName.get('Low Serve Floor Targets')?.eventType).toBe('general')
+
+    const rallyLadder = drillByName.get('Progressive Rally Ladder')
+    expect(rallyLadder?.instructions).toMatch(/5 consecutive legal shots/i)
+    expect(rallyLadder?.instructions).toMatch(/then 10, then 15/i)
+    expect(rallyLadder?.successTarget).toMatch(/5-, 10- and 15-shot levels/i)
   })
 
   it('limits repeated competitive scenarios and removes the fixed 18-all prescription', () => {
@@ -249,7 +291,7 @@ describe('program curriculum alignment', () => {
     const courtDrills = coachingDrills.filter((drill) => drill.practiceSetting !== 'home')
     const illustrationURLs = courtDrills.map((drill) => drill.illustrationURL)
 
-    expect(courtDrills).toHaveLength(24)
+    expect(courtDrills).toHaveLength(25)
     expect(illustrationURLs.every(Boolean)).toBe(true)
     expect(new Set(illustrationURLs).size).toBe(courtDrills.length)
 

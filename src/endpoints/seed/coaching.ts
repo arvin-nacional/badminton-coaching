@@ -170,39 +170,39 @@ const programs: ProgramSeed[] = [
         lessons: [
           lesson(
             4,
-            'Overhead clear foundations',
+            'Net control and stable lunge',
             'technical',
-            'Create safe height and length using early preparation and overhead contact.',
-            ['Clear to Targets', 'Grip Change Tap-Ups'],
-            'Complete 3 x 8 controlled overhead shadows, then reinforce relaxed grip changes with one racket-control circuit.',
-            'Places 8 of 10 clears beyond the doubles service line.',
+            'Play a controlled net shot from a balanced lunge and recover without rushing.',
+            ['Lunge, Net and Recover', 'Grip Change Tap-Ups'],
+            'Complete the lunge-and-balance circuit, then reinforce relaxed grip changes with one racket-control circuit.',
+            'Plays and recovers from 8 of 10 net feeds without losing balance.',
           ),
           lesson(
             5,
-            'Clear and rear-court recovery',
-            'movement',
-            'Link the overhead clear to an immediate balanced recovery.',
-            ['Clear to Targets', 'Rear-Court Clear and Recovery'],
-            'Complete the compact-footwork circuit for controlled rear-court movement, then 3 x 8 overhead-shadow repetitions with an immediate balanced recovery.',
-            'Recovers before the feeder begins the next action in 8 of 10 feeds.',
-          ),
-          lesson(
-            6,
-            'Reliable service starts',
-            'technical',
-            'Develop a repeatable low serve and understand legal service preparation.',
-            ['Low Serve Gate', 'Twenty-Shot Cooperative Rally'],
-            'Complete one solo racket-control circuit to prime the thumb-led grip, then complete 4 rounds of 10 low serves and record target hits.',
-            'Achieves at least 80% legal serves with controlled height.',
-          ),
-          lesson(
-            7,
             'Lift for time and length',
             'technical',
-            'Use the lift to move the opponent back and regain court position.',
+            'Use forehand and backhand lifts to create recovery time from the forecourt.',
             ['Lift for Length', 'Lunge, Net and Recover'],
             'Complete the compact-footwork circuit with controlled front-corner approaches, then the lunge-and-balance circuit that supports a stable underarm lift.',
             'Reaches the rear target and recovers on 8 of 10 feeds.',
+          ),
+          lesson(
+            6,
+            'Low and high service starts',
+            'technical',
+            'Develop repeatable low and high serves with legal preparation and immediate recovery.',
+            ['Low Serve Gate', 'High Serve and First Recovery'],
+            'Complete the low-serve target circuit, then rehearse the high-serve action through controlled overhead shadows and a balanced first recovery.',
+            'Places 8 of 10 serves legally into the intended low or deep target.',
+          ),
+          lesson(
+            7,
+            'Overhead preparation and throwing action',
+            'technical',
+            'Build a relaxed side-on preparation and high contact before adding clear distance.',
+            ['Grip Change Tap-Ups', 'Clear to Targets'],
+            'Complete the racket-control circuit, then 3 x 8 controlled overhead shadows with safe clearance and balanced recovery.',
+            'Shows a relaxed preparation and high contact shape in 8 of 10 repetitions.',
           ),
         ],
       },
@@ -215,12 +215,12 @@ const programs: ProgramSeed[] = [
         lessons: [
           lesson(
             8,
-            'Forecourt control',
-            'technical',
-            'Approach, play and recover from the forecourt with a stable lunge.',
-            ['Lunge, Net and Recover', 'Lift for Length'],
-            'Complete the compact footwork circuit with extra attention to balanced front-corner lunges, then respond to random direction cues and recover to the same base.',
-            'Selects net or lift appropriately and finishes balanced in 8 of 10 feeds.',
+            'Clear and rear-court recovery',
+            'movement',
+            'Link a controlled overhead clear to an immediate balanced recovery.',
+            ['Clear to Targets', 'Rear-Court Clear and Recovery'],
+            'Complete the overhead-shadow circuit, then use the rear markers in the compact-footwork circuit and recover immediately after every imagined clear.',
+            'Places 8 of 10 clears beyond the doubles service line and recovers before the next feed.',
           ),
           lesson(
             9,
@@ -236,9 +236,9 @@ const programs: ProgramSeed[] = [
             'Build a controlled rally',
             'match-play',
             'Sustain a rally using safe height, length and recovery.',
-            ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'],
+            ['Progressive Rally Ladder', 'Rear-Court Clear and Recovery'],
             'Complete the solo racket-control circuit for repeatable contacts, then rehearse controlled overhead preparation and recovery to base.',
-            'Completes three rallies of at least 20 shots with functional recovery.',
+            'Completes the 5-, 10- and 15-shot rally levels with functional recovery.',
           ),
         ],
       },
@@ -267,7 +267,7 @@ const programs: ProgramSeed[] = [
             'Foundations progress assessment',
             'assessment',
             'Demonstrate the core movement, serve, clear, lift and rally standards.',
-            ['Low Serve Gate', 'Clear to Targets', 'Twenty-Shot Cooperative Rally'],
+            ['Low Serve Gate', 'Clear to Targets', 'Progressive Rally Ladder'],
             'Complete the low-serve, overhead-shadow and compact-footwork benchmarks at a controlled pace, then record the weakest result as the next training priority.',
             'Meets the completion target for at least three drills and identifies the next priority.',
           ),
@@ -294,7 +294,7 @@ const programs: ProgramSeed[] = [
             'Development movement baseline',
             'assessment',
             'Measure split-step timing, corner efficiency and recovery quality.',
-            ['Random Six-Corner Feeding', 'Twenty-Shot Cooperative Rally'],
+            ['Random Six-Corner Feeding', 'Progressive Rally Ladder'],
             'Complete the compact six-corner footwork and reactive split-step cue circuits, then record the least stable direction and one repeated timing issue.',
             'Completes at least 10 of 12 random feeds with a balanced recovery and sustains a 20-shot cooperative rally with functional recovery.',
           ),
@@ -393,7 +393,7 @@ const programs: ProgramSeed[] = [
             'Rally construction through length and space',
             'tactical',
             'Move the opponent deep before using the forecourt with purpose.',
-            ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'],
+            ['Progressive Rally Ladder', 'Clear-Drop Decision Rally'],
             'Complete the overhead-shadow circuit, then the compact-footwork circuit, alternating a deep-clear movement with a drop follow-up and balanced recovery.',
             'Makes the correct clear-or-drop choice in 8 of 10 reviewed rallies.',
           ),
@@ -429,7 +429,7 @@ const programs: ProgramSeed[] = [
             'Consistency under direction change',
             'match-play',
             'Maintain shot quality while moving the shuttle between front and rear court.',
-            ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'],
+            ['Progressive Rally Ladder', 'Clear-Drop Decision Rally'],
             'Complete the overhead-shadow and compact-footwork circuits, then record whether preparation, direction change or recovery caused the most errors.',
             'Sustains a 20-shot rally while including four controlled changes of direction.',
           ),
@@ -531,7 +531,7 @@ const programs: ProgramSeed[] = [
             'Confirm the performance plan',
             'assessment',
             'Translate baseline evidence into two measurable competition priorities.',
-            ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
+            ['Regulation Interval Simulation', 'Progressive Rally Ladder'],
             'Use the reset-and-rally rehearsal to state and physically shadow two controllable process goals, then complete the shoulder-and-core circuit with relaxed posture.',
             'Can state, demonstrate and measure both selected priorities.',
           ),
@@ -625,7 +625,7 @@ const programs: ProgramSeed[] = [
             'Between-rally reset',
             'match-play',
             'Use a short physical and mental reset after both wins and errors.',
-            ['Twenty-Shot Cooperative Rally', 'Three-Shot Attack Pattern'],
+            ['Progressive Rally Ladder', 'Three-Shot Attack Pattern'],
             'Complete the reset-and-rally rehearsal, then use the shoulder-and-core circuit to reinforce relaxed breathing, loose grip, stable posture and physical control.',
             'Completes the routine independently before 9 of 10 rallies.',
           ),
@@ -735,97 +735,31 @@ const eventBranch = (
 })
 
 export const foundationEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
-  1: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Doubles First Four Shots',
-    ['Grip Change Tap-Ups', 'Four-Corner Shadow Rhythm'],
-    'Solo Racket Control Circuit',
-    'Solo Racket Control Circuit',
-  ),
-  2: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Low Serve Gate',
-    ['Grip Change Tap-Ups'],
-    'Solo Racket Control Circuit',
-    'Low Serve Floor Targets',
-  ),
-  3: eventBranch(
-    'Singles Straight Lift Recovery',
-    'Doubles First Four Shots',
-    ['Four-Corner Shadow Rhythm', 'Lunge, Net and Recover'],
-    'Compact Home Footwork',
-    'Compact Home Footwork',
-  ),
-  4: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Doubles First Four Shots',
-    ['Clear to Targets', 'Grip Change Tap-Ups'],
-    'Overhead Shadow Technique',
-    'Overhead Shadow Technique',
-  ),
-  5: eventBranch(
-    'Singles Straight Lift Recovery',
-    'Doubles First Four Shots',
-    ['Rear-Court Clear and Recovery', 'Clear to Targets'],
-    'Compact Home Footwork',
-    'Compact Home Footwork',
-  ),
-  6: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Low Serve Gate',
-    ['Twenty-Shot Cooperative Rally'],
-    'Solo Racket Control Circuit',
-    'Low Serve Floor Targets',
-  ),
-  7: eventBranch(
-    'Singles Straight Lift Recovery',
-    'Doubles First Four Shots',
-    ['Lift for Length', 'Lunge, Net and Recover'],
-    'Lunge Balance and Leg Strength',
-    'Lunge Balance and Leg Strength',
-  ),
-  8: eventBranch(
-    'Singles Straight Lift Recovery',
-    'Doubles First Four Shots',
-    ['Lunge, Net and Recover', 'Lift for Length'],
-    'Reactive Split-Step Cues',
-    'Reactive Split-Step Cues',
-  ),
-  9: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Low Serve Gate',
-    ['Lift for Length'],
-    'Reactive Split-Step Cues',
-    'Low Serve Floor Targets',
-  ),
-  10: eventBranch(
-    'Singles Corner Pressure Rally',
-    'Doubles First Four Shots',
-    ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'],
-    'Overhead Shadow Technique',
-    'Solo Racket Control Circuit',
-  ),
-  11: eventBranch(
-    'Singles Straight Lift Recovery',
-    'Doubles First Four Shots',
-    ['Four-Corner Shadow Rhythm', 'Rear-Court Clear and Recovery'],
-    'Compact Home Footwork',
-    'Reactive Split-Step Cues',
-  ),
-  12: eventBranch(
-    'Singles High Serve and Base Recovery',
-    'Doubles First Four Shots',
-    ['Clear to Targets', 'Twenty-Shot Cooperative Rally'],
-    'Overhead Shadow Technique',
-    'Low Serve Floor Targets',
-  ),
+  9: {
+    singlesDrills: ['High Serve and First Recovery', 'Singles Straight Lift Recovery'],
+    doublesDrills: ['Low Serve Gate', 'Doubles Serve and Return Start'],
+    singlesHomeDrills: ['Singles Base Recovery Shadow', 'Reactive Split-Step Cues'],
+    doublesHomeDrills: ['Doubles First-Four-Shot Shadow', 'Low Serve Floor Targets'],
+  },
+  10: {
+    singlesDrills: ['Progressive Rally Ladder', 'Singles Straight Lift Recovery'],
+    doublesDrills: ['Progressive Rally Ladder', 'Doubles Serve and Return Start'],
+    singlesHomeDrills: ['Singles Base Recovery Shadow', 'Overhead Shadow Technique'],
+    doublesHomeDrills: ['Doubles First-Four-Shot Shadow', 'Solo Racket Control Circuit'],
+  },
+  11: {
+    singlesDrills: ['Rear-Court Clear and Recovery', 'Singles Straight Lift Recovery'],
+    doublesDrills: ['Rear-Court Clear and Recovery', 'Doubles Serve and Return Start'],
+    singlesHomeDrills: ['Singles Base Recovery Shadow', 'Compact Home Footwork'],
+    doublesHomeDrills: ['Doubles First-Four-Shot Shadow', 'Reactive Split-Step Cues'],
+  },
 }
 
 export const developmentEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
   1: eventBranch(
     'Random Six-Corner Feeding',
     'Attack-Defence Rotation',
-    ['Twenty-Shot Cooperative Rally'],
+    ['Progressive Rally Ladder'],
     'Reactive Split-Step Cues',
     'Reactive Split-Step Cues',
   ),
@@ -888,7 +822,7 @@ export const developmentEventBranches: Record<number, NonNullable<LessonSeed['ev
   10: eventBranch(
     'Clear-Drop Decision Rally',
     'Doubles Defence-to-Attack No-Lift',
-    ['Twenty-Shot Cooperative Rally'],
+    ['Progressive Rally Ladder'],
     'Overhead Shadow Technique',
     'Wall Drive and Defence',
   ),
@@ -902,14 +836,14 @@ export const developmentEventBranches: Record<number, NonNullable<LessonSeed['ev
   12: eventBranch(
     'Singles Corner Pressure Rally',
     'Attack-Defence Rotation',
-    ['Twenty-Shot Cooperative Rally'],
+    ['Progressive Rally Ladder'],
     'Reactive Split-Step Cues',
     'Wall Drive and Defence',
   ),
   13: eventBranch(
     'Clear-Drop Decision Rally',
     'Doubles Front-Player Interception',
-    ['Twenty-Shot Cooperative Rally'],
+    ['Progressive Rally Ladder'],
     'Overhead Shadow Technique',
     'Reactive Split-Step Cues',
   ),
@@ -970,8 +904,8 @@ export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['ev
     doublesHomeDrills: ['Low Serve Floor Targets', 'Wall Drive and Defence'],
   },
   5: {
-    singlesDrills: ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
-    doublesDrills: ['Regulation Interval Simulation', 'Twenty-Shot Cooperative Rally'],
+    singlesDrills: ['Regulation Interval Simulation', 'Progressive Rally Ladder'],
+    doublesDrills: ['Regulation Interval Simulation', 'Progressive Rally Ladder'],
     singlesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
     doublesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
   },
@@ -1026,8 +960,8 @@ export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['ev
     doublesHomeDrills: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
   },
   13: {
-    singlesDrills: ['Twenty-Shot Cooperative Rally', 'Three-Shot Attack Pattern'],
-    doublesDrills: ['Twenty-Shot Cooperative Rally', 'Drive Channel Exchange'],
+    singlesDrills: ['Progressive Rally Ladder', 'Three-Shot Attack Pattern'],
+    doublesDrills: ['Progressive Rally Ladder', 'Drive Channel Exchange'],
     singlesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
     doublesHomeDrills: ['Reset and Rally Rehearsal', 'Shoulder and Core Control'],
   },
@@ -1091,11 +1025,7 @@ export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['ev
       'Clear-Drop Decision Rally',
       'Regulation Interval Simulation',
     ],
-    doublesDrills: [
-      'Low Serve Gate',
-      'Three-Shot Attack Pattern',
-      'Regulation Interval Simulation',
-    ],
+    doublesDrills: ['Low Serve Gate', 'Doubles First Four Shots', 'Regulation Interval Simulation'],
     singlesHomeDrills: ['Overhead Shadow Technique', 'Reset and Rally Rehearsal'],
     doublesHomeDrills: ['Low Serve Floor Targets', 'Reset and Rally Rehearsal'],
   },
@@ -1128,14 +1058,13 @@ const singlesSessionDrills = new Set([
   'Random Six-Corner Feeding',
   'Clear-Drop Decision Rally',
   'Net-Lift-Kill Progression',
-  'Singles High Serve and Base Recovery',
   'Singles Straight Lift Recovery',
   'Singles Corner Pressure Rally',
 ])
 const doublesSessionDrills = new Set([
-  'Low Serve Gate',
   'Drive Channel Exchange',
   'Attack-Defence Rotation',
+  'Doubles Serve and Return Start',
   'Doubles First Four Shots',
   'Doubles Front-Player Interception',
   'Doubles Defence-to-Attack No-Lift',
@@ -1144,7 +1073,7 @@ const singlesHomeDrills = new Set([
   'High-Intensity Shadow Intervals',
   'Singles Base Recovery Shadow',
 ])
-const doublesHomeDrills = new Set(['Low Serve Floor Targets', 'Doubles First-Four-Shot Shadow'])
+const doublesHomeDrills = new Set(['Doubles First-Four-Shot Shadow'])
 
 for (const program of programs) {
   const branches = eventBranchesByProgram[program.name]
@@ -1353,7 +1282,7 @@ const drills: DrillSeed[] = [
     name: 'Low Serve Floor Targets',
     skill: 'Backhand short serve',
     level: 'foundations',
-    eventType: 'doubles',
+    eventType: 'general',
     practiceSetting: 'home',
     ...lowServeFloorTargetContent,
     numberOfPlayers: 1,
@@ -1573,7 +1502,7 @@ const drills: DrillSeed[] = [
     name: 'Low Serve Gate',
     skill: 'Backhand short serve',
     level: 'foundations',
-    eventType: 'doubles',
+    eventType: 'general',
     illustrationURL: '/images/drills/low-serve-gate.png',
     equipment: 'Racket, 20 shuttles and a tape or gate above the net',
     numberOfPlayers: 1,
@@ -1589,20 +1518,20 @@ const drills: DrillSeed[] = [
     completionRequirement: 'Starts a conditioned service game with 80% target accuracy.',
   },
   {
-    name: 'Singles High Serve and Base Recovery',
+    name: 'High Serve and First Recovery',
     skill: 'Forehand high serve',
     level: 'foundations',
-    eventType: 'singles',
+    eventType: 'general',
     illustrationURL: '/images/drills/singles-high-serve-base-recovery.svg',
     equipment: 'Racket, 20 shuttles, two deep central targets and a base marker',
     numberOfPlayers: 1,
     durationMinutes: 10,
     instructions:
-      'Serve high toward the deep central rear target, land balanced and recover immediately to a singles base slightly toward the serving side. Alternate service courts after each group of five.',
+      'Serve high toward the deep central rear target, land balanced and recover immediately into a ready position. Alternate service courts after each group of five.',
     coachingPoints:
       'Use a legal, repeatable action, send the shuttle high and deep, and take the first recovery step as soon as contact is complete.',
     commonMistakes:
-      'Serving flat, aiming too close to the sideline, watching the shuttle and recovering to the doubles service position.',
+      'Serving flat, aiming too close to the sideline, watching the shuttle and delaying the first recovery step.',
     difficulty: 'easy',
     successTarget: 'Land 14 of 20 serves in the deep target and recover before each shuttle lands.',
     easierVariation:
@@ -1610,7 +1539,7 @@ const drills: DrillSeed[] = [
     harderProgression:
       'A receiver returns any short serve so the server must cover the first reply.',
     completionRequirement:
-      'Combines legal deep placement with an immediate balanced singles recovery.',
+      'Combines legal deep placement with an immediate balanced first recovery.',
   },
   {
     name: 'Singles Straight Lift Recovery',
@@ -1637,9 +1566,32 @@ const drills: DrillSeed[] = [
       'Uses a straight lift to reduce open court and recovers according to its direction.',
   },
   {
-    name: 'Doubles First Four Shots',
+    name: 'Doubles Serve and Return Start',
     skill: 'Serve and return consistency',
     level: 'foundations',
+    eventType: 'doubles',
+    illustrationURL: '/images/drills/doubles-serve-return-start.svg',
+    equipment: 'Two rackets, shuttles and three return target zones',
+    numberOfPlayers: 2,
+    durationMinutes: 11,
+    instructions:
+      'The server plays a legal low serve and recovers with the racket ready. The receiver takes the shuttle early and returns to a straight net, body or wide target. Stop after the return and reset positions.',
+    coachingPoints:
+      'Use a compact serve, stay ready after contact, prepare early as receiver and control the return before adding speed.',
+    commonMistakes:
+      'Watching the serve, standing upright after contact, lifting every return and swinging too hard at the second shot.',
+    difficulty: 'easy',
+    successTarget: 'Complete 7 of 10 serve-return starts with both players balanced and ready.',
+    easierVariation: 'Use one straight return target and a cooperative serve feed.',
+    harderProgression:
+      'Allow the server to play a controlled third shot, then stop and check the two-player movement shape.',
+    completionRequirement:
+      'Starts a doubles rally legally and prepares for the next contact without requiring four players.',
+  },
+  {
+    name: 'Doubles First Four Shots',
+    skill: 'Serve and return consistency',
+    level: 'development',
     eventType: 'doubles',
     illustrationURL: '/images/drills/doubles-first-four-shots.svg',
     equipment: 'Four rackets, shuttles and three return target zones',
@@ -1681,7 +1633,7 @@ const drills: DrillSeed[] = [
     completionRequirement: 'Uses the lift to reset a rally and recovers to base.',
   },
   {
-    name: 'Twenty-Shot Cooperative Rally',
+    name: 'Progressive Rally Ladder',
     skill: 'Rally length and error control',
     level: 'foundations',
     eventType: 'general',
@@ -1689,14 +1641,18 @@ const drills: DrillSeed[] = [
     equipment: 'Rackets and shuttle',
     numberOfPlayers: 2,
     durationMinutes: 12,
-    instructions: 'Rally cooperatively using clears and lifts, counting consecutive legal shots.',
+    instructions:
+      'Build the rally in three levels: complete 5 consecutive legal shots, then 10, then 15. Reset to the current level after an error; do not restart the whole ladder. Use safe clears and lifts while recovering after every contact.',
     coachingPoints: 'Use safe height, recover after every shot and choose control before speed.',
     commonMistakes: 'Trying to win the rally, standing still and aiming too close to lines.',
     difficulty: 'moderate',
-    successTarget: 'Complete three rallies of at least 20 shots.',
-    easierVariation: 'Use half court and allow catches between sequences.',
-    harderProgression: 'Add one controlled drop shot every five contacts.',
-    completionRequirement: 'Sustains a controlled rally while keeping a functional base.',
+    successTarget: 'Complete the 5-, 10- and 15-shot levels with controlled height and recovery.',
+    easierVariation:
+      'Use half court, begin with a three-shot level or allow one catch-and-feed reset.',
+    harderProgression:
+      'Add a 20-shot level or one controlled drop shot after level 15 is repeatable.',
+    completionRequirement:
+      'Completes the 15-shot level while maintaining a functional base and cooperative intent.',
   },
   {
     name: 'Random Six-Corner Feeding',
@@ -1988,11 +1944,11 @@ export const programHomeDrillAssignments: Record<string, Record<number, string[]
     1: ['Solo Racket Control Circuit', 'Compact Home Footwork', 'Lunge Balance and Leg Strength'],
     2: ['Solo Racket Control Circuit', 'Low Serve Floor Targets'],
     3: ['Compact Home Footwork', 'Reactive Split-Step Cues', 'Lunge Balance and Leg Strength'],
-    4: ['Overhead Shadow Technique', 'Solo Racket Control Circuit'],
-    5: ['Compact Home Footwork', 'Overhead Shadow Technique'],
-    6: ['Solo Racket Control Circuit', 'Low Serve Floor Targets'],
-    7: ['Compact Home Footwork', 'Lunge Balance and Leg Strength'],
-    8: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
+    4: ['Lunge Balance and Leg Strength', 'Solo Racket Control Circuit'],
+    5: ['Compact Home Footwork', 'Lunge Balance and Leg Strength'],
+    6: ['Low Serve Floor Targets', 'Overhead Shadow Technique'],
+    7: ['Overhead Shadow Technique', 'Solo Racket Control Circuit'],
+    8: ['Overhead Shadow Technique', 'Compact Home Footwork'],
     9: ['Low Serve Floor Targets', 'Reactive Split-Step Cues'],
     10: ['Solo Racket Control Circuit', 'Overhead Shadow Technique'],
     11: ['Compact Home Footwork', 'Reactive Split-Step Cues'],
@@ -2116,10 +2072,12 @@ export async function seedCoachingLibrary(payload: Payload) {
     const skill = skillIDs.get(drill.skill)
     if (!skill) throw new Error(`Missing skill for drill: ${drill.name}`)
     const { skill: _skillName, ...data } = drill
-    const possibleNames =
-      drill.name === 'Reset and Rally Rehearsal'
-        ? ['Reset and Rally Rehearsal', 'Match Visualization and Reset']
-        : [drill.name]
+    const legacyNames: Record<string, string[]> = {
+      'High Serve and First Recovery': ['Singles High Serve and Base Recovery'],
+      'Progressive Rally Ladder': ['Twenty-Shot Cooperative Rally'],
+      'Reset and Rally Rehearsal': ['Match Visualization and Reset'],
+    }
+    const possibleNames = [drill.name, ...(legacyNames[drill.name] || [])]
     const existing = await payload.find({
       collection: 'drills',
       depth: 0,

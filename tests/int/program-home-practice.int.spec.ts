@@ -127,17 +127,17 @@ describe('program home-practice integration', () => {
     expect(retainedDrills).toEqual(['Compact Home Footwork', 'Lunge Balance and Leg Strength'])
   })
 
-  it('introduces the overhead in Week 4 while retaining relaxed grip control', () => {
+  it('builds Week 4 net control through lunge stability and relaxed grip control', () => {
     const weekFourLesson: LessonSeed = {
       week: 4,
-      title: 'Overhead clear foundations',
+      title: 'Net control and stable lunge',
       lessonType: 'technical',
-      objective: 'Create safe height and length using early preparation and overhead contact.',
+      objective: 'Play a controlled net shot from a balanced lunge and recover without rushing.',
       durationMinutes: 60,
-      drills: ['Clear to Targets', 'Grip Change Tap-Ups'],
+      drills: ['Lunge, Net and Recover', 'Grip Change Tap-Ups'],
       independentPractice:
-        'Complete 3 x 8 controlled overhead shadows, then reinforce relaxed grip changes with one racket-control circuit.',
-      successCriteria: 'Places 8 of 10 clears beyond the doubles service line.',
+        'Complete the lunge-and-balance circuit, then reinforce relaxed grip changes with one racket-control circuit.',
+      successCriteria: 'Plays and recovers from 8 of 10 net feeds without losing balance.',
       sessionPlan: {
         warmUp: '',
         movementPreparation: '',
@@ -148,26 +148,26 @@ describe('program home-practice integration', () => {
     }
 
     expect(homeDrillsForLesson('Badminton Foundations', weekFourLesson, 'foundations')).toEqual([
-      'Overhead Shadow Technique',
+      'Lunge Balance and Leg Strength',
       'Solo Racket Control Circuit',
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekFourLesson, 'foundations'),
-    ).not.toContain('Lunge Balance and Leg Strength')
+    ).not.toContain('Overhead Shadow Technique')
     expect(weekFourLesson.independentPractice).not.toContain('target attempts')
   })
 
-  it('repeats the Week 4 overhead in Week 5 and adds rear-court recovery', () => {
+  it('adds Week 5 lift length while retaining forecourt movement and lunge stability', () => {
     const weekFiveLesson: LessonSeed = {
       week: 5,
-      title: 'Clear and rear-court recovery',
-      lessonType: 'movement',
-      objective: 'Link the overhead clear to an immediate balanced recovery.',
+      title: 'Lift for time and length',
+      lessonType: 'technical',
+      objective: 'Use forehand and backhand lifts to create recovery time from the forecourt.',
       durationMinutes: 60,
-      drills: ['Rear-Court Clear and Recovery', 'Clear to Targets'],
+      drills: ['Lift for Length', 'Lunge, Net and Recover'],
       independentPractice:
-        'Rehearse controlled rear-court movement, then complete 3 x 8 overhead shadow repetitions with an immediate balanced recovery.',
-      successCriteria: 'Recovers before the feeder begins the next action in 8 of 10 feeds.',
+        'Complete the compact-footwork circuit with controlled front-corner approaches, then the lunge-and-balance circuit that supports a stable underarm lift.',
+      successCriteria: 'Reaches the rear target and recovers on 8 of 10 feeds.',
       sessionPlan: {
         warmUp: '',
         movementPreparation: '',
@@ -179,25 +179,25 @@ describe('program home-practice integration', () => {
 
     expect(homeDrillsForLesson('Badminton Foundations', weekFiveLesson, 'foundations')).toEqual([
       'Compact Home Footwork',
-      'Overhead Shadow Technique',
+      'Lunge Balance and Leg Strength',
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekFiveLesson, 'foundations'),
-    ).not.toContain('Lunge Balance and Leg Strength')
-    expect(weekFiveLesson.independentPractice).toContain('immediate balanced recovery')
+    ).not.toContain('Overhead Shadow Technique')
+    expect(weekFiveLesson.independentPractice).toContain('stable underarm lift')
   })
 
-  it('revisits the Week 2 low serve in Week 6 after priming the thumb-led grip', () => {
+  it('combines low-serve accuracy and high-serve preparation in Week 6', () => {
     const weekSixLesson: LessonSeed = {
       week: 6,
-      title: 'Reliable service starts',
+      title: 'Low and high service starts',
       lessonType: 'technical',
-      objective: 'Develop a repeatable low serve and understand legal service preparation.',
+      objective: 'Develop repeatable low and high serves with legal preparation and recovery.',
       durationMinutes: 60,
-      drills: ['Low Serve Gate', 'Twenty-Shot Cooperative Rally'],
+      drills: ['Low Serve Gate', 'High Serve and First Recovery'],
       independentPractice:
-        'Prime the thumb-led grip with one racket-control circuit, then complete 4 rounds of 10 low serves and record target hits.',
-      successCriteria: 'Achieves at least 80% legal serves with controlled height.',
+        'Complete the low-serve target circuit, then rehearse the high-serve action through controlled overhead shadows.',
+      successCriteria: 'Places 8 of 10 serves legally into the intended low or deep target.',
       sessionPlan: {
         warmUp: '',
         movementPreparation: '',
@@ -208,27 +208,27 @@ describe('program home-practice integration', () => {
     }
 
     expect(homeDrillsForLesson('Badminton Foundations', weekSixLesson, 'foundations')).toEqual([
-      'Solo Racket Control Circuit',
       'Low Serve Floor Targets',
+      'Overhead Shadow Technique',
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekSixLesson, 'foundations'),
     ).not.toContain('Compact Home Footwork')
-    expect(weekSixLesson.independentPractice).toContain('4 rounds of 10 low serves')
-    expect(weekSixLesson.independentPractice).not.toContain('5 sets')
+    expect(weekSixLesson.independentPractice).toContain('high-serve action')
   })
 
-  it('supports the Week 7 lift with retained forecourt movement and lunge stability', () => {
+  it('introduces overhead preparation in Week 7 after the forecourt foundation', () => {
     const weekSevenLesson: LessonSeed = {
       week: 7,
-      title: 'Lift for time and length',
+      title: 'Overhead preparation and throwing action',
       lessonType: 'technical',
-      objective: 'Use the lift to move the opponent back and regain court position.',
+      objective:
+        'Build a relaxed side-on preparation and high contact before adding clear distance.',
       durationMinutes: 60,
-      drills: ['Lift for Length', 'Lunge, Net and Recover'],
+      drills: ['Grip Change Tap-Ups', 'Clear to Targets'],
       independentPractice:
-        'Rehearse controlled front-corner approach and recovery, then complete the lunge-and-balance circuit that supports a stable underarm lift.',
-      successCriteria: 'Reaches the rear target and recovers on 8 of 10 feeds.',
+        'Complete the racket-control circuit, then 3 x 8 controlled overhead shadows with safe clearance and balanced recovery.',
+      successCriteria: 'Shows a relaxed preparation and high contact shape in 8 of 10 repetitions.',
       sessionPlan: {
         warmUp: '',
         movementPreparation: '',
@@ -239,27 +239,27 @@ describe('program home-practice integration', () => {
     }
 
     expect(homeDrillsForLesson('Badminton Foundations', weekSevenLesson, 'foundations')).toEqual([
-      'Compact Home Footwork',
-      'Lunge Balance and Leg Strength',
+      'Overhead Shadow Technique',
+      'Solo Racket Control Circuit',
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekSevenLesson, 'foundations'),
-    ).not.toContain('Overhead Shadow Technique')
-    expect(weekSevenLesson.independentPractice).not.toContain('30 controlled lift actions')
-    expect(weekSevenLesson.independentPractice).toContain('supports a stable underarm lift')
+    ).not.toContain('Lunge Balance and Leg Strength')
+    expect(weekSevenLesson.independentPractice).toContain('controlled overhead shadows')
   })
 
-  it('progresses Week 8 forecourt movement with retained footwork and reactive cues', () => {
+  it('connects the Week 8 clear to rear-court movement and recovery', () => {
     const weekEightLesson: LessonSeed = {
       week: 8,
-      title: 'Forecourt control',
-      lessonType: 'technical',
-      objective: 'Approach, play and recover from the forecourt with a stable lunge.',
+      title: 'Clear and rear-court recovery',
+      lessonType: 'movement',
+      objective: 'Link a controlled overhead clear to an immediate balanced recovery.',
       durationMinutes: 60,
-      drills: ['Lunge, Net and Recover', 'Lift for Length'],
+      drills: ['Clear to Targets', 'Rear-Court Clear and Recovery'],
       independentPractice:
-        'Complete the compact footwork circuit with extra attention to balanced front-corner lunges, then respond to random direction cues and recover to the same base.',
-      successCriteria: 'Selects net or lift appropriately and finishes balanced in 8 of 10 feeds.',
+        'Complete the overhead-shadow circuit, then use the rear markers in the compact-footwork circuit and recover immediately after every imagined clear.',
+      successCriteria:
+        'Places 8 of 10 clears beyond the doubles service line and recovers before the next feed.',
       sessionPlan: {
         warmUp: '',
         movementPreparation: '',
@@ -270,14 +270,13 @@ describe('program home-practice integration', () => {
     }
 
     expect(homeDrillsForLesson('Badminton Foundations', weekEightLesson, 'foundations')).toEqual([
+      'Overhead Shadow Technique',
       'Compact Home Footwork',
-      'Reactive Split-Step Cues',
     ])
     expect(
       homeDrillsForLesson('Badminton Foundations', weekEightLesson, 'foundations'),
     ).not.toContain('Lunge Balance and Leg Strength')
-    expect(weekEightLesson.independentPractice).not.toContain('20 shadow net shots')
-    expect(weekEightLesson.independentPractice).toContain('random direction cues')
+    expect(weekEightLesson.independentPractice).toContain('rear markers')
   })
 
   it('revisits serving in Week 9 and retains the reaction needed for the first recovery', () => {
@@ -319,7 +318,7 @@ describe('program home-practice integration', () => {
       lessonType: 'match-play',
       objective: 'Sustain a rally using safe height, length and recovery.',
       durationMinutes: 60,
-      drills: ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'],
+      drills: ['Progressive Rally Ladder', 'Rear-Court Clear and Recovery'],
       independentPractice:
         'Complete the solo racket-control circuit for repeatable contacts, then rehearse controlled overhead preparation and recovery to base.',
       successCriteria: 'Completes three rallies of at least 20 shots with functional recovery.',
@@ -382,7 +381,7 @@ describe('program home-practice integration', () => {
       lessonType: 'assessment',
       objective: 'Demonstrate the core movement, serve, clear, lift and rally standards.',
       durationMinutes: 60,
-      drills: ['Low Serve Gate', 'Clear to Targets', 'Twenty-Shot Cooperative Rally'],
+      drills: ['Low Serve Gate', 'Clear to Targets', 'Progressive Rally Ladder'],
       independentPractice:
         'Complete the low-serve, overhead-shadow and compact-footwork benchmarks at a controlled pace, then record the weakest result as the next training priority.',
       successCriteria:

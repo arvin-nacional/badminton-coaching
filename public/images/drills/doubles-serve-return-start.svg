@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-labelledby="title desc">
+  <title id="title">Doubles serve and return start</title>
+  <desc id="desc">A two-player doubles exercise showing a low serve, an early return and both players ready for the next shot.</desc>
+  <rect width="900" height="600" rx="36" fill="#edf8f5"/>
+  <rect x="285" y="45" width="330" height="510" rx="8" fill="#177c65" stroke="#08254b" stroke-width="8"/>
+  <g stroke="#fff" stroke-width="5" fill="none">
+    <path d="M285 300h330M285 145h330M285 455h330M365 45v510M535 45v510"/>
+    <path stroke-dasharray="12 10" d="M450 45v510"/>
+  </g>
+  <circle cx="400" cy="390" r="18" fill="#ffb703"/>
+  <circle cx="500" cy="210" r="18" fill="#5ecbff"/>
+  <path d="M405 372Q430 320 460 290" fill="none" stroke="#ffb703" stroke-width="11" marker-end="url(#serve)"/>
+  <path d="M485 225Q430 255 390 335" fill="none" stroke="#5ecbff" stroke-width="11" marker-end="url(#return)"/>
+  <path d="M385 410l-28 32M515 190l28-32" stroke="#08254b" stroke-width="8" stroke-dasharray="10 8"/>
+  <defs>
+    <marker id="serve" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#ffb703"/></marker>
+    <marker id="return" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#5ecbff"/></marker>
+  </defs>
+  <text x="35" y="88" font-family="Arial" font-size="29" font-weight="700" fill="#08254b">SERVE + RETURN</text>
+  <text x="35" y="126" font-family="Arial" font-size="21" fill="#365a7d">stop, check readiness, repeat</text>
+</svg>
