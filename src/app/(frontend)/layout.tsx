@@ -11,13 +11,20 @@ import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getDashboardUser } from '@/utilities/dashboardAuth'
 import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
+  const [{ isEnabled }, { user }] = await Promise.all([draftMode(), getDashboardUser()])
+  const initialAuthUser = user
+    ? {
+        id: String(user.id),
+        roles: user.roles,
+      }
+    : null
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -27,7 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
       <body>
-        <Providers>
+        <Providers initialAuthUser={initialAuthUser}>
           <AdminBar
             adminBarProps={{
               preview: isEnabled,

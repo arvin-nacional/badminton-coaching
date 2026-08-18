@@ -15,9 +15,15 @@ type AuthStateContextValue = {
 
 const AuthStateContext = createContext<AuthStateContextValue | null>(null)
 
-export function AuthStateProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<FrontendAuthUser | null>(null)
-  const [isResolved, setIsResolved] = useState(false)
+export function AuthStateProvider({
+  children,
+  initialUser,
+}: {
+  children: React.ReactNode
+  initialUser?: FrontendAuthUser | null
+}) {
+  const [user, setUser] = useState<FrontendAuthUser | null>(initialUser ?? null)
+  const [isResolved, setIsResolved] = useState(initialUser !== undefined)
 
   const setAuthUser = useCallback((nextUser: FrontendAuthUser | null) => {
     setUser(nextUser)
