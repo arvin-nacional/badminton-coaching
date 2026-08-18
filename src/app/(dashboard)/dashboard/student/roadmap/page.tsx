@@ -5,6 +5,7 @@ import { DashboardShell, Empty, Panel } from '@/components/Dashboard/UI'
 import { RoadmapLessonCard } from './RoadmapLessonCard'
 import type { Drill } from '@/payload-types'
 import { requireDashboardUser } from '@/utilities/dashboardAuth'
+import { getCachedProgram } from '@/utilities/getCachedProgram'
 import {
   programLessonDrillsForEvent,
   programLessonHomeDrillsForEvent,
@@ -47,15 +48,10 @@ export default async function StudentRoadmapPage() {
   }
 
   const programID = typeof profile.program === 'string' ? profile.program : profile.program?.id
-  const program = programID
-    ? await payload.findByID({
-        collection: 'programs',
-        id: programID,
-        depth: 1,
-        overrideAccess: false,
-        user,
-      })
-    : null
+  // Use the cached program fetcher — program data is identical for all
+  // students and rarely changes. The cache is invalidated via revalidateTag
+  // when a coach updates the program (see Programs afterChange hook).
+  const program = programID ? await getCachedProgram(programID) : null
 
   if (!program) {
     return (

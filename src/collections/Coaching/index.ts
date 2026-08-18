@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { revalidateTag } from 'next/cache'
 
 import {
   authenticatedCoachingUser,
@@ -49,7 +50,17 @@ export const Programs: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [syncProgramLessonSkills, syncProgramHomePractices],
-    afterChange: [syncProgramIndependentPractices],
+    afterChange: [
+      ({ doc, req: { context } }) => {
+        // Invalidate the cached program data so the roadmap and dashboard
+        // pick up changes on the next request. Mirrors the posts pattern.
+        if (!context.disableRevalidate) {
+          revalidateTag(`program-${doc.id}`, 'max')
+        }
+        return doc
+      },
+      syncProgramIndependentPractices,
+    ],
   },
   fields: [
     { name: 'name', type: 'text', required: true, unique: true },

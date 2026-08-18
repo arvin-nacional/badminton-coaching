@@ -25,6 +25,7 @@ import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPra
 import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
 import type { PracticeLibrary, Skill } from '@/payload-types'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
+import { getCachedProgram } from '@/utilities/getCachedProgram'
 
 const stageLabels = {
   'not-introduced': 'Not introduced',
@@ -92,9 +93,10 @@ export default async function StudentDashboardPage() {
 
   const now = new Date().toISOString()
   const programID = typeof profile.program === 'string' ? profile.program : profile.program?.id
-  // Keep depth as low as possible: every extra depth level makes Payload run
-  // population queries for each relationship on each returned doc, which was
-  // the main cause of slow dashboard loads.
+  // Fetch the cached program in parallel with the student-specific queries.
+  // The program is cached via unstable_cache + revalidateTag (see
+  // getCachedProgram.ts and the Programs afterChange hook), so this is
+  // effectively instant after the first load.
   const [
     program,
     practices,
@@ -104,17 +106,7 @@ export default async function StudentDashboardPage() {
     events,
     completedSessions,
   ] = await Promise.all([
-    programID
-      ? payload.findByID({
-          collection: 'programs',
-          id: programID,
-          // depth 1 populates phases[].lessons[].independentPractice, which
-          // is the only nested relationship this page reads from the program.
-          depth: 1,
-          overrideAccess: false,
-          user,
-        })
-      : Promise.resolve(null),
+    programID ? getCachedProgram(programID) : Promise.resolve(null),
     payload.find({
       collection: 'independent-practices',
       // depth 1 populates the practice template; drill docs are fetched
