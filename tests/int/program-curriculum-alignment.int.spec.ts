@@ -129,40 +129,50 @@ describe('program curriculum alignment', () => {
     expect(stripSessionTimePrefix('10 min — Rehearse split steps.')).toBe('Rehearse split steps.')
   })
 
-  it('selects compatible singles and doubles branches for every competitive week', () => {
-    const competitive = coachingPrograms.find(
-      (program) => program.name === 'Competitive Performance',
-    )
-    expect(competitive).toBeDefined()
+  it('selects dedicated, compatible singles and doubles branches for every program week', () => {
+    for (const program of coachingPrograms) {
+      for (const lesson of program.phases.flatMap((phase) => phase.lessons)) {
+        expect(lesson.eventVariants).toBeDefined()
 
-    for (const lesson of competitive!.phases.flatMap((phase) => phase.lessons)) {
-      expect(lesson.eventVariants).toBeDefined()
+        for (const event of ['singles', 'doubles'] as const) {
+          const sessionDrills = programLessonDrillsForEvent(lesson, event)
+          const homeDrills = programLessonHomeDrillsForEvent(lesson, event)
 
-      for (const event of ['singles', 'doubles'] as const) {
-        const sessionDrills = programLessonDrillsForEvent(lesson, event)
-        const homeDrills = programLessonHomeDrillsForEvent(lesson, event)
+          expect(sessionDrills.length).toBeGreaterThanOrEqual(2)
+          expect(homeDrills.length).toBeGreaterThanOrEqual(2)
+          expect(buildSessionTiming(90, sessionDrills.length).total).toBe(90)
+          expect(sessionDrills.some((name) => drillByName.get(name)?.eventType === event)).toBe(
+            true,
+          )
+          expect(homeDrills.some((name) => drillByName.get(name)?.eventType === event)).toBe(true)
 
-        expect(sessionDrills.length).toBeGreaterThanOrEqual(2)
-        expect(homeDrills.length).toBeGreaterThanOrEqual(2)
-        expect(buildSessionTiming(90, sessionDrills.length).total).toBe(90)
+          for (const drillName of sessionDrills) {
+            const drill = drillByName.get(drillName)
+            expect(
+              drill,
+              `${program.name} ${event} week ${lesson.week}: ${drillName}`,
+            ).toBeDefined()
+            expect(['general', event]).toContain(drill?.eventType)
+            expect(drill?.practiceSetting).not.toBe('home')
+          }
 
-        for (const drillName of sessionDrills) {
-          const drill = drillByName.get(drillName)
-          expect(drill, `${event} week ${lesson.week}: ${drillName}`).toBeDefined()
-          expect(['general', event]).toContain(drill?.eventType)
-          expect(drill?.practiceSetting).not.toBe('home')
-        }
-
-        for (const drillName of homeDrills) {
-          const drill = drillByName.get(drillName)
-          expect(drill, `${event} home week ${lesson.week}: ${drillName}`).toBeDefined()
-          expect(['general', event]).toContain(drill?.eventType)
-          expect(drill?.practiceSetting).toBe('home')
+          for (const drillName of homeDrills) {
+            const drill = drillByName.get(drillName)
+            expect(
+              drill,
+              `${program.name} ${event} home week ${lesson.week}: ${drillName}`,
+            ).toBeDefined()
+            expect(['general', event]).toContain(drill?.eventType)
+            expect(drill?.practiceSetting).toBe('home')
+          }
         }
       }
     }
 
-    const lessons = competitive!.phases.flatMap((phase) => phase.lessons)
+    const competitive = coachingPrograms.find(
+      (program) => program.name === 'Competitive Performance',
+    )!
+    const lessons = competitive.phases.flatMap((phase) => phase.lessons)
     expect(programLessonDrillsForEvent(lessons[0], 'both')).toEqual(
       lessons[0].eventVariants?.singlesDrills,
     )
@@ -239,7 +249,7 @@ describe('program curriculum alignment', () => {
     const courtDrills = coachingDrills.filter((drill) => drill.practiceSetting !== 'home')
     const illustrationURLs = courtDrills.map((drill) => drill.illustrationURL)
 
-    expect(courtDrills).toHaveLength(18)
+    expect(courtDrills).toHaveLength(24)
     expect(illustrationURLs.every(Boolean)).toBe(true)
     expect(new Set(illustrationURLs).size).toBe(courtDrills.length)
 

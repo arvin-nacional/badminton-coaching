@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-labelledby="title desc">
+  <title id="title">Doubles first four shots</title><desc id="desc">Four numbered arrows show serve, return, third shot and fourth shot in doubles.</desc>
+  <rect width="900" height="600" rx="36" fill="#edf8f5"/><rect x="285" y="45" width="330" height="510" rx="8" fill="#177c65" stroke="#08254b" stroke-width="8"/>
+  <g stroke="#fff" stroke-width="5" fill="none"><path d="M285 300h330M285 145h330M285 455h330M365 45v510M535 45v510"/><path stroke-dasharray="12 10" d="M450 45v510"/></g>
+  <g fill="none" stroke="#ffb703" stroke-width="10" marker-end="url(#a)"><path d="M390 405Q410 330 430 285"/><path d="M430 275Q510 340 530 395"/><path d="M530 390Q485 315 470 285"/><path d="M470 275Q390 335 365 390"/></g>
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0l9 4.5-9 4.5z" fill="#ffb703"/></marker></defs>
+  <g font-family="Arial" font-size="25" font-weight="700" fill="#08254b"><text x="368" y="430">1</text><text x="540" y="420">2</text><text x="505" y="315">3</text><text x="375" y="320">4</text></g>
+  <text x="35" y="90" font-family="Arial" font-size="28" font-weight="700" fill="#08254b">FIRST FOUR SHOTS</text><text x="35" y="128" font-family="Arial" font-size="21" fill="#365a7d">serve · return · third · fourth</text>
+</svg>

@@ -9,6 +9,7 @@ import {
   badmintonBodyweightStrengthContent,
   buildHomePracticeSequence,
   compactHomeFootworkContent,
+  doublesFirstFourShadowContent,
   highIntensityShadowIntervalsContent,
   lowServeFloorTargetContent,
   lungeBalanceLegStrengthContent,
@@ -16,6 +17,7 @@ import {
   resetRallyRehearsalContent,
   reactiveSplitStepCuesContent,
   shoulderAndCoreControlContent,
+  singlesBaseRecoveryShadowContent,
   soloRacketControlContent,
   wallDriveAndDefenceContent,
 } from '@/data/homePracticeSteps'
@@ -388,7 +390,7 @@ const programs: ProgramSeed[] = [
           ),
           lesson(
             10,
-            'Singles clear-drop construction',
+            'Rally construction through length and space',
             'tactical',
             'Move the opponent deep before using the forecourt with purpose.',
             ['Twenty-Shot Cooperative Rally', 'Clear-Drop Decision Rally'],
@@ -406,7 +408,7 @@ const programs: ProgramSeed[] = [
           ),
           lesson(
             12,
-            'Doubles formation and rotation',
+            'Formation, coverage and transition',
             'tactical',
             'Transition between front-back and side-side formations as a pair.',
             ['Drive Channel Exchange', 'Attack-Defence Rotation'],
@@ -717,6 +719,223 @@ const programs: ProgramSeed[] = [
   },
 ]
 
+const uniqueDrills = (...drillGroups: string[][]) => [...new Set(drillGroups.flat())]
+
+const eventBranch = (
+  singlesDrill: string,
+  doublesDrill: string,
+  sharedDrills: string[],
+  singlesHomeDrill: string,
+  doublesHomeDrill: string,
+): NonNullable<LessonSeed['eventVariants']> => ({
+  singlesDrills: uniqueDrills([singlesDrill], sharedDrills).slice(0, 3),
+  doublesDrills: uniqueDrills([doublesDrill], sharedDrills).slice(0, 3),
+  singlesHomeDrills: uniqueDrills(['Singles Base Recovery Shadow'], [singlesHomeDrill]),
+  doublesHomeDrills: uniqueDrills(['Doubles First-Four-Shot Shadow'], [doublesHomeDrill]),
+})
+
+export const foundationEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
+  1: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Doubles First Four Shots',
+    ['Grip Change Tap-Ups', 'Four-Corner Shadow Rhythm'],
+    'Solo Racket Control Circuit',
+    'Solo Racket Control Circuit',
+  ),
+  2: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Low Serve Gate',
+    ['Grip Change Tap-Ups'],
+    'Solo Racket Control Circuit',
+    'Low Serve Floor Targets',
+  ),
+  3: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Doubles First Four Shots',
+    ['Four-Corner Shadow Rhythm', 'Lunge, Net and Recover'],
+    'Compact Home Footwork',
+    'Compact Home Footwork',
+  ),
+  4: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Doubles First Four Shots',
+    ['Clear to Targets', 'Grip Change Tap-Ups'],
+    'Overhead Shadow Technique',
+    'Overhead Shadow Technique',
+  ),
+  5: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Doubles First Four Shots',
+    ['Rear-Court Clear and Recovery', 'Clear to Targets'],
+    'Compact Home Footwork',
+    'Compact Home Footwork',
+  ),
+  6: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Low Serve Gate',
+    ['Twenty-Shot Cooperative Rally'],
+    'Solo Racket Control Circuit',
+    'Low Serve Floor Targets',
+  ),
+  7: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Doubles First Four Shots',
+    ['Lift for Length', 'Lunge, Net and Recover'],
+    'Lunge Balance and Leg Strength',
+    'Lunge Balance and Leg Strength',
+  ),
+  8: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Doubles First Four Shots',
+    ['Lunge, Net and Recover', 'Lift for Length'],
+    'Reactive Split-Step Cues',
+    'Reactive Split-Step Cues',
+  ),
+  9: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Low Serve Gate',
+    ['Lift for Length'],
+    'Reactive Split-Step Cues',
+    'Low Serve Floor Targets',
+  ),
+  10: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Doubles First Four Shots',
+    ['Twenty-Shot Cooperative Rally', 'Rear-Court Clear and Recovery'],
+    'Overhead Shadow Technique',
+    'Solo Racket Control Circuit',
+  ),
+  11: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Doubles First Four Shots',
+    ['Four-Corner Shadow Rhythm', 'Rear-Court Clear and Recovery'],
+    'Compact Home Footwork',
+    'Reactive Split-Step Cues',
+  ),
+  12: eventBranch(
+    'Singles High Serve and Base Recovery',
+    'Doubles First Four Shots',
+    ['Clear to Targets', 'Twenty-Shot Cooperative Rally'],
+    'Overhead Shadow Technique',
+    'Low Serve Floor Targets',
+  ),
+}
+
+export const developmentEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
+  1: eventBranch(
+    'Random Six-Corner Feeding',
+    'Attack-Defence Rotation',
+    ['Twenty-Shot Cooperative Rally'],
+    'Reactive Split-Step Cues',
+    'Reactive Split-Step Cues',
+  ),
+  2: eventBranch(
+    'Random Six-Corner Feeding',
+    'Doubles Front-Player Interception',
+    ['Four-Corner Shadow Rhythm'],
+    'Compact Home Footwork',
+    'Compact Home Footwork',
+  ),
+  3: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Doubles Front-Player Interception',
+    ['Rear-Court Clear and Recovery', 'Clear to Targets'],
+    'Overhead Shadow Technique',
+    'Overhead Shadow Technique',
+  ),
+  4: eventBranch(
+    'Net-Lift-Kill Progression',
+    'Doubles Defence-to-Attack No-Lift',
+    ['Lunge, Net and Recover'],
+    'Lunge Balance and Leg Strength',
+    'Lunge Balance and Leg Strength',
+  ),
+  5: eventBranch(
+    'Clear-Drop Decision Rally',
+    'Doubles Front-Player Interception',
+    ['Clear to Targets'],
+    'Overhead Shadow Technique',
+    'Shoulder and Core Control',
+  ),
+  6: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Attack-Defence Rotation',
+    ['Three-Shot Attack Pattern'],
+    'Overhead Shadow Technique',
+    'Wall Drive and Defence',
+  ),
+  7: eventBranch(
+    'Singles Straight Lift Recovery',
+    'Drive Channel Exchange',
+    ['Lunge, Net and Recover'],
+    'Reactive Split-Step Cues',
+    'Wall Drive and Defence',
+  ),
+  8: eventBranch(
+    'Random Six-Corner Feeding',
+    'Attack-Defence Rotation',
+    ['Three-Shot Attack Pattern'],
+    'Reactive Split-Step Cues',
+    'Wall Drive and Defence',
+  ),
+  9: eventBranch(
+    'Net-Lift-Kill Progression',
+    'Doubles Front-Player Interception',
+    ['Lunge, Net and Recover'],
+    'Lunge Balance and Leg Strength',
+    'Reactive Split-Step Cues',
+  ),
+  10: eventBranch(
+    'Clear-Drop Decision Rally',
+    'Doubles Defence-to-Attack No-Lift',
+    ['Twenty-Shot Cooperative Rally'],
+    'Overhead Shadow Technique',
+    'Wall Drive and Defence',
+  ),
+  11: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Doubles Defence-to-Attack No-Lift',
+    ['Defence Choice Under Pressure'],
+    'Reactive Split-Step Cues',
+    'Wall Drive and Defence',
+  ),
+  12: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Attack-Defence Rotation',
+    ['Twenty-Shot Cooperative Rally'],
+    'Reactive Split-Step Cues',
+    'Wall Drive and Defence',
+  ),
+  13: eventBranch(
+    'Clear-Drop Decision Rally',
+    'Doubles Front-Player Interception',
+    ['Twenty-Shot Cooperative Rally'],
+    'Overhead Shadow Technique',
+    'Reactive Split-Step Cues',
+  ),
+  14: eventBranch(
+    'Singles Corner Pressure Rally',
+    'Doubles First Four Shots',
+    ['Regulation Interval Simulation', 'Progressive Score Scenarios'],
+    'Reset and Rally Rehearsal',
+    'Low Serve Floor Targets',
+  ),
+  15: eventBranch(
+    'Clear-Drop Decision Rally',
+    'Doubles Front-Player Interception',
+    ['Three-Shot Attack Pattern', 'Progressive Score Scenarios'],
+    'Reset and Rally Rehearsal',
+    'Reset and Rally Rehearsal',
+  ),
+  16: eventBranch(
+    'Random Six-Corner Feeding',
+    'Doubles Defence-to-Attack No-Lift',
+    ['Progressive Score Scenarios', 'Regulation Interval Simulation'],
+    'Reactive Split-Step Cues',
+    'Wall Drive and Defence',
+  ),
+}
+
 export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['eventVariants']>> = {
   1: {
     singlesDrills: [
@@ -896,10 +1115,68 @@ export const competitiveEventBranches: Record<number, NonNullable<LessonSeed['ev
   },
 }
 
-const competitiveProgram = programs.find((program) => program.name === 'Competitive Performance')
-for (const competitiveLesson of competitiveProgram?.phases.flatMap((phase) => phase.lessons) ||
-  []) {
-  competitiveLesson.eventVariants = competitiveEventBranches[competitiveLesson.week]
+const eventBranchesByProgram: Record<
+  string,
+  Record<number, NonNullable<LessonSeed['eventVariants']>>
+> = {
+  'Badminton Foundations': foundationEventBranches,
+  'Player Development': developmentEventBranches,
+  'Competitive Performance': competitiveEventBranches,
+}
+
+const singlesSessionDrills = new Set([
+  'Random Six-Corner Feeding',
+  'Clear-Drop Decision Rally',
+  'Net-Lift-Kill Progression',
+  'Singles High Serve and Base Recovery',
+  'Singles Straight Lift Recovery',
+  'Singles Corner Pressure Rally',
+])
+const doublesSessionDrills = new Set([
+  'Low Serve Gate',
+  'Drive Channel Exchange',
+  'Attack-Defence Rotation',
+  'Doubles First Four Shots',
+  'Doubles Front-Player Interception',
+  'Doubles Defence-to-Attack No-Lift',
+])
+const singlesHomeDrills = new Set([
+  'High-Intensity Shadow Intervals',
+  'Singles Base Recovery Shadow',
+])
+const doublesHomeDrills = new Set(['Low Serve Floor Targets', 'Doubles First-Four-Shot Shadow'])
+
+for (const program of programs) {
+  const branches = eventBranchesByProgram[program.name]
+  for (const programLesson of program.phases.flatMap((phase) => phase.lessons)) {
+    const variants = branches?.[programLesson.week]
+    if (!variants) continue
+
+    if (!variants.singlesDrills.some((name) => singlesSessionDrills.has(name))) {
+      variants.singlesDrills = uniqueDrills(variants.singlesDrills, [
+        'Singles Corner Pressure Rally',
+      ]).slice(0, 3)
+    }
+    if (!variants.doublesDrills.some((name) => doublesSessionDrills.has(name))) {
+      variants.doublesDrills = uniqueDrills(variants.doublesDrills, [
+        'Doubles Defence-to-Attack No-Lift',
+      ]).slice(0, 3)
+    }
+    if (!variants.singlesHomeDrills.some((name) => singlesHomeDrills.has(name))) {
+      variants.singlesHomeDrills = uniqueDrills(
+        ['Singles Base Recovery Shadow'],
+        variants.singlesHomeDrills,
+      ).slice(0, 3)
+    }
+    if (!variants.doublesHomeDrills.some((name) => doublesHomeDrills.has(name))) {
+      variants.doublesHomeDrills = uniqueDrills(
+        ['Doubles First-Four-Shot Shadow'],
+        variants.doublesHomeDrills,
+      ).slice(0, 3)
+    }
+
+    programLesson.eventVariants = variants
+  }
 }
 
 export const coachingPrograms = programs
@@ -1173,6 +1450,26 @@ const drills: DrillSeed[] = [
     difficulty: 'challenging',
   },
   {
+    name: 'Singles Base Recovery Shadow',
+    skill: 'Singles rally construction',
+    level: 'foundations',
+    eventType: 'singles',
+    practiceSetting: 'home',
+    ...singlesBaseRecoveryShadowContent,
+    numberOfPlayers: 1,
+    difficulty: 'easy',
+  },
+  {
+    name: 'Doubles First-Four-Shot Shadow',
+    skill: 'Serve and return consistency',
+    level: 'foundations',
+    eventType: 'doubles',
+    practiceSetting: 'home',
+    ...doublesFirstFourShadowContent,
+    numberOfPlayers: 1,
+    difficulty: 'easy',
+  },
+  {
     name: 'Grip Change Tap-Ups',
     skill: 'Grip changes and racket readiness',
     level: 'foundations',
@@ -1292,6 +1589,78 @@ const drills: DrillSeed[] = [
     completionRequirement: 'Starts a conditioned service game with 80% target accuracy.',
   },
   {
+    name: 'Singles High Serve and Base Recovery',
+    skill: 'Forehand high serve',
+    level: 'foundations',
+    eventType: 'singles',
+    illustrationURL: '/images/drills/singles-high-serve-base-recovery.svg',
+    equipment: 'Racket, 20 shuttles, two deep central targets and a base marker',
+    numberOfPlayers: 1,
+    durationMinutes: 10,
+    instructions:
+      'Serve high toward the deep central rear target, land balanced and recover immediately to a singles base slightly toward the serving side. Alternate service courts after each group of five.',
+    coachingPoints:
+      'Use a legal, repeatable action, send the shuttle high and deep, and take the first recovery step as soon as contact is complete.',
+    commonMistakes:
+      'Serving flat, aiming too close to the sideline, watching the shuttle and recovering to the doubles service position.',
+    difficulty: 'easy',
+    successTarget: 'Land 14 of 20 serves in the deep target and recover before each shuttle lands.',
+    easierVariation:
+      'Use one large deep central target and rehearse the recovery without a shuttle.',
+    harderProgression:
+      'A receiver returns any short serve so the server must cover the first reply.',
+    completionRequirement:
+      'Combines legal deep placement with an immediate balanced singles recovery.',
+  },
+  {
+    name: 'Singles Straight Lift Recovery',
+    skill: 'Underarm lift',
+    level: 'foundations',
+    eventType: 'singles',
+    illustrationURL: '/images/drills/singles-straight-lift-recovery.svg',
+    equipment: 'Rackets, shuttles, two straight rear-court targets and a base marker',
+    numberOfPlayers: 2,
+    durationMinutes: 11,
+    instructions:
+      'The feeder alternates forecourt feeds. The player lifts straight with height and length, then recovers on the same side of the centre line before the next feed.',
+    coachingPoints:
+      'Arrive with the racket prepared, contact in front, lift along the straight channel and let the shot direction shape the recovery.',
+    commonMistakes:
+      'Lifting cross-court while late, remaining at the net and running through the central base.',
+    difficulty: 'moderate',
+    successTarget:
+      'Complete 8 of 10 straight lifts beyond the doubles service line with balanced recovery.',
+    easierVariation: 'Feed one forecourt side and use a larger rear target.',
+    harderProgression:
+      'Mix a tight net shot when the player arrives early and a straight lift when late.',
+    completionRequirement:
+      'Uses a straight lift to reduce open court and recovers according to its direction.',
+  },
+  {
+    name: 'Doubles First Four Shots',
+    skill: 'Serve and return consistency',
+    level: 'foundations',
+    eventType: 'doubles',
+    illustrationURL: '/images/drills/doubles-first-four-shots.svg',
+    equipment: 'Four rackets, shuttles and three return target zones',
+    numberOfPlayers: 4,
+    durationMinutes: 14,
+    instructions:
+      'Play only the serve, return, third shot and fourth shot. The serving pair earns a bonus for creating an attacking third shot; the receiving pair earns one for taking the return early and controlling the fourth shot.',
+    coachingPoints:
+      'Serve low, recover with the racket up, take the return early and coordinate which partner owns the front and rear spaces.',
+    commonMistakes:
+      'Standing after the serve, lifting every return, both partners moving to the shuttle and using large swings.',
+    difficulty: 'moderate',
+    successTarget: 'Create the planned first-four-shot shape in 7 of 10 starts.',
+    easierVariation:
+      'Predetermine the return target and freeze after the fourth shot to check positions.',
+    harderProgression:
+      'Play the rally out after the fourth shot with double points for winning from the planned start.',
+    completionRequirement:
+      'Both pairs enter an appropriate attacking or defensive formation by the fourth shot.',
+  },
+  {
     name: 'Lift for Length',
     skill: 'Underarm lift',
     level: 'foundations',
@@ -1391,6 +1760,28 @@ const drills: DrillSeed[] = [
     completionRequirement: 'Recognises when to persist at the net and when to reset with a lift.',
   },
   {
+    name: 'Singles Corner Pressure Rally',
+    skill: 'Singles rally construction',
+    level: 'development',
+    eventType: 'singles',
+    illustrationURL: '/images/drills/singles-corner-pressure-rally.svg',
+    equipment: 'Rackets, shuttle and four corner target zones',
+    numberOfPlayers: 2,
+    durationMinutes: 15,
+    instructions:
+      'Play singles with bonus points for first moving the opponent into one corner, recovering to an effective base, then directing the next suitable shot into a different open corner.',
+    coachingPoints:
+      'Build with safe length, read opponent recovery, change direction only from balance and recover according to shot quality.',
+    commonMistakes:
+      'Attacking a line too early, changing direction while late and returning mechanically to the geometric centre.',
+    difficulty: 'challenging',
+    successTarget: 'Create six clear corner-to-corner pressure sequences in 10 rallies.',
+    easierVariation: 'Use half court and award the bonus after any two-corner sequence.',
+    harderProgression:
+      'Remove target markers and require the player to explain the space created after each rally.',
+    completionRequirement: 'Uses opponent position—not a fixed pattern—to choose the next corner.',
+  },
+  {
     name: 'Three-Shot Attack Pattern',
     skill: 'Smash and follow-up',
     level: 'development',
@@ -1451,6 +1842,53 @@ const drills: DrillSeed[] = [
     easierVariation: 'Freeze after each transition for a formation check.',
     harderProgression: 'Play continuous points with bonus scoring for successful rotation.',
     completionRequirement: 'Maintains partner spacing during live doubles rallies.',
+  },
+  {
+    name: 'Doubles Front-Player Interception',
+    skill: 'Doubles rotation',
+    level: 'development',
+    eventType: 'doubles',
+    illustrationURL: '/images/drills/doubles-front-player-interception.svg',
+    equipment: 'Four rackets, shuttles and two midcourt interception markers',
+    numberOfPlayers: 4,
+    durationMinutes: 14,
+    instructions:
+      'Begin with the rear player attacking and the front player covering the midcourt. Defenders block, drive or lift; the front player intercepts loose flat replies while the rear partner maintains rear-court coverage.',
+    coachingPoints:
+      'Keep the front player active with racket up, move laterally with the attack and leave the deep rear court to the partner unless formation changes.',
+    commonMistakes:
+      'Front player standing on the net, turning to watch the partner, chasing deep replies and both attackers covering the same channel.',
+    difficulty: 'challenging',
+    successTarget: 'The front player intercepts or forces a lift on 7 of 10 attacking sequences.',
+    easierVariation: 'Use predictable straight defence and freeze after each front-player contact.',
+    harderProgression:
+      'Allow all defensive directions and continue the rally through every formation transition.',
+    completionRequirement:
+      'The pair preserves front-back attacking responsibility without leaving the middle unprotected.',
+  },
+  {
+    name: 'Doubles Defence-to-Attack No-Lift',
+    skill: 'Defending under pressure',
+    level: 'development',
+    eventType: 'doubles',
+    illustrationURL: '/images/drills/doubles-defence-to-attack-no-lift.svg',
+    equipment: 'Four rackets, shuttles and side-by-side starting markers',
+    numberOfPlayers: 4,
+    durationMinutes: 16,
+    instructions:
+      'Defenders start side by side against a controlled smash. They may block or drive but may not lift the first two defensive contacts. When a reply forces the attackers upward, transition immediately into front-back attack.',
+    coachingPoints:
+      'Defend from a stable side-by-side base, absorb pace, direct away from the front attacker and move forward together when attack is gained.',
+    commonMistakes:
+      'Automatically lifting, crossing partners, staying side by side after gaining attack and forcing a counter-drive while late.',
+    difficulty: 'challenging',
+    successTarget:
+      'Turn defence into a stable attack in 6 of 10 sequences without a first-two-shot lift.',
+    easierVariation: 'Use half smashes and predetermine a straight block.',
+    harderProgression:
+      'Randomise attack direction and play the point out once either pair changes formation.',
+    completionRequirement:
+      'Recognises the neutralising reply and transitions as a pair from defence to attack.',
   },
   {
     name: 'Defence Choice Under Pressure',

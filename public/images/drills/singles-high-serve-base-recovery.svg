@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-labelledby="title desc">
+  <title id="title">Singles high serve and base recovery</title><desc id="desc">A singles court showing a high serve to the deep central rear court followed by recovery to the singles base.</desc>
+  <rect width="900" height="600" rx="36" fill="#eaf4ff"/><rect x="285" y="45" width="330" height="510" rx="8" fill="#0c7184" stroke="#08254b" stroke-width="8"/>
+  <g stroke="#fff" stroke-width="5" fill="none"><path d="M285 300h330M285 145h330M285 455h330M365 45v510M535 45v510"/><path stroke-dasharray="12 10" d="M450 45v510"/></g>
+  <circle cx="520" cy="465" r="17" fill="#ffb703"/><circle cx="455" cy="380" r="17" fill="#5ecbff"/>
+  <path d="M520 445Q500 230 455 92" fill="none" stroke="#ffb703" stroke-width="12" stroke-linecap="round" marker-end="url(#a)"/><path d="M508 452Q482 415 465 395" fill="none" stroke="#5ecbff" stroke-width="10" stroke-dasharray="14 10" marker-end="url(#b)"/>
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#ffb703"/></marker><marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#5ecbff"/></marker></defs>
+  <text x="40" y="88" font-family="Arial" font-size="30" font-weight="700" fill="#08254b">HIGH + DEEP</text><text x="40" y="126" font-family="Arial" font-size="22" fill="#365a7d">then recover immediately</text>
+</svg>

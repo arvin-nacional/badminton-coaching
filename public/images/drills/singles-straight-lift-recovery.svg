@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-labelledby="title desc">
+  <title id="title">Singles straight lift recovery</title><desc id="desc">Straight lifts travel up each sideline while the player recovers on the same side of the centre.</desc>
+  <rect width="900" height="600" rx="36" fill="#eaf4ff"/><rect x="285" y="45" width="330" height="510" rx="8" fill="#0c7184" stroke="#08254b" stroke-width="8"/>
+  <g stroke="#fff" stroke-width="5" fill="none"><path d="M285 300h330M285 145h330M285 455h330M365 45v510M535 45v510"/><path stroke-dasharray="12 10" d="M450 45v510"/></g>
+  <path d="M340 255V85M560 255V85" stroke="#ffb703" stroke-width="12" stroke-linecap="round" marker-end="url(#a)"/><path d="M340 258Q380 330 425 375M560 258Q520 330 475 375" fill="none" stroke="#5ecbff" stroke-width="9" stroke-dasharray="13 10" marker-end="url(#b)"/>
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#ffb703"/></marker><marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#5ecbff"/></marker></defs>
+  <text x="35" y="90" font-family="Arial" font-size="29" font-weight="700" fill="#08254b">LIFT STRAIGHT</text><text x="35" y="128" font-family="Arial" font-size="22" fill="#365a7d">recover to the same side</text>
+</svg>

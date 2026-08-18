@@ -151,6 +151,12 @@ export const Programs: CollectionConfig = {
                   relationTo: 'drills',
                   hasMany: true,
                   maxDepth: 1,
+                  filterOptions: {
+                    and: [
+                      { practiceSetting: { not_equals: 'home' } },
+                      { eventType: { in: ['general', 'singles'] } },
+                    ],
+                  },
                 },
                 {
                   name: 'doublesDrills',
@@ -159,6 +165,12 @@ export const Programs: CollectionConfig = {
                   relationTo: 'drills',
                   hasMany: true,
                   maxDepth: 1,
+                  filterOptions: {
+                    and: [
+                      { practiceSetting: { not_equals: 'home' } },
+                      { eventType: { in: ['general', 'doubles'] } },
+                    ],
+                  },
                 },
                 {
                   name: 'singlesHomeDrills',
@@ -167,7 +179,12 @@ export const Programs: CollectionConfig = {
                   relationTo: 'drills',
                   hasMany: true,
                   maxDepth: 1,
-                  filterOptions: { practiceSetting: { equals: 'home' } },
+                  filterOptions: {
+                    and: [
+                      { practiceSetting: { equals: 'home' } },
+                      { eventType: { in: ['general', 'singles'] } },
+                    ],
+                  },
                 },
                 {
                   name: 'doublesHomeDrills',
@@ -176,7 +193,12 @@ export const Programs: CollectionConfig = {
                   relationTo: 'drills',
                   hasMany: true,
                   maxDepth: 1,
-                  filterOptions: { practiceSetting: { equals: 'home' } },
+                  filterOptions: {
+                    and: [
+                      { practiceSetting: { equals: 'home' } },
+                      { eventType: { in: ['general', 'doubles'] } },
+                    ],
+                  },
                 },
               ],
             },

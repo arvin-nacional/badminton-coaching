@@ -848,6 +848,119 @@ export const lungeBalanceLegStrengthContent = {
     'Controls both sides without pain, knee collapse or repeated balance loss through the final round.',
 }
 
+const singlesBaseRecoveryShadowSteps: HomePracticeStep[] = [
+  {
+    title: 'Serve, recover and cover',
+    instruction:
+      'Shadow a high serve toward the deep centre, recover to a balanced singles base, then react to one called corner. Shadow the reply and recover according to the quality of the imagined shot.',
+    amount: '6 patterns · 45 secs',
+    durationSeconds: 45,
+    spokenCues: ['Front left', 'Front right', 'Rear left', 'Rear right'],
+    cueIntervalSeconds: { min: 5, max: 7 },
+  },
+  {
+    title: 'Round recovery',
+    instruction:
+      'Walk slowly, loosen the grip and check that the serving action, first recovery step and final base remained balanced.',
+    amount: 'Rest 30 secs',
+    durationSeconds: 30,
+    kind: 'rest',
+  },
+]
+
+const singlesBaseRecoveryShadowSetup =
+  'Mark a serving position, one central singles base and four corner targets in a clear non-slip area. Use compact home-sized steps and mirror racket-side details if you are left-handed.'
+const singlesBaseRecoveryShadowWorkRest =
+  'Complete 4 rounds of 45 seconds. Start each pattern with a high-serve shadow, recover to base, react to the called corner and recover again. Rest 30 seconds between rounds.'
+const singlesBaseRecoveryShadowSafety =
+  'Use only home-sized movements, keep the racket clear of walls and ceilings, and stop if balance or landing control deteriorates.'
+
+export const singlesBaseRecoveryShadowContent = {
+  illustrationURL: '/images/drills/singles-base-recovery-shadow.svg',
+  stepIllustrationURL: '/images/drills/singles-base-recovery-shadow.svg',
+  stepIllustrationColumns: 1,
+  stepIllustrationRows: 1,
+  durationMinutes: 8,
+  equipment: 'Racket, five floor markers and a device with sound',
+  instructions: [
+    `Setup: ${singlesBaseRecoveryShadowSetup}`,
+    singlesBaseRecoveryShadowSteps
+      .map((step, index) => `${index + 1}. ${step.title} — ${step.instruction}`)
+      .join('\n'),
+    `Work/rest: ${singlesBaseRecoveryShadowWorkRest}\nSafety: ${singlesBaseRecoveryShadowSafety}`,
+  ].join('\n\n'),
+  coachingPoints:
+    'Finish the serve balanced, recover immediately, split as the cue arrives and let the imagined reply determine the final base.',
+  commonMistakes:
+    'Watching the imagined serve, returning automatically to one fixed spot and using court-sized steps in a small room.',
+  successTarget: 'Complete at least 20 of 24 patterns with two balanced recoveries.',
+  easierVariation: 'Use two front corners only and walk each pattern.',
+  harderProgression:
+    'Add straight-lift and cross-lift calls that require different recovery positions.',
+  completionRequirement:
+    'Links the serve, first recovery, split step and corner movement without pausing between actions.',
+}
+
+const doublesFirstFourShadowSteps: HomePracticeStep[] = [
+  {
+    title: 'Serve and third shot',
+    instruction:
+      'Shadow a low serve, stay ready near the front service line, then react to a straight, body or wide return cue with a compact net interception or drive.',
+    amount: '6 patterns · 40 secs',
+    durationSeconds: 40,
+    spokenCues: ['Straight', 'Body', 'Wide'],
+    cueIntervalSeconds: { min: 5, max: 6 },
+  },
+  {
+    title: 'Return and fourth shot',
+    instruction:
+      'Start in a receiving stance, shadow an early flat or net return, recover with the racket up and react to the next cue without drifting backward unnecessarily.',
+    amount: '6 patterns · 40 secs',
+    durationSeconds: 40,
+    spokenCues: ['Net', 'Drive', 'Push'],
+    cueIntervalSeconds: { min: 5, max: 6 },
+  },
+  {
+    title: 'Round recovery',
+    instruction: 'Relax the grip, breathe and review whether the racket stayed above the hand.',
+    amount: 'Rest 30 secs',
+    durationSeconds: 30,
+    kind: 'rest',
+  },
+]
+
+const doublesFirstFourShadowSetup =
+  'Mark a short service line, a serving position and a receiving position in a clear space. Add three compact target markers for straight, body and wide replies.'
+const doublesFirstFourShadowWorkRest =
+  'Complete 3 rounds. Work for 40 seconds on serve-and-third-shot patterns, 40 seconds on return-and-fourth-shot patterns, then rest for 30 seconds.'
+const doublesFirstFourShadowSafety =
+  'Keep movements compact, use a short racket action and leave full clearance from walls, furniture and other people.'
+
+export const doublesFirstFourShadowContent = {
+  illustrationURL: '/images/drills/doubles-first-four-shadow.svg',
+  stepIllustrationURL: '/images/drills/doubles-first-four-shadow.svg',
+  stepIllustrationColumns: 1,
+  stepIllustrationRows: 1,
+  durationMinutes: 8,
+  equipment: 'Racket, five floor markers and a device with sound',
+  instructions: [
+    `Setup: ${doublesFirstFourShadowSetup}`,
+    doublesFirstFourShadowSteps
+      .map((step, index) => `${index + 1}. ${step.title} — ${step.instruction}`)
+      .join('\n'),
+    `Work/rest: ${doublesFirstFourShadowWorkRest}\nSafety: ${doublesFirstFourShadowSafety}`,
+  ].join('\n\n'),
+  coachingPoints:
+    'Use a compact serve or return action, keep the racket up and prepare immediately for the third or fourth shot.',
+  commonMistakes:
+    'Admiring the serve, dropping the racket, taking a large swing and recovering away from the likely next contact.',
+  successTarget: 'Complete 30 of 36 patterns with the racket ready before the next cue.',
+  easierVariation: 'Use only straight cues and pause briefly between the first and second action.',
+  harderProgression: 'Randomise serving and receiving starts without advance notice.',
+  completionRequirement:
+    'Connects the first two actions of the rally with compact preparation and an event-appropriate recovery.',
+}
+
 const configs: Record<string, StepSheetConfig> = {
   'Solo Racket Control Circuit': {
     sheetURL: soloRacketControlContent.stepIllustrationURL,
@@ -1004,6 +1117,32 @@ const configs: Record<string, StepSheetConfig> = {
     successTarget: highIntensityShadowIntervalsContent.successTarget,
     easierVariation: highIntensityShadowIntervalsContent.easierVariation,
     steps: highIntensityShadowIntervalSteps,
+  },
+  'Singles Base Recovery Shadow': {
+    sheetURL: singlesBaseRecoveryShadowContent.stepIllustrationURL,
+    columns: singlesBaseRecoveryShadowContent.stepIllustrationColumns,
+    rows: singlesBaseRecoveryShadowContent.stepIllustrationRows,
+    setup: singlesBaseRecoveryShadowSetup,
+    workRest: singlesBaseRecoveryShadowWorkRest,
+    safety: singlesBaseRecoveryShadowSafety,
+    rounds: 4,
+    equipment: singlesBaseRecoveryShadowContent.equipment,
+    successTarget: singlesBaseRecoveryShadowContent.successTarget,
+    easierVariation: singlesBaseRecoveryShadowContent.easierVariation,
+    steps: singlesBaseRecoveryShadowSteps,
+  },
+  'Doubles First-Four-Shot Shadow': {
+    sheetURL: doublesFirstFourShadowContent.stepIllustrationURL,
+    columns: doublesFirstFourShadowContent.stepIllustrationColumns,
+    rows: doublesFirstFourShadowContent.stepIllustrationRows,
+    setup: doublesFirstFourShadowSetup,
+    workRest: doublesFirstFourShadowWorkRest,
+    safety: doublesFirstFourShadowSafety,
+    rounds: 3,
+    equipment: doublesFirstFourShadowContent.equipment,
+    successTarget: doublesFirstFourShadowContent.successTarget,
+    easierVariation: doublesFirstFourShadowContent.easierVariation,
+    steps: doublesFirstFourShadowSteps,
   },
 }
 
