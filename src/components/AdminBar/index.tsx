@@ -2,6 +2,7 @@
 
 import type { PayloadAdminBarProps, PayloadMeUser } from '@payloadcms/admin-bar'
 
+import { useAuthState } from '@/providers/AuthState'
 import { cn } from '@/utilities/ui'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import { PayloadAdminBar } from '@payloadcms/admin-bar'
@@ -41,15 +42,22 @@ export const AdminBar: React.FC<{
   const { adminBarProps } = props || {}
   const segments = useSelectedLayoutSegments()
   const [show, setShow] = useState(false)
+  const { setAuthUser } = useAuthState()
   const collection = (
     collectionLabels[segments?.[1] as keyof typeof collectionLabels] ? segments[1] : 'pages'
   ) as keyof typeof collectionLabels
   const router = useRouter()
 
-  const onAuthChange = React.useCallback((user: PayloadMeUser) => {
-    const roles = (user as AdminBarUser | null)?.roles
-    setShow(Boolean(user?.id && (!roles?.length || roles.includes('admin'))))
-  }, [])
+  const onAuthChange = React.useCallback(
+    (user: PayloadMeUser) => {
+      const authUser = user as AdminBarUser | null
+      const roles = authUser?.roles
+
+      setAuthUser(authUser?.id ? { id: String(authUser.id), roles } : null)
+      setShow(Boolean(authUser?.id && (!roles?.length || roles.includes('admin'))))
+    },
+    [setAuthUser],
+  )
 
   return (
     <div

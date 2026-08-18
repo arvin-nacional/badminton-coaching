@@ -1,10 +1,15 @@
 'use client'
 
-import { LogIn, Menu, X } from 'lucide-react'
-import Link from 'next/link'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
-export function MobileNavigation() {
+import { CMSLink } from '@/components/Link'
+import type { Header } from '@/payload-types'
+
+import { HeaderActions } from './Actions'
+import { getHeaderNavItems } from './defaultNavItems'
+
+export function MobileNavigation({ data }: { data: Header }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -22,42 +27,17 @@ export function MobileNavigation() {
       {open ? (
         <div className="absolute inset-x-4 top-[68px] rounded-3xl border border-[#092c59]/10 bg-white p-3 shadow-[0_24px_70px_-35px_rgba(9,44,89,.65)]">
           <nav className="grid gap-1 text-sm font-bold text-[#405d7d]">
-            <Link
-              href="/#programs"
-              onClick={() => setOpen(false)}
-              className="rounded-2xl px-4 py-3 hover:bg-[#f3f7fc]"
-            >
-              Programs
-            </Link>
-            <Link
-              href="/#assessment"
-              onClick={() => setOpen(false)}
-              className="rounded-2xl px-4 py-3 hover:bg-[#f3f7fc]"
-            >
-              Assessment
-            </Link>
-            <Link
-              href="/#contact"
-              onClick={() => setOpen(false)}
-              className="rounded-2xl px-4 py-3 hover:bg-[#f3f7fc]"
-            >
-              How it works
-            </Link>
+            {getHeaderNavItems(data).map(({ id, link }, index) => (
+              <CMSLink
+                {...link}
+                className="rounded-2xl px-4 py-3 hover:bg-[#f3f7fc]"
+                key={id || `${link.label}-${index}`}
+              />
+            ))}
             <div className="my-1 h-px bg-[#092c59]/10" />
-            <Link
-              href="/login?redirect=/dashboard/student"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 rounded-2xl px-4 py-3 hover:bg-[#f3f7fc]"
-            >
-              <LogIn className="h-4 w-4" /> Student login
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setOpen(false)}
-              className="mt-1 rounded-full bg-[#092c59] px-5 py-3 text-center text-white"
-            >
-              Get started
-            </Link>
+            <div className="grid gap-2" onClick={() => setOpen(false)}>
+              <HeaderActions data={data} mobile />
+            </div>
           </nav>
         </div>
       ) : null}
