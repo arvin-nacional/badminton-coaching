@@ -109,6 +109,82 @@ export const getRandomCueDelayMilliseconds = (
   return Math.round((safeMin + (safeMax - safeMin) * progress) * 1000)
 }
 
+export const getHomePracticeTimeCue = ({
+  durationSeconds,
+  previousElapsedSeconds,
+  elapsedSeconds,
+}: {
+  durationSeconds: number
+  previousElapsedSeconds: number
+  elapsedSeconds: number
+}) => {
+  const duration = Math.max(0, Math.floor(durationSeconds))
+  const previousElapsed = Math.max(0, Math.floor(previousElapsedSeconds))
+  const elapsed = Math.max(0, Math.floor(elapsedSeconds))
+  if (!duration || elapsed <= previousElapsed) return ''
+
+  const previousRemaining = Math.max(0, duration - previousElapsed)
+  const remaining = Math.max(0, duration - elapsed)
+
+  if (duration > 30 && previousRemaining > 30 && remaining <= 30 && remaining > 5) {
+    return '30 seconds remaining.'
+  }
+
+  if (remaining >= 1 && remaining <= 5 && previousRemaining > 5) {
+    return '5 seconds left.'
+  }
+
+  return ''
+}
+
+export type HomePracticeVoiceTransition =
+  | 'start'
+  | 'resume'
+  | 'next-exercise'
+  | 'next-round'
+  | 'next-workout'
+  | 'complete'
+
+export const getHomePracticeTransitionCue = ({
+  transition,
+  drillTitle,
+  stepTitle,
+  durationSeconds,
+  round,
+  rounds,
+}: {
+  transition: HomePracticeVoiceTransition
+  drillTitle?: string
+  stepTitle?: string
+  durationSeconds?: number
+  round?: number
+  rounds?: number
+}) => {
+  if (transition === 'complete') return 'Workout complete. Nice work.'
+  if (!stepTitle) return ''
+
+  const safeRound = Math.max(1, Math.floor(round || 1))
+  const safeRounds = Math.max(safeRound, Math.floor(rounds || 1))
+  const roundCountCue = `This workout has ${safeRounds} ${safeRounds === 1 ? 'round' : 'rounds'}.`
+
+  if (transition === 'resume') {
+    return `Resume ${stepTitle}. Round ${safeRound} of ${safeRounds}.`
+  }
+
+  const durationCue = durationSeconds ? ` ${Math.floor(durationSeconds)} seconds.` : ''
+  if (transition === 'next-workout') {
+    return `Next workout is ${drillTitle || 'Practice'}. ${roundCountCue} First exercise is ${stepTitle}.${durationCue} Begin.`
+  }
+  if (transition === 'next-round') {
+    return `Round ${safeRound} of ${safeRounds}. Exercise is ${stepTitle}.${durationCue} Begin.`
+  }
+  if (transition === 'next-exercise') {
+    return `Next exercise is ${stepTitle}.${durationCue} Begin.`
+  }
+
+  return `${stepTitle}.${durationCue} ${roundCountCue} Begin.`
+}
+
 type StepAmount = Pick<HomePracticeStep, 'amount' | 'durationSeconds'>
 
 type StepSheetConfig = {

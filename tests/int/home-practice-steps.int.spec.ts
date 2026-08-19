@@ -9,6 +9,8 @@ import {
   getRandomCueDelayMilliseconds,
   getHomePracticeAdvanceAction,
   getHomePracticeRounds,
+  getHomePracticeTimeCue,
+  getHomePracticeTransitionCue,
   highIntensityShadowIntervalsContent,
   lowServeFloorTargetContent,
   lungeBalanceLegStrengthContent,
@@ -23,6 +25,116 @@ import {
 } from '@/data/homePracticeSteps'
 
 describe('home practice sequence progress', () => {
+  it('announces 30 seconds remaining and one cue with five seconds left', () => {
+    expect(
+      getHomePracticeTimeCue({
+        durationSeconds: 60,
+        previousElapsedSeconds: 29,
+        elapsedSeconds: 30,
+      }),
+    ).toBe('30 seconds remaining.')
+
+    expect(
+      getHomePracticeTimeCue({
+        durationSeconds: 60,
+        previousElapsedSeconds: 54,
+        elapsedSeconds: 55,
+      }),
+    ).toBe('5 seconds left.')
+    expect(
+      [56, 57, 58, 59].map((elapsedSeconds) =>
+        getHomePracticeTimeCue({
+          durationSeconds: 60,
+          previousElapsedSeconds: elapsedSeconds - 1,
+          elapsedSeconds,
+        }),
+      ),
+    ).toEqual(['', '', '', ''])
+  })
+
+  it('does not repeat time cues while paused or announce 30 seconds on a 30-second exercise', () => {
+    expect(
+      getHomePracticeTimeCue({
+        durationSeconds: 60,
+        previousElapsedSeconds: 30,
+        elapsedSeconds: 30,
+      }),
+    ).toBe('')
+    expect(
+      getHomePracticeTimeCue({
+        durationSeconds: 30,
+        previousElapsedSeconds: 0,
+        elapsedSeconds: 1,
+      }),
+    ).toBe('')
+  })
+
+  it('still gives the single five-second warning after a delayed timer tick', () => {
+    expect(
+      getHomePracticeTimeCue({
+        durationSeconds: 60,
+        previousElapsedSeconds: 54,
+        elapsedSeconds: 57,
+      }),
+    ).toBe('5 seconds left.')
+  })
+
+  it('builds concise exercise, round, workout, resume, and completion announcements', () => {
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'start',
+        stepTitle: 'Forehand wall drives',
+        durationSeconds: 45,
+        rounds: 3,
+      }),
+    ).toBe('Forehand wall drives. 45 seconds. This workout has 3 rounds. Begin.')
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'next-exercise',
+        stepTitle: 'Backhand wall drives',
+        durationSeconds: 45,
+      }),
+    ).toBe('Next exercise is Backhand wall drives. 45 seconds. Begin.')
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'next-round',
+        round: 2,
+        rounds: 3,
+        stepTitle: 'Forehand wall drives',
+        durationSeconds: 45,
+      }),
+    ).toBe('Round 2 of 3. Exercise is Forehand wall drives. 45 seconds. Begin.')
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'next-workout',
+        drillTitle: 'Reactive Split-Step Cues',
+        stepTitle: 'Random direction reactions',
+        durationSeconds: 40,
+        rounds: 5,
+      }),
+    ).toBe(
+      'Next workout is Reactive Split-Step Cues. This workout has 5 rounds. First exercise is Random direction reactions. 40 seconds. Begin.',
+    )
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'resume',
+        stepTitle: 'Round recovery',
+        round: 2,
+        rounds: 3,
+      }),
+    ).toBe('Resume Round recovery. Round 2 of 3.')
+    expect(getHomePracticeTransitionCue({ transition: 'complete' })).toBe(
+      'Workout complete. Nice work.',
+    )
+    expect(
+      getHomePracticeTransitionCue({
+        transition: 'start',
+        stepTitle: 'Low serves',
+        rounds: 1,
+      }),
+    ).toBe('Low serves. This workout has 1 round. Begin.')
+  })
+
   it('reads repeat counts from rounds, sets, and scenarios', () => {
     expect(getHomePracticeRounds('Work/rest: Complete 3 rounds with 30 seconds rest.')).toBe(3)
     expect(getHomePracticeRounds('Work/rest: Complete 4 sets of 10 serves.')).toBe(4)

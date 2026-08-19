@@ -26,6 +26,8 @@ import {
   getRandomCueDelayMilliseconds,
   getHomePracticeAdvanceAction,
   getHomePracticeRounds,
+  getHomePracticeTimeCue,
+  getHomePracticeTransitionCue,
   pickRandomDirectionCue,
   type HomePracticeStep,
 } from '@/data/homePracticeSteps'
@@ -35,6 +37,13 @@ type TimerStatus = 'not-started' | 'running' | 'paused' | 'finished'
 type TimerAction =
   'start' | 'pause' | 'resume' | 'next-step' | 'repeat' | 'next' | 'finish' | 'reset'
 type ExerciseLog = NonNullable<IndependentPractice['exerciseLogs']>[number]
+type PracticeVoiceOption = {
+  lang: string
+  name: string
+  voiceURI: string
+}
+
+const PRACTICE_VOICE_STORAGE_KEY = 'next-shot-home-practice-voice'
 
 type WorkoutDrill = Pick<
   Drill,
@@ -201,15 +210,24 @@ export function HomePracticeTimer({
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'exercises' | 'log'>('exercises')
-  const [activeSpokenCue, setActiveSpokenCue] = useState('')
-  const [directionCuesMuted, setDirectionCuesMuted] = useState(false)
+  const [voiceCuesMuted, setVoiceCuesMuted] = useState(false)
+  const [voiceOptions, setVoiceOptions] = useState<PracticeVoiceOption[]>([])
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState('')
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const keepProgressButtonRef = useRef<HTMLButtonElement>(null)
   const summaryPrimaryButtonRef = useRef<HTMLButtonElement>(null)
   const workoutContentRef = useRef<HTMLElement>(null)
   const automaticAdvanceRef = useRef('')
   const actionInFlightRef = useRef(false)
-  const directionCuesMutedRef = useRef(false)
+  const voiceCuesMutedRef = useRef(false)
+  const selectedVoiceURIRef = useRef('')
+  const voicePositionRef = useRef<{
+    drillIndex: number
+    round: number
+    stepIndex: number
+  } | null>(null)
+  const previousVoiceStatusRef = useRef<TimerStatus>(status)
+  const previousVoiceElapsedRef = useRef(currentStepElapsedSeconds)
 
   const runningSegmentSeconds =
     status === 'running' && startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0
@@ -231,6 +249,30 @@ export function HomePracticeTimer({
     rounds: currentSequence?.rounds || 1,
   })
 
+  const speakCue = useCallback((cue: string) => {
+    if (
+      voiceCuesMutedRef.current ||
+      typeof window.SpeechSynthesisUtterance !== 'function' ||
+      !window.speechSynthesis
+    ) {
+      return
+    }
+
+    window.speechSynthesis.cancel()
+    const utterance = new window.SpeechSynthesisUtterance(cue)
+    const voices = window.speechSynthesis.getVoices()
+    utterance.voice =
+      voices.find((voice) => voice.voiceURI === selectedVoiceURIRef.current) ||
+      voices.find((voice) => voice.lang.toLowerCase() === 'en-ph') ||
+      voices.find((voice) => voice.lang.toLowerCase().startsWith('en')) ||
+      null
+    utterance.lang = utterance.voice?.lang || 'en-PH'
+    utterance.rate = 0.95
+    utterance.pitch = 1
+    utterance.volume = 1
+    window.speechSynthesis.speak(utterance)
+  }, [])
+
   const showDrill = useCallback(
     (index: number) => {
       if (index < 0 || index >= drills.length) return
@@ -250,22 +292,59 @@ export function HomePracticeTimer({
   }, [status])
 
   useEffect(() => {
-    directionCuesMutedRef.current = directionCuesMuted
-  }, [directionCuesMuted])
+    if (!window.speechSynthesis) return
+
+    const updateVoices = () => {
+      const options = window.speechSynthesis
+        .getVoices()
+        .filter((voice) => voice.lang.toLowerCase().startsWith('en'))
+        .map(({ lang, name, voiceURI }) => ({ lang, name, voiceURI }))
+        .filter(
+          (voice, index, voices) =>
+            voices.findIndex((candidate) => candidate.voiceURI === voice.voiceURI) === index,
+        )
+        .sort((a, b) => a.name.localeCompare(b.name))
+
+      setVoiceOptions(options)
+      if (!options.length || selectedVoiceURIRef.current) return
+
+      let storedVoiceURI = ''
+      try {
+        storedVoiceURI = window.localStorage.getItem(PRACTICE_VOICE_STORAGE_KEY) || ''
+      } catch {
+        // Voice selection still works for this session when storage is unavailable.
+      }
+      if (options.some((voice) => voice.voiceURI === storedVoiceURI)) {
+        selectedVoiceURIRef.current = storedVoiceURI
+        setSelectedVoiceURI(storedVoiceURI)
+      }
+    }
+
+    updateVoices()
+    window.speechSynthesis.addEventListener('voiceschanged', updateVoices)
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', updateVoices)
+  }, [])
+
+  useEffect(() => {
+    voiceCuesMutedRef.current = voiceCuesMuted
+  }, [voiceCuesMuted])
 
   useEffect(() => {
     const step = currentSequence?.steps[currentStepIndex]
     const cues = step?.spokenCues
     const cueInterval = step?.cueIntervalSeconds
-    setActiveSpokenCue('')
 
-    if (status !== 'running' || !cues?.length || !cueInterval) {
-      window.speechSynthesis?.cancel()
+    if (!isOpen || status !== 'running' || !cues?.length || !cueInterval) {
       return
     }
 
+    const activeSegmentSeconds = startedAt
+      ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
+      : 0
     const cueWindowEndsAt =
-      Date.now() + Math.max(0, (step.durationSeconds || 0) - currentStepElapsedSeconds) * 1000
+      Date.now() +
+      Math.max(0, (step.durationSeconds || 0) - currentStepElapsedSeconds - activeSegmentSeconds) *
+        1000
     let cancelled = false
     let timeoutID: number | undefined
     let previousCue = ''
@@ -274,35 +353,152 @@ export function HomePracticeTimer({
       timeoutID = window.setTimeout(() => {
         if (cancelled || Date.now() >= cueWindowEndsAt) return
 
+        const millisecondsRemaining = cueWindowEndsAt - Date.now()
+        if (millisecondsRemaining <= 5500) return
+
+        // Transition and time announcements have priority over rapid direction prompts.
+        if (!voiceCuesMutedRef.current && window.speechSynthesis?.speaking) {
+          scheduleCue(750)
+          return
+        }
+
         const cue = pickRandomDirectionCue(cues, previousCue)
         if (!cue) return
         previousCue = cue
-        setActiveSpokenCue(cue)
 
-        if (
-          !directionCuesMutedRef.current &&
-          typeof window.SpeechSynthesisUtterance === 'function' &&
-          window.speechSynthesis
-        ) {
-          window.speechSynthesis.cancel()
-          const utterance = new window.SpeechSynthesisUtterance(cue)
-          utterance.rate = 1
-          utterance.volume = 1
-          window.speechSynthesis.speak(utterance)
+        speakCue(cue)
+
+        if (millisecondsRemaining > 6500) {
+          scheduleCue(getRandomCueDelayMilliseconds(cueInterval.min, cueInterval.max))
         }
-
-        scheduleCue(getRandomCueDelayMilliseconds(cueInterval.min, cueInterval.max))
       }, delayMilliseconds)
     }
 
-    scheduleCue(1500)
+    // Leave room for the exercise title and duration before rapid direction prompts begin.
+    scheduleCue(4000)
 
     return () => {
       cancelled = true
       if (timeoutID !== undefined) window.clearTimeout(timeoutID)
-      window.speechSynthesis?.cancel()
     }
-  }, [currentSequence, currentStepElapsedSeconds, currentStepIndex, status])
+  }, [
+    currentSequence,
+    currentStepElapsedSeconds,
+    currentStepIndex,
+    isOpen,
+    speakCue,
+    startedAt,
+    status,
+  ])
+
+  useEffect(() => {
+    const previousStatus = previousVoiceStatusRef.current
+    previousVoiceStatusRef.current = status
+
+    if (!isOpen) {
+      window.speechSynthesis?.cancel()
+      voicePositionRef.current = null
+      return
+    }
+
+    if (status === 'finished') {
+      if (previousStatus !== 'finished') {
+        speakCue(getHomePracticeTransitionCue({ transition: 'complete' }))
+      }
+      return
+    }
+
+    if (status !== 'running') {
+      window.speechSynthesis?.cancel()
+      if (status === 'not-started') voicePositionRef.current = null
+      return
+    }
+
+    const step = currentSequence?.steps[currentStepIndex]
+    if (!step) return
+
+    const previousPosition = voicePositionRef.current
+    const positionChanged =
+      !previousPosition ||
+      previousPosition.drillIndex !== currentDrillIndex ||
+      previousPosition.round !== currentRound ||
+      previousPosition.stepIndex !== currentStepIndex
+
+    if (positionChanged) {
+      let transition: Parameters<typeof getHomePracticeTransitionCue>[0]['transition'] = 'start'
+
+      if (previousPosition?.drillIndex !== undefined) {
+        if (previousPosition.drillIndex !== currentDrillIndex) {
+          transition = 'next-workout'
+        } else if (previousPosition.round !== currentRound) {
+          transition = 'next-round'
+        } else {
+          transition = 'next-exercise'
+        }
+      } else if (displayedStepSeconds > 0) {
+        transition = 'resume'
+      }
+
+      voicePositionRef.current = {
+        drillIndex: currentDrillIndex,
+        round: currentRound,
+        stepIndex: currentStepIndex,
+      }
+      previousVoiceElapsedRef.current = displayedStepSeconds
+      speakCue(
+        getHomePracticeTransitionCue({
+          transition,
+          drillTitle: currentDrill?.name,
+          stepTitle: step.title,
+          durationSeconds: step.durationSeconds,
+          round: currentRound,
+          rounds: currentSequence.rounds,
+        }),
+      )
+    } else if (previousStatus !== 'running') {
+      previousVoiceElapsedRef.current = displayedStepSeconds
+      speakCue(
+        getHomePracticeTransitionCue({
+          transition: 'resume',
+          stepTitle: step.title,
+          round: currentRound,
+          rounds: currentSequence.rounds,
+        }),
+      )
+    }
+  }, [
+    currentDrill?.name,
+    currentDrillIndex,
+    currentRound,
+    currentSequence,
+    currentStepIndex,
+    displayedStepSeconds,
+    isOpen,
+    speakCue,
+    status,
+  ])
+
+  useEffect(() => {
+    const previousElapsedSeconds = previousVoiceElapsedRef.current
+    previousVoiceElapsedRef.current = displayedStepSeconds
+    const durationSeconds = currentSequence?.steps[currentStepIndex]?.durationSeconds || 0
+
+    if (!isOpen || status !== 'running' || !durationSeconds) return
+
+    const cue = getHomePracticeTimeCue({
+      durationSeconds,
+      previousElapsedSeconds,
+      elapsedSeconds: displayedStepSeconds,
+    })
+    if (cue) speakCue(cue)
+  }, [
+    currentSequence,
+    currentStepIndex,
+    displayedStepSeconds,
+    isOpen,
+    speakCue,
+    status,
+  ])
 
   useEffect(() => setPracticeCompleted(initialCompleted), [initialCompleted])
 
@@ -577,6 +773,35 @@ export function HomePracticeTimer({
     else void runAction('resume')
   }
 
+  const toggleVoiceCues = () => {
+    const muted = !voiceCuesMutedRef.current
+    voiceCuesMutedRef.current = muted
+    setVoiceCuesMuted(muted)
+
+    if (muted) {
+      window.speechSynthesis?.cancel()
+      return
+    }
+
+    const stepTitle = currentSequence?.steps[currentStepIndex]?.title
+    speakCue(stepTitle ? `Voice cues on. ${stepTitle}.` : 'Voice cues on.')
+  }
+
+  const selectPracticeVoice = (voiceURI: string) => {
+    selectedVoiceURIRef.current = voiceURI
+    setSelectedVoiceURI(voiceURI)
+
+    try {
+      if (voiceURI) window.localStorage.setItem(PRACTICE_VOICE_STORAGE_KEY, voiceURI)
+      else window.localStorage.removeItem(PRACTICE_VOICE_STORAGE_KEY)
+    } catch {
+      // Keep the selected voice in memory for this workout.
+    }
+
+    const stepTitle = currentSequence?.steps[currentStepIndex]?.title
+    speakCue(stepTitle ? `Voice changed. ${stepTitle}.` : 'Voice changed.')
+  }
+
   const markPracticeComplete = async () => {
     if (isMarkingComplete || practiceCompleted) return
 
@@ -682,9 +907,14 @@ export function HomePracticeTimer({
                       viewedDrillIndex={viewedDrillIndex}
                       status={status}
                       isSaving={isSaving}
+                      voiceCuesMuted={voiceCuesMuted}
+                      voiceOptions={voiceOptions}
+                      selectedVoiceURI={selectedVoiceURI}
                       onClose={() => setIsOpen(false)}
                       onReset={resetPractice}
                       onSelectDrill={showDrill}
+                      onToggleCues={toggleVoiceCues}
+                      onVoiceChange={selectPracticeVoice}
                     />
 
                     <main
@@ -792,13 +1022,6 @@ export function HomePracticeTimer({
                                 }
                                 isSaving={isSaving}
                                 autoAdvances={Boolean(step.durationSeconds)}
-                                spokenCue={
-                                  isViewingCurrentDrill && index === currentStepIndex
-                                    ? activeSpokenCue
-                                    : ''
-                                }
-                                cuesMuted={directionCuesMuted}
-                                onToggleCues={() => setDirectionCuesMuted((muted) => !muted)}
                                 onToggleTimer={toggleActiveStep}
                               />
                             ))}
@@ -1186,9 +1409,14 @@ function WorkoutHeader({
   viewedDrillIndex,
   status,
   isSaving,
+  voiceCuesMuted,
+  voiceOptions,
+  selectedVoiceURI,
   onClose,
   onReset,
   onSelectDrill,
+  onToggleCues,
+  onVoiceChange,
 }: {
   closeButtonRef: RefObject<HTMLButtonElement | null>
   displayedSeconds: number
@@ -1197,9 +1425,14 @@ function WorkoutHeader({
   viewedDrillIndex: number
   status: TimerStatus
   isSaving: boolean
+  voiceCuesMuted: boolean
+  voiceOptions: PracticeVoiceOption[]
+  selectedVoiceURI: string
   onClose: () => void
   onReset: () => void
   onSelectDrill: (index: number) => void
+  onToggleCues: () => void
+  onVoiceChange: (voiceURI: string) => void
 }) {
   return (
     <header className="shrink-0 bg-[#edf3f8] px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-7">
@@ -1248,6 +1481,35 @@ function WorkoutHeader({
           />
         ))}
       </div>
+      <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 rounded-xl border border-[#092c59]/10 bg-white p-2.5">
+        <label className="min-w-0 text-[10px] font-black uppercase tracking-[.12em] text-[#607286] sm:text-xs">
+          Coach voice
+          <select
+            aria-label="Coach voice"
+            className="mt-1 min-h-10 w-full rounded-lg border border-[#092c59]/10 bg-[#f3f7fc] px-2 text-sm font-bold normal-case tracking-normal text-[#092c59] outline-none focus:border-[#1677ff]"
+            disabled={voiceCuesMuted || !voiceOptions.length}
+            onChange={(event) => onVoiceChange(event.target.value)}
+            value={selectedVoiceURI}
+          >
+            <option value="">Automatic English voice</option>
+            {voiceOptions.map((voice) => (
+              <option key={voice.voiceURI} value={voice.voiceURI}>
+                {voice.name} ({voice.lang})
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={onToggleCues}
+          className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#1677ff]/20 bg-[#f3f7fc] px-3 text-xs font-black text-[#092c59] transition hover:border-[#1677ff]/50"
+          aria-label={voiceCuesMuted ? 'Turn voice cues on' : 'Turn voice cues off'}
+          aria-pressed={voiceCuesMuted}
+        >
+          {voiceCuesMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          {voiceCuesMuted ? 'Voice off' : 'Voice on'}
+        </button>
+      </div>
     </header>
   )
 }
@@ -1295,9 +1557,6 @@ function StepCard({
   elapsedSeconds,
   isSaving,
   autoAdvances,
-  spokenCue,
-  cuesMuted,
-  onToggleCues,
   onToggleTimer,
 }: {
   step: HomePracticeStep
@@ -1311,9 +1570,6 @@ function StepCard({
   elapsedSeconds: number
   isSaving: boolean
   autoAdvances: boolean
-  spokenCue: string
-  cuesMuted: boolean
-  onToggleCues: () => void
   onToggleTimer: () => void
 }) {
   const durationSeconds = step.durationSeconds || 0
@@ -1367,36 +1623,6 @@ function StepCard({
           <p className="mt-3 text-xs font-semibold leading-5 text-[#4f647b] sm:text-sm sm:leading-6">
             {step.instruction}
           </p>
-
-          {active && step.spokenCues?.length ? (
-            <div className="mt-4 rounded-2xl border border-[#1677ff]/25 bg-[#eaf3ff] p-3 sm:p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#1677ff] sm:text-xs">
-                    Direction cue
-                  </p>
-                  <p
-                    aria-live="polite"
-                    className="mt-1 truncate text-xl font-black uppercase tracking-wide text-[#092c59] sm:text-2xl"
-                  >
-                    {spokenCue || (timerStatus === 'running' ? 'Get ready' : 'Starts with timer')}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onToggleCues}
-                  className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#1677ff]/20 bg-white px-3 text-xs font-black text-[#092c59] transition hover:border-[#1677ff]/50"
-                  aria-label={
-                    cuesMuted ? 'Turn spoken direction cues on' : 'Mute spoken direction cues'
-                  }
-                  aria-pressed={cuesMuted}
-                >
-                  {cuesMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  <span className="hidden sm:inline">{cuesMuted ? 'Voice off' : 'Voice on'}</span>
-                </button>
-              </div>
-            </div>
-          ) : null}
 
           <button
             type="button"
