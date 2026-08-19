@@ -6,11 +6,11 @@ import { generateRecurringAssessmentSlots } from '@/utilities/assessmentAvailabi
 import { isCoach } from '@/utilities/dashboardAuth'
 import { sendAssessmentBookingEmails } from '@/utilities/sendAssessmentBookingEmails'
 import { scheduleAssessmentReminders } from '@/utilities/scheduleAssessmentReminders'
-
-const text = (value: unknown, max: number) =>
-  typeof value === 'string' ? value.trim().slice(0, max) : ''
-const playingExperienceOptions = ['new', 'under-1-year', '1-3-years', 'over-3-years'] as const
-const preferredEventOptions = ['singles', 'doubles', 'both', 'not-sure'] as const
+import {
+  assessmentPlayingExperienceOptions,
+  assessmentPreferredEventOptions,
+  validateAssessmentBookingInput,
+} from '@/utilities/validateAssessmentBooking'
 
 export async function DELETE(request: Request) {
   const payload = await getPayload({ config: configPromise })
@@ -43,20 +43,33 @@ export async function DELETE(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let body: Record<string, unknown>
+  let body: unknown
   try {
     body = await request.json()
   } catch {
     return Response.json({ error: 'Please submit a valid booking.' }, { status: 400 })
   }
 
-  const slot = text(body.slot, 100)
-  const notes = text(body.notes, 1000)
-  const studentCourt = text(body.location, 200)
-
   const payload = await getPayload({ config: configPromise })
   const { user: authenticatedUser } = await payload.auth({ headers: await headers() })
   const user = authenticatedUser as User | null
+  const authenticatedStudent = Boolean(user?.roles?.includes('student'))
+  const validation = validateAssessmentBookingInput(body, authenticatedStudent)
+  if (!validation.valid) return Response.json({ error: validation.error }, { status: 400 })
+
+  const {
+    email: submittedEmail,
+    goals: submittedGoals,
+    injuryConsiderations: submittedInjuryConsiderations,
+    location: studentCourt,
+    notes,
+    phone: submittedPhone,
+    playerName: submittedPlayerName,
+    playingExperience: submittedPlayingExperience,
+    preferredEvent: submittedPreferredEvent,
+    slot,
+    trainingAvailability: submittedTrainingAvailability,
+  } = validation.data
 
   // Authenticated students: pull profile data from their student-profile so the
   // booking form only needs to collect a slot (+ optional notes).
@@ -97,53 +110,26 @@ export async function POST(request: Request) {
     injuryConsiderations = profile.injuryConsiderations || ''
   } else {
     // Unauthenticated visitor: collect everything from the form.
-    playerName = text(body.playerName, 120)
-    email = text(body.email, 254).toLowerCase()
-    phone = text(body.phone, 40)
-    playingExperience = text(body.playingExperience, 30)
-    preferredEvent = text(body.preferredEvent, 30)
-    goals = text(body.goals, 1000)
-    trainingAvailability = text(body.trainingAvailability, 500)
-    injuryConsiderations = text(body.injuryConsiderations, 1000)
+    playerName = submittedPlayerName
+    email = submittedEmail
+    phone = submittedPhone
+    playingExperience = submittedPlayingExperience || ''
+    preferredEvent = submittedPreferredEvent || ''
+    goals = submittedGoals
+    trainingAvailability = submittedTrainingAvailability
+    injuryConsiderations = submittedInjuryConsiderations
   }
 
-  const validPlayingExperience = playingExperienceOptions.includes(
-    playingExperience as (typeof playingExperienceOptions)[number],
+  const validPlayingExperience = assessmentPlayingExperienceOptions.includes(
+    playingExperience as (typeof assessmentPlayingExperienceOptions)[number],
   )
-    ? (playingExperience as (typeof playingExperienceOptions)[number])
+    ? (playingExperience as (typeof assessmentPlayingExperienceOptions)[number])
     : undefined
-  const validPreferredEvent = preferredEventOptions.includes(
-    preferredEvent as (typeof preferredEventOptions)[number],
+  const validPreferredEvent = assessmentPreferredEventOptions.includes(
+    preferredEvent as (typeof assessmentPreferredEventOptions)[number],
   )
-    ? (preferredEvent as (typeof preferredEventOptions)[number])
+    ? (preferredEvent as (typeof assessmentPreferredEventOptions)[number])
     : undefined
-
-  // For authenticated students, profile fields may be empty (e.g. optional
-  // onboarding answers). Only require them for unauthenticated visitors.
-  if (!slot) {
-    return Response.json({ error: 'Please choose an available time.' }, { status: 400 })
-  }
-  if (studentCourt.length < 3) {
-    return Response.json(
-      { error: 'Enter the court name and branch or address that you booked.' },
-      { status: 400 },
-    )
-  }
-  if (!user?.roles?.includes('student')) {
-    if (
-      !playerName ||
-      !/^\S+@\S+\.\S+$/.test(email) ||
-      !validPlayingExperience ||
-      !validPreferredEvent ||
-      !goals ||
-      !trainingAvailability
-    ) {
-      return Response.json(
-        { error: 'Choose a slot and complete the required player profile questions.' },
-        { status: 400 },
-      )
-    }
-  }
 
   // payload was already resolved above for the auth check
   let bookingData: {

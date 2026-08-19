@@ -2,7 +2,8 @@
 
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, MapPin, UserRound } from 'lucide-react'
 import Link from 'next/link'
-import { useState, type FormEvent } from 'react'
+import { useCallback, useState, type FormEvent } from 'react'
+import { CourtPlaceField } from './CourtPlaceField'
 
 export type AssessmentSlot = {
   id: string
@@ -46,11 +47,13 @@ export function BookingForm({
   isAuthenticated,
   displayName,
   existingBooking,
+  googleMapsApiKey,
 }: {
   slots: AssessmentSlot[]
   isAuthenticated: boolean
   displayName?: string
   existingBooking?: ExistingAssessmentBooking
+  googleMapsApiKey?: string
 }) {
   const dates = Array.from(new Set(slots.map((slot) => dateKey.format(new Date(slot.startsAt)))))
   const [selectedDate, setSelectedDate] = useState(dates[0] || '')
@@ -58,6 +61,8 @@ export function BookingForm({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
+  const [courtLocation, setCourtLocation] = useState('')
+  const updateCourtLocation = useCallback((value: string) => setCourtLocation(value), [])
   const visibleSlots = slots.filter(
     (slot) => dateKey.format(new Date(slot.startsAt)) === selectedDate,
   )
@@ -247,20 +252,11 @@ export function BookingForm({
               : "We'll use the details from your profile."}
           </p>
           <div className="mt-6 grid gap-5">
-            <label className="grid gap-2 text-sm font-bold">
-              Court you booked
-              <input
-                required
-                name="location"
-                maxLength={200}
-                placeholder="Court name, branch, address and court number"
-                className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
-              />
-              <span className="text-xs font-normal leading-5 text-[#718399]">
-                Coordinate and reserve the venue directly. Your coach will use this location to meet
-                you.
-              </span>
-            </label>
+            <CourtPlaceField
+              apiKey={googleMapsApiKey}
+              onChange={updateCourtLocation}
+              value={courtLocation}
+            />
             <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
               {logisticsFeeNote}
             </p>
@@ -281,7 +277,7 @@ export function BookingForm({
             )}
             <button
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white disabled:opacity-60"
-              disabled={pending || !selected}
+              disabled={pending || !selected || courtLocation.trim().length < 3}
               type="submit"
             >
               {pending ? 'Booking…' : 'Confirm assessment'}
@@ -301,20 +297,11 @@ export function BookingForm({
             Your answers help the coach prepare before you arrive.
           </p>
           <div className="mt-6 grid gap-5">
-            <label className="grid gap-2 text-sm font-bold">
-              Court you booked
-              <input
-                required
-                name="location"
-                maxLength={200}
-                placeholder="Court name, branch, address and court number"
-                className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
-              />
-              <span className="text-xs font-normal leading-5 text-[#718399]">
-                Coordinate and reserve the venue directly. The coach will use this location to meet
-                you.
-              </span>
-            </label>
+            <CourtPlaceField
+              apiKey={googleMapsApiKey}
+              onChange={updateCourtLocation}
+              value={courtLocation}
+            />
             <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
               {logisticsFeeNote}
             </p>
@@ -420,7 +407,7 @@ export function BookingForm({
             )}
             <button
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white disabled:opacity-60"
-              disabled={pending || !selected}
+              disabled={pending || !selected || courtLocation.trim().length < 3}
               type="submit"
             >
               {pending ? 'Booking…' : 'Book assessment'}

@@ -117,6 +117,7 @@ export default async function BookAssessmentPage() {
             isAuthenticated={isAuthenticated}
             displayName={displayName}
             existingBooking={existingBooking}
+            googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
           />
         </div>
       </div>
