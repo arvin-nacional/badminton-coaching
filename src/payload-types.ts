@@ -471,6 +471,7 @@ export interface Category {
 export interface User {
   id: string;
   name?: string | null;
+  googleSubject?: string | null;
   roles: ('admin' | 'coach' | 'student')[];
   accountStatus?: ('pending' | 'active') | null;
   invitationAcceptedAt?: string | null;
@@ -2422,6 +2423,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  googleSubject?: T;
   roles?: T;
   accountStatus?: T;
   invitationAcceptedAt?: T;

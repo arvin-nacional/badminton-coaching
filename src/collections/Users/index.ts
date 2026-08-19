@@ -60,6 +60,20 @@ export const Users: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'googleSubject',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        hidden: true,
+      },
+      access: {
+        create: () => false,
+        read: () => false,
+        update: () => false,
+      },
+    },
+    {
       name: 'roles',
       type: 'select',
       hasMany: true,

@@ -4,7 +4,9 @@ import { ArrowRight, CheckCircle2, LoaderCircle, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 
-export function SignupForm() {
+import { GoogleAuthButton } from './GoogleAuthButton'
+
+export function SignupForm({ googleClientID }: { googleClientID: string }) {
   const [error, setError] = useState('')
   const [complete, setComplete] = useState(false)
   const [pending, setPending] = useState(false)
@@ -72,10 +74,25 @@ export function SignupForm() {
               Create your student account
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#607286]">
-              Students can create an account to access their training dashboard. You will need to
-              verify your email and set a password before signing in.
+              Use Google for instant access, or sign up with email and verify it before setting your
+              password.
             </p>
-            <form onSubmit={signup} className="mt-7 space-y-5">
+            {googleClientID && (
+              <>
+                <div className="mt-7">
+                  <GoogleAuthButton
+                    clientID={googleClientID}
+                    intent="signup"
+                    onAuthenticated={() => window.location.assign('/dashboard/student')}
+                  />
+                </div>
+                <div className="my-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[.14em] text-[#8a9aad]">
+                  <span className="h-px flex-1 bg-[#d9e1ea]" /> or use email{' '}
+                  <span className="h-px flex-1 bg-[#d9e1ea]" />
+                </div>
+              </>
+            )}
+            <form onSubmit={signup} className={googleClientID ? 'space-y-5' : 'mt-7 space-y-5'}>
               <label className="block text-sm font-bold">
                 Full name
                 <input
