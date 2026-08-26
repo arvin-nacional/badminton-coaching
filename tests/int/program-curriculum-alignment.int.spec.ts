@@ -25,6 +25,7 @@ import {
   sessionDurationOptions,
   stripSessionTimePrefix,
 } from '@/utilities/sessionTiming'
+import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
 
 describe('program curriculum alignment', () => {
   const drillByName = new Map(coachingDrills.map((drill) => [drill.name, drill]))
@@ -90,6 +91,62 @@ describe('program curriculum alignment', () => {
         expect(generatedInstructions).toContain(lesson.independentPractice)
       }
     }
+  })
+
+  it('assigns the reviewed technique videos to the matching drills', () => {
+    const expectedVideos = {
+      'Solo Racket Control Circuit': 'https://www.youtube.com/watch?v=zCq36gnqGdI',
+      'Grip Change Tap-Ups': 'https://www.youtube.com/watch?v=toQ7tOx7Tvs',
+      'Reactive Split-Step Cues': 'https://www.youtube.com/watch?v=gy4YZS5tGxE',
+      'Compact Home Footwork': 'https://www.youtube.com/watch?v=fBa08o5GEqw',
+      'Four-Corner Shadow Rhythm': 'https://www.youtube.com/watch?v=fBa08o5GEqw',
+      'Lunge, Net and Recover': 'https://www.youtube.com/watch?v=doV0m6MNTCo',
+      'Lift for Length': 'https://www.youtube.com/watch?v=yRLtypZzJ1E',
+      'Low Serve Floor Targets': 'https://www.youtube.com/watch?v=kzWpvuWeih0',
+      'Low Serve Gate': 'https://www.youtube.com/watch?v=kzWpvuWeih0',
+      'High Serve and First Recovery': 'https://www.youtube.com/watch?v=Q5AY-sNovX4',
+      'Overhead Shadow Technique': 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
+      'Clear to Targets': 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
+      'Clear-Drop Decision Rally': 'https://www.youtube.com/watch?v=u--taRfMoTs',
+      'Three-Shot Attack Pattern': 'https://www.youtube.com/watch?v=H7kpZ9inc10',
+      'Wall Drive and Defence': 'https://www.youtube.com/watch?v=VICxkR6BijI',
+      'Drive Channel Exchange': 'https://www.youtube.com/watch?v=_6hffa-Jmpk',
+    } as const
+
+    for (const [drillName, expectedURL] of Object.entries(expectedVideos)) {
+      expect(drillByName.get(drillName)?.videoURL).toBe(expectedURL)
+    }
+
+    const videoURLs = coachingDrills.flatMap((drill) => (drill.videoURL ? [drill.videoURL] : []))
+    for (const videoURL of videoURLs) {
+      const url = new URL(videoURL)
+      expect(url.protocol).toBe('https:')
+      expect(url.hostname).toBe('www.youtube.com')
+      expect(url.pathname).toBe('/watch')
+      expect([...url.searchParams.keys()]).toEqual(['v'])
+    }
+    expect(videoURLs).not.toContain('https://www.youtube.com/watch?v=msLbOiLoGWw')
+    expect(videoURLs).not.toContain('https://www.youtube.com/watch?v=F7Clf4SnTlI')
+
+    const clearDrill = drillByName.get('Clear to Targets')!
+    const overheadDrill = drillByName.get('Overhead Shadow Technique')!
+    expect(trainingVideosFromDrills([clearDrill, overheadDrill])).toEqual([
+      {
+        title: 'Clear to Targets',
+        url: 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
+        level: 'foundations',
+        source: 'YouTube reference',
+      },
+    ])
+    expect(
+      trainingVideosFromDrills([
+        {
+          name: 'Unsafe legacy video',
+          level: 'foundations',
+          videoURL: 'javascript:alert(1)',
+        },
+      ]),
+    ).toEqual([])
   })
 
   it('preserves third and later lesson drills in generated coach sessions', () => {

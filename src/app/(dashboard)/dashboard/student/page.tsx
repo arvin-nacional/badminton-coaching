@@ -5,7 +5,6 @@ import {
   ClipboardList,
   CalendarCheck,
   MessageSquareText,
-  PlayCircle,
   Target,
   Trophy,
 } from 'lucide-react'
@@ -23,10 +22,16 @@ import {
 import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPracticeCheck'
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
 import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
+import { TrainingVideoLinks } from '@/components/Dashboard/TrainingVideoLinks'
 import type { PracticeLibrary, Skill } from '@/payload-types'
 import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 import { getCachedProgram } from '@/utilities/getCachedProgram'
+import {
+  programLessonDrillsForEvent,
+  programLessonHomeDrillsForEvent,
+} from '@/utilities/programEventBranches'
+import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
 
 const stageLabels = {
   'not-introduced': 'Not introduced',
@@ -117,9 +122,23 @@ export default async function StudentDashboardPage() {
     currentLesson && typeof currentLesson.independentPractice === 'object'
       ? (currentLesson.independentPractice as PracticeLibrary)
       : null
-  const lessonDrillIDs = (lessonPractice?.drills || [])
-    .map((drill) => (typeof drill === 'string' ? drill : drill.id))
-    .filter(Boolean)
+  const currentSessionDrillReferences = currentLesson
+    ? programLessonDrillsForEvent(currentLesson, profile.preferredEvent)
+    : []
+  const currentHomeDrillReferences = currentLesson
+    ? programLessonHomeDrillsForEvent(currentLesson, profile.preferredEvent)
+    : []
+  const lessonDrillIDs = Array.from(
+    new Set(
+      [
+        ...(lessonPractice?.drills || []),
+        ...currentSessionDrillReferences,
+        ...currentHomeDrillReferences,
+      ]
+        .map((drill) => (typeof drill === 'string' ? drill : drill.id))
+        .filter(Boolean),
+    ),
+  )
 
   // All student-specific queries use overrideAccess: true because we already
   // verified ownership via the profile query above (which used
@@ -240,6 +259,10 @@ export default async function StudentDashboardPage() {
     const drill = drillsByID.get(drillID)
     return drill ? [drill] : []
   })
+  const currentLessonDrills = [...currentSessionDrillReferences, ...currentHomeDrillReferences].map(
+    (drill) => (typeof drill === 'string' ? drillsByID.get(drill) : drill),
+  )
+  const videos = trainingVideosFromDrills([...currentLessonDrills, ...practiceDrills])
   const practiceDurationMinutes = practiceDrills.reduce(
     (total, drill) => total + drill.durationMinutes,
     0,
@@ -280,10 +303,6 @@ export default async function StudentDashboardPage() {
     visibleCategoryProgress.length ? visibleCategoryProgress : categoryProgress
   ).slice(0, 4)
   const prioritySkills = developingSkills.slice(0, 4)
-  const videos = practiceDrills.flatMap((drill) =>
-    drill.videoURL ? [{ title: drill.name, url: drill.videoURL, level: drill.level }] : [],
-  )
-
   return (
     <DashboardShell
       eyebrow="Student dashboard"
@@ -402,6 +421,21 @@ export default async function StudentDashboardPage() {
                   </p>
                 ) : null}
               </div>
+
+              {videos.length ? (
+                <div className="mt-5 rounded-2xl border border-[#1677ff]/15 bg-[#f6f9fd] p-4 sm:p-5">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
+                    Watch first
+                  </p>
+                  <h3 className="mt-1 text-base font-black text-[#092c59]">
+                    See the movement before you practise it
+                  </h3>
+                  <p className="mb-4 mt-1 text-sm leading-6 text-[#607286]">
+                    Focus on the technique cues, then return here and complete the guided drills.
+                  </p>
+                  <TrainingVideoLinks videos={videos} />
+                </div>
+              ) : null}
 
               <h3 className="mb-3 mt-5 text-base font-black text-[#092c59]">Drills</h3>
               {practiceDrills.length ? (
@@ -523,11 +557,7 @@ export default async function StudentDashboardPage() {
         </Panel>
 
         {events.docs.length ? (
-          <Panel
-            className={videos.length ? 'lg:col-span-6' : 'lg:col-span-12'}
-            title="Upcoming events"
-            icon={Trophy}
-          >
+          <Panel className="lg:col-span-12" title="Upcoming events" icon={Trophy}>
             <div className="space-y-3">
               {events.docs.map((event) => (
                 <div
@@ -544,32 +574,6 @@ export default async function StudentDashboardPage() {
                     {formatDate(event.startsAt, false)}
                   </time>
                 </div>
-              ))}
-            </div>
-          </Panel>
-        ) : null}
-
-        {videos.length ? (
-          <Panel
-            className={events.docs.length ? 'lg:col-span-6' : 'lg:col-span-12'}
-            title="Training videos"
-            icon={PlayCircle}
-          >
-            <div className="space-y-3">
-              {videos.map((video) => (
-                <a
-                  key={`${video.title}-${video.url}`}
-                  href={video.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between rounded-2xl border border-[#092c59]/10 p-4 transition hover:bg-[#eaf3ff]"
-                >
-                  <span>
-                    <strong className="block">{video.title}</strong>
-                    <span className="text-xs uppercase text-[#718399]">{video.level}</span>
-                  </span>
-                  <PlayCircle className="h-6 w-6 text-[#1677ff]" />
-                </a>
               ))}
             </div>
           </Panel>

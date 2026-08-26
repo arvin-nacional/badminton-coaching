@@ -1129,6 +1129,9 @@ export interface Drill {
   coachingPoints: string;
   commonMistakes?: string | null;
   difficulty: 'easy' | 'moderate' | 'challenging';
+  /**
+   * Optional tutorial shown before this drill. Replace the external reference with your own secure video URL when it is ready.
+   */
   videoURL?: string | null;
   /**
    * Public image path used for drill cards and detail views.

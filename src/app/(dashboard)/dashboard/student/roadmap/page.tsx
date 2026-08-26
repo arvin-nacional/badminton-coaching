@@ -10,6 +10,7 @@ import {
   programLessonDrillsForEvent,
   programLessonHomeDrillsForEvent,
 } from '@/utilities/programEventBranches'
+import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
 
 const dashboardLink = (
   <Link
@@ -254,6 +255,7 @@ export default async function StudentRoadmapPage() {
                           const homeDrills = drillReferences.filter(
                             (drill): drill is Drill => typeof drill === 'object',
                           )
+                          const videos = trainingVideosFromDrills([...sessionDrills, ...homeDrills])
                           const practiceTitle =
                             practice?.name || `Week ${lesson.week} home practice`
                           const practiceInstructions =
@@ -276,6 +278,7 @@ export default async function StudentRoadmapPage() {
                               homeDrillCount={drillReferences.length}
                               practiceTitle={practiceTitle}
                               practiceInstructions={practiceInstructions}
+                              videos={videos}
                               sessionDrills={sessionDrills.map((drill) => ({
                                 id: drill.id,
                                 name: drill.name,

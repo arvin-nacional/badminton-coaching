@@ -1260,6 +1260,7 @@ type DrillSeed = {
   commonMistakes: string
   difficulty: 'easy' | 'moderate' | 'challenging'
   practiceSetting?: 'home' | 'court'
+  videoURL?: string
   illustrationURL?: string
   successTarget: string
   easierVariation: string
@@ -1277,6 +1278,7 @@ const drills: DrillSeed[] = [
     ...soloRacketControlContent,
     numberOfPlayers: 1,
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=zCq36gnqGdI',
   },
   {
     name: 'Low Serve Floor Targets',
@@ -1287,6 +1289,7 @@ const drills: DrillSeed[] = [
     ...lowServeFloorTargetContent,
     numberOfPlayers: 1,
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=kzWpvuWeih0',
   },
   {
     name: 'Overhead Shadow Technique',
@@ -1297,6 +1300,7 @@ const drills: DrillSeed[] = [
     ...overheadShadowTechniqueContent,
     numberOfPlayers: 1,
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
   },
   {
     name: 'Compact Home Footwork',
@@ -1307,6 +1311,7 @@ const drills: DrillSeed[] = [
     ...compactHomeFootworkContent,
     numberOfPlayers: 1,
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=fBa08o5GEqw',
   },
   {
     name: 'Lunge Balance and Leg Strength',
@@ -1327,6 +1332,7 @@ const drills: DrillSeed[] = [
     ...wallDriveAndDefenceContent,
     numberOfPlayers: 1,
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=VICxkR6BijI',
   },
   {
     name: 'Reactive Split-Step Cues',
@@ -1337,6 +1343,7 @@ const drills: DrillSeed[] = [
     ...reactiveSplitStepCuesContent,
     numberOfPlayers: 1,
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=gy4YZS5tGxE',
   },
   {
     name: 'Badminton Bodyweight Strength Circuit',
@@ -1411,6 +1418,7 @@ const drills: DrillSeed[] = [
     coachingPoints: 'Relax the hand, rotate with the fingers and keep the racket in front.',
     commonMistakes: 'Panhandle grip, tight fist and large arm swings.',
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=toQ7tOx7Tvs',
     successTarget: 'Three sets of 20 controlled contacts without losing the correct grip.',
     easierVariation: 'Catch the shuttle after each contact and reset the grip.',
     harderProgression: 'Move while alternating low and high contacts.',
@@ -1430,6 +1438,7 @@ const drills: DrillSeed[] = [
     coachingPoints: 'Turn side-on, prepare early, contact overhead and finish balanced.',
     commonMistakes: 'Contact behind the body, excessive force and falling sideways.',
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
     successTarget: '8 of 10 clears land beyond the doubles service line.',
     easierVariation: 'Use hand feeds and one large central target.',
     harderProgression: 'Randomise feeds between the two rear corners.',
@@ -1472,6 +1481,7 @@ const drills: DrillSeed[] = [
     commonMistakes:
       'Rushing, clicking heels together and standing upright during direction changes.',
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=fBa08o5GEqw',
     successTarget: 'Complete 4 rounds of 45 seconds with correct movement shape.',
     easierVariation: 'Walk each pattern before increasing speed.',
     harderProgression: 'Use six corners with unpredictable calls.',
@@ -1489,10 +1499,11 @@ const drills: DrillSeed[] = [
     instructions:
       'The feeder sends to one forecourt corner. Play a net shot, stabilise the lunge and push back to base.',
     coachingPoints:
-      'Racket leads, heel lands first, knee tracks over toes and the front leg pushes recovery.',
+      'Racket leads, heel lands first and the front leg pushes recovery. Use the linked doubles tutorial for its compact soft contact; aim for a repeatable straight net shot, not the net cord.',
     commonMistakes:
       'Reaching with the trunk, collapsing the knee and turning away from the shuttle.',
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=doV0m6MNTCo',
     successTarget: '8 of 10 repetitions finish balanced back at base.',
     easierVariation: 'Shadow the lunge with a suspended shuttle.',
     harderProgression: 'Randomise between both forecourt corners.',
@@ -1512,6 +1523,7 @@ const drills: DrillSeed[] = [
     coachingPoints: 'Stable setup, relaxed thumb grip, small push and consistent contact point.',
     commonMistakes: 'Large backswing, slicing excessively and changing the starting position.',
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=kzWpvuWeih0',
     successTarget: '16 of 20 legal serves land in the target area.',
     easierVariation: 'Increase the target size and net clearance.',
     harderProgression: 'Alternate wide, body and T targets under a time limit.',
@@ -1533,6 +1545,7 @@ const drills: DrillSeed[] = [
     commonMistakes:
       'Serving flat, aiming too close to the sideline, watching the shuttle and delaying the first recovery step.',
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=Q5AY-sNovX4',
     successTarget: 'Land 14 of 20 serves in the deep target and recover before each shuttle lands.',
     easierVariation:
       'Use one large deep central target and rehearse the recovery without a shuttle.',
@@ -1627,6 +1640,7 @@ const drills: DrillSeed[] = [
       'Approach with racket prepared, contact in front and use a smooth accelerating action.',
     commonMistakes: 'Scooping from below, hitting too flat and remaining at the net.',
     difficulty: 'easy',
+    videoURL: 'https://www.youtube.com/watch?v=yRLtypZzJ1E',
     successTarget: '8 of 10 lifts reach the rear target with enough height.',
     easierVariation: 'Feed to the racket side only.',
     harderProgression: 'Randomise forehand and backhand forecourt feeds.',
@@ -1690,6 +1704,7 @@ const drills: DrillSeed[] = [
     commonMistakes:
       'Dropping from poor balance, forcing the attack and failing to cover the reply.',
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=u--taRfMoTs',
     successTarget: 'Make the correct clear-or-drop decision in 8 of 10 reviewed rallies.',
     easierVariation: 'Coach calls the shot after the player prepares.',
     harderProgression: 'Open the full court and allow attacking clears.',
@@ -1749,10 +1764,11 @@ const drills: DrillSeed[] = [
     instructions:
       'Play smash, follow-up drive or block, then finish into open space from a three-shuttle feed.',
     coachingPoints:
-      'Contact in front, land ready, move forward after the smash and keep the second action compact.',
+      'Begin at 50–70% power. Contact in front, land ready, move forward after the smash and keep the second action compact.',
     commonMistakes:
       'Over-hitting, landing with feet stuck and carrying a full swing into the follow-up.',
     difficulty: 'challenging',
+    videoURL: 'https://www.youtube.com/watch?v=H7kpZ9inc10',
     successTarget: 'Complete 7 of 10 three-shot patterns without losing balance.',
     easierVariation: 'Use a controlled half-smash and predictable follow-up.',
     harderProgression: 'Randomise the defensive reply and play out the rally.',
@@ -1773,6 +1789,7 @@ const drills: DrillSeed[] = [
       'Racket up, compact action, contact in front and recover the racket after every shot.',
     commonMistakes: 'Large swings, dropping the racket and hitting upward under pressure.',
     difficulty: 'moderate',
+    videoURL: 'https://www.youtube.com/watch?v=_6hffa-Jmpk',
     successTarget: 'Sustain 20 drives and respond correctly to 4 of 5 blocks.',
     easierVariation: 'Use a wider channel at cooperative pace.',
     harderProgression: 'Add a third player and random body drives.',

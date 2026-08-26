@@ -4,8 +4,10 @@ import { ChevronDown, Clock3, Target } from 'lucide-react'
 import Image from 'next/image'
 import { useState, type KeyboardEvent } from 'react'
 
+import { TrainingVideoLinks } from '@/components/Dashboard/TrainingVideoLinks'
 import type { Drill } from '@/payload-types'
 import { drillIllustrationFor } from '@/utilities/drillIllustration'
+import type { TrainingVideo } from '@/utilities/trainingVideos'
 
 type DrillSummary = {
   id: string
@@ -30,6 +32,7 @@ type RoadmapLessonCardProps = {
   homeDrillCount: number
   practiceTitle: string
   practiceInstructions?: string | null
+  videos: TrainingVideo[]
   sessionDrills: DrillSummary[]
   homeDrills: DrillSummary[]
 }
@@ -104,6 +107,7 @@ export function RoadmapLessonCard({
   homeDrillCount,
   practiceTitle,
   practiceInstructions,
+  videos,
   sessionDrills,
   homeDrills,
 }: RoadmapLessonCardProps) {
@@ -218,6 +222,7 @@ export function RoadmapLessonCard({
             Session + home drills
           </span>
           <span className="flex items-center gap-1.5">
+            {videos.length ? `${videos.length} video · ` : ''}
             {sessionDrillCount} coached · {homeDrillCount} home
             <ChevronDown
               className={`h-4 w-4 transition-transform duration-300 ${
@@ -229,6 +234,27 @@ export function RoadmapLessonCard({
 
         {expanded ? (
           <div className="mt-3">
+            {videos.length ? (
+              <div
+                className={`mb-3 rounded-xl border p-4 ${
+                  isCurrent ? 'border-white/10 bg-white/10' : 'border-[#1677ff]/15 bg-[#f6f9fd]'
+                }`}
+              >
+                <p
+                  className={`text-[10px] font-black uppercase tracking-[.14em] ${
+                    isCurrent ? 'text-[#4cc9ff]' : 'text-[#1677ff]'
+                  }`}
+                >
+                  Watch before practice
+                </p>
+                <h5
+                  className={`mb-3 mt-1 font-black ${isCurrent ? 'text-white' : 'text-[#092c59]'}`}
+                >
+                  Technique guides
+                </h5>
+                <TrainingVideoLinks videos={videos} tone={isCurrent ? 'dark' : 'light'} />
+              </div>
+            ) : null}
             <div
               className={`mb-3 rounded-xl border p-4 ${
                 isCurrent ? 'border-white/10 bg-white/10' : 'border-[#1677ff]/15 bg-[#f6f9fd]'

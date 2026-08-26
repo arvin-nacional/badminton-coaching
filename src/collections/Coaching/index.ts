@@ -41,6 +41,17 @@ const studentRecordAccess = {
   update: staffOnly,
 }
 
+const validateHTTPSURL = (value: unknown): true | string => {
+  if (typeof value !== 'string' || !value.trim()) return 'Enter a video URL.'
+
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || 'Use a secure URL beginning with https://.'
+  } catch {
+    return 'Enter a complete video URL beginning with https://.'
+  }
+}
+
 export const Programs: CollectionConfig = {
   slug: 'programs',
   access: staffManagedAccess,
@@ -354,7 +365,16 @@ export const Drills: CollectionConfig = {
       required: true,
       options: ['easy', 'moderate', 'challenging'],
     },
-    { name: 'videoURL', type: 'text' },
+    {
+      name: 'videoURL',
+      label: 'Technique video URL',
+      type: 'text',
+      validate: (value: unknown) => (value ? validateHTTPSURL(value) : true),
+      admin: {
+        description:
+          'Optional tutorial shown before this drill. Replace the external reference with your own secure video URL when it is ready.',
+      },
+    },
     {
       name: 'illustrationURL',
       type: 'text',

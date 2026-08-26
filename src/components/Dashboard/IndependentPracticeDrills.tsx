@@ -1,6 +1,16 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Clock3, Play, Target, Users, X } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  ExternalLink,
+  Play,
+  PlayCircle,
+  Target,
+  Users,
+  X,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -10,6 +20,7 @@ import { PracticeStepIllustration } from '@/components/Dashboard/PracticeStepIll
 import { buildHomePracticeSequence } from '@/data/homePracticeSteps'
 import type { Drill, IndependentPractice } from '@/payload-types'
 import { drillIllustrationFor } from '@/utilities/drillIllustration'
+import { safeTrainingVideoURL } from '@/utilities/trainingVideos'
 
 type PracticeDrill = Pick<
   Drill,
@@ -32,6 +43,7 @@ type PracticeDrill = Pick<
   | 'easierVariation'
   | 'harderProgression'
   | 'completionRequirement'
+  | 'videoURL'
 >
 
 export function IndependentPracticeDrills({
@@ -76,6 +88,9 @@ export function IndependentPracticeDrills({
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const isModalOpen = selectedIndex !== null
   const selectedDrill = selectedIndex === null ? null : drills[selectedIndex]
+  const selectedVideoURL = selectedDrill
+    ? safeTrainingVideoURL(selectedDrill.videoURL)?.toString()
+    : null
   const selectedGeneratedSequence = selectedDrill
     ? buildHomePracticeSequence(selectedDrill.name, selectedDrill.instructions)
     : null
@@ -384,6 +399,25 @@ export function IndependentPracticeDrills({
                       >
                         {selectedDrill.name}
                       </h3>
+                      {selectedVideoURL ? (
+                        <a
+                          href={selectedVideoURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 flex items-center gap-3 rounded-2xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4 text-[#092c59] transition hover:border-[#1677ff]/35 hover:bg-[#dcecff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#1677ff]">
+                            <PlayCircle className="h-6 w-6" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[10px] font-black uppercase tracking-[.12em] text-[#1677ff]">
+                              Watch first
+                            </span>
+                            <strong className="mt-0.5 block text-sm">Technique tutorial</strong>
+                          </span>
+                          <ExternalLink className="h-4 w-4 shrink-0 text-[#718399]" />
+                        </a>
+                      ) : null}
                       {selectedGeneratedSequence?.setup ? (
                         <div className="mt-4 rounded-2xl bg-[#f3f7fc] p-4">
                           <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#1677ff]">
