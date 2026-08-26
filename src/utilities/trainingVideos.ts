@@ -21,6 +21,49 @@ export const safeTrainingVideoURL = (value: string | null | undefined): URL | nu
   }
 }
 
+const youtubeVideoIDPattern = /^[A-Za-z0-9_-]{11}$/
+
+export const youtubeVideoID = (value: string | null | undefined): string | null => {
+  const url = safeTrainingVideoURL(value)
+  if (!url) return null
+  if (url.username || url.password || url.port) return null
+
+  const hostname = url.hostname.toLowerCase()
+  const pathSegments = url.pathname.split('/').filter(Boolean)
+  let candidate: string | null = null
+
+  if (hostname === 'youtu.be') {
+    candidate = pathSegments.length === 1 ? pathSegments[0] : null
+  } else if (
+    ['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(hostname) &&
+    url.pathname === '/watch'
+  ) {
+    candidate = url.searchParams.get('v')
+  } else if (
+    [
+      'youtube.com',
+      'www.youtube.com',
+      'm.youtube.com',
+      'youtube-nocookie.com',
+      'www.youtube-nocookie.com',
+    ].includes(hostname)
+  ) {
+    const [format, id] = pathSegments
+    if (pathSegments.length === 2 && ['embed', 'shorts', 'live'].includes(format)) {
+      candidate = id || null
+    }
+  }
+
+  return candidate && youtubeVideoIDPattern.test(candidate) ? candidate : null
+}
+
+export const youtubeNoCookieEmbedURL = (value: string | null | undefined): string | null => {
+  const videoID = youtubeVideoID(value)
+  return videoID
+    ? `https://www.youtube-nocookie.com/embed/${videoID}?autoplay=1&playsinline=1&rel=0`
+    : null
+}
+
 export const trainingVideosFromDrills = (drills: DrillReference[]): TrainingVideo[] => {
   const videos = new Map<string, TrainingVideo>()
 
@@ -31,15 +74,15 @@ export const trainingVideosFromDrills = (drills: DrillReference[]): TrainingVide
     if (!parsedURL) continue
 
     const url = parsedURL.toString()
-    if (videos.has(url)) continue
+    const youtubeID = youtubeVideoID(url)
+    const videoKey = youtubeID ? `youtube:${youtubeID}` : url
+    if (videos.has(videoKey)) continue
 
-    const isYouTube = ['youtube.com', 'www.youtube.com', 'youtu.be'].includes(parsedURL.hostname)
-
-    videos.set(url, {
+    videos.set(videoKey, {
       title: drill.name,
       url,
       level: drill.level,
-      source: isYouTube ? 'YouTube reference' : 'Video reference',
+      source: youtubeID ? 'YouTube reference' : 'Video reference',
     })
   }
 
