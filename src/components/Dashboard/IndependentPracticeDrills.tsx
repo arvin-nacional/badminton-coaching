@@ -162,6 +162,8 @@ export function IndependentPracticeDrills({
     closeButtonRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (document.querySelector('[data-training-video-dialog="true"]')) return
+
       if (event.key === 'Escape') {
         event.preventDefault()
         closeModal()

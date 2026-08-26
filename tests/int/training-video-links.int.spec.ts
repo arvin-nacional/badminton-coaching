@@ -26,11 +26,13 @@ describe('training video links', () => {
     expect(markup).toContain('target="_blank"')
     expect(markup).toContain('rel="noopener noreferrer"')
     expect(markup).toContain('aria-expanded="false"')
+    expect(markup).toContain('aria-haspopup="dialog"')
     expect(markup).toContain('Watch here')
     expect(markup).toContain('Grip Change Tap-Ups')
     expect(markup).toContain('YouTube reference')
     expect(markup).toContain('stays on this page')
     expect(markup).not.toContain('<iframe')
+    expect(markup).not.toContain('role="dialog"')
   })
 
   it('creates privacy-enhanced embeds only for exact supported YouTube hosts and IDs', () => {
