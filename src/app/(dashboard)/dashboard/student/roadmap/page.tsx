@@ -10,7 +10,7 @@ import {
   programLessonDrillsForEvent,
   programLessonHomeDrillsForEvent,
 } from '@/utilities/programEventBranches'
-import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
+import { trainingVideoIntroductionsBySession } from '@/utilities/trainingVideos'
 
 const dashboardLink = (
   <Link
@@ -78,6 +78,19 @@ export default async function StudentRoadmapPage() {
     phases[0]
   const completedLessons = lessons.filter((lesson) => lesson.week < currentWeek).length
   const currentPosition = Math.round((currentWeek / program.durationWeeks) * 100)
+  const videoIntroductions = trainingVideoIntroductionsBySession(
+    lessons.map((lesson) => {
+      const practice =
+        typeof lesson.independentPractice === 'object' ? lesson.independentPractice : null
+      const selectedHomeDrills = programLessonHomeDrillsForEvent(lesson, profile.preferredEvent)
+      const homeDrills = selectedHomeDrills.length ? selectedHomeDrills : practice?.drills || []
+
+      return [...programLessonDrillsForEvent(lesson, profile.preferredEvent), ...homeDrills]
+    }),
+  )
+  const videoIntroductionsByWeek = new Map(
+    lessons.map((lesson, index) => [lesson.week, videoIntroductions[index] || []]),
+  )
 
   return (
     <DashboardShell
@@ -255,7 +268,7 @@ export default async function StudentRoadmapPage() {
                           const homeDrills = drillReferences.filter(
                             (drill): drill is Drill => typeof drill === 'object',
                           )
-                          const videos = trainingVideosFromDrills([...sessionDrills, ...homeDrills])
+                          const videos = videoIntroductionsByWeek.get(lesson.week) || []
                           const practiceTitle =
                             practice?.name || `Week ${lesson.week} home practice`
                           const practiceInstructions =

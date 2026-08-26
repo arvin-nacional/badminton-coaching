@@ -5,7 +5,12 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
 import { TrainingVideoLinks } from '@/components/Dashboard/TrainingVideoLinks'
-import { youtubeNoCookieEmbedURL, youtubeVideoID } from '@/utilities/trainingVideos'
+import {
+  trainingVideoIntroductionsBySession,
+  trainingVideosFromDrills,
+  youtubeNoCookieEmbedURL,
+  youtubeVideoID,
+} from '@/utilities/trainingVideos'
 
 describe('training video links', () => {
   it('renders an on-site player control with an external fallback before loading YouTube', () => {
@@ -48,5 +53,54 @@ describe('training video links', () => {
     expect(youtubeNoCookieEmbedURL('https://www.youtube.com/watch?v=toQ7tOx7Tvs')).toBe(
       'https://www.youtube-nocookie.com/embed/toQ7tOx7Tvs?autoplay=1&playsinline=1&rel=0',
     )
+  })
+
+  it('introduces each tutorial once across sessions without removing the drill reference', () => {
+    const gripReference = {
+      name: 'Grip reference',
+      level: 'foundations' as const,
+      videoURL: 'https://www.youtube.com/shorts/toQ7tOx7Tvs',
+    }
+    const introductions = trainingVideoIntroductionsBySession([
+      [
+        {
+          name: 'Grip first',
+          level: 'foundations',
+          videoURL: 'https://www.youtube.com/watch?v=toQ7tOx7Tvs',
+        },
+        {
+          name: 'Grip duplicate',
+          level: 'foundations',
+          videoURL: 'https://youtu.be/toQ7tOx7Tvs',
+        },
+        {
+          name: 'Clear first',
+          level: 'foundations',
+          videoURL: 'https://www.youtube.com/watch?v=xRv1JLg4NMM',
+        },
+      ],
+      [
+        gripReference,
+        {
+          name: 'Smash first',
+          level: 'development',
+          videoURL: 'https://www.youtube.com/watch?v=H7kpZ9inc10',
+        },
+      ],
+      [
+        {
+          name: 'Clear repeated',
+          level: 'development',
+          videoURL: 'https://www.youtube-nocookie.com/embed/xRv1JLg4NMM',
+        },
+      ],
+    ])
+
+    expect(introductions.map((session) => session.map((video) => video.title))).toEqual([
+      ['Grip first', 'Clear first'],
+      ['Smash first'],
+      [],
+    ])
+    expect(trainingVideosFromDrills([gripReference])).toHaveLength(1)
   })
 })

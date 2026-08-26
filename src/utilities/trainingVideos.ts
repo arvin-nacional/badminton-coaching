@@ -64,6 +64,15 @@ export const youtubeNoCookieEmbedURL = (value: string | null | undefined): strin
     : null
 }
 
+const trainingVideoKey = (value: string | null | undefined): string | null => {
+  const parsedURL = safeTrainingVideoURL(value)
+  if (!parsedURL) return null
+
+  const url = parsedURL.toString()
+  const youtubeID = youtubeVideoID(url)
+  return youtubeID ? `youtube:${youtubeID}` : url
+}
+
 export const trainingVideosFromDrills = (drills: DrillReference[]): TrainingVideo[] => {
   const videos = new Map<string, TrainingVideo>()
 
@@ -75,7 +84,8 @@ export const trainingVideosFromDrills = (drills: DrillReference[]): TrainingVide
 
     const url = parsedURL.toString()
     const youtubeID = youtubeVideoID(url)
-    const videoKey = youtubeID ? `youtube:${youtubeID}` : url
+    const videoKey = trainingVideoKey(url)
+    if (!videoKey) continue
     if (videos.has(videoKey)) continue
 
     videos.set(videoKey, {
@@ -87,4 +97,20 @@ export const trainingVideosFromDrills = (drills: DrillReference[]): TrainingVide
   }
 
   return Array.from(videos.values())
+}
+
+export const trainingVideoIntroductionsBySession = (
+  sessions: DrillReference[][],
+): TrainingVideo[][] => {
+  const introducedVideos = new Set<string>()
+
+  return sessions.map((drills) =>
+    trainingVideosFromDrills(drills).filter((video) => {
+      const videoKey = trainingVideoKey(video.url)
+      if (!videoKey || introducedVideos.has(videoKey)) return false
+
+      introducedVideos.add(videoKey)
+      return true
+    }),
+  )
 }

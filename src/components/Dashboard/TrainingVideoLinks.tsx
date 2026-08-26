@@ -162,7 +162,7 @@ export function TrainingVideoLinks({ videos, tone = 'light' }: TrainingVideoLink
       {activeVideo && activeEmbedURL && typeof document !== 'undefined'
         ? createPortal(
             <div
-              className="fixed inset-0 z-[200] flex items-end justify-center bg-[#06182f]/85 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+              className="fixed inset-0 z-[200] flex items-center justify-center bg-[#06182f]/85 p-3 backdrop-blur-sm sm:p-6"
               role="presentation"
               onClick={(event) => {
                 if (event.target === event.currentTarget) setActiveURL(null)
@@ -175,7 +175,7 @@ export function TrainingVideoLinks({ videos, tone = 'light' }: TrainingVideoLink
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={playerTitleID}
-                className="max-h-[100dvh] w-full max-w-5xl overflow-y-auto overscroll-contain rounded-t-[2rem] bg-[#061d3a] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]"
+                className="max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl overflow-y-auto overscroll-contain rounded-[1.5rem] bg-[#061d3a] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]"
               >
                 <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 bg-[#061d3a] px-4 py-3 text-white sm:px-5 sm:py-4">
                   <div className="min-w-0">

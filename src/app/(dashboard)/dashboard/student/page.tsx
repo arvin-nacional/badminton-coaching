@@ -23,7 +23,7 @@ import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPrac
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
 import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
 import { TrainingVideoLinks } from '@/components/Dashboard/TrainingVideoLinks'
-import type { PracticeLibrary, Skill } from '@/payload-types'
+import type { Drill, PracticeLibrary, Skill } from '@/payload-types'
 import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 import { getCachedProgram } from '@/utilities/getCachedProgram'
@@ -31,7 +31,7 @@ import {
   programLessonDrillsForEvent,
   programLessonHomeDrillsForEvent,
 } from '@/utilities/programEventBranches'
-import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
+import { trainingVideoIntroductionsBySession } from '@/utilities/trainingVideos'
 
 const stageLabels = {
   'not-introduced': 'Not introduced',
@@ -102,13 +102,13 @@ export default async function StudentDashboardPage() {
 
   // Fetch the cached program first. Since it's cached via unstable_cache,
   // this is effectively instant after the first load. We need it before the
-  // parallel block to extract drill IDs for the current week's practice,
+  // parallel block to extract drill IDs through the current program week,
   // so the drills query can run in parallel with everything else instead
   // of sequentially after.
   const program = programID ? await getCachedProgram(programID) : null
 
-  // Pre-compute the current week's drill IDs from the cached program so we
-  // can fetch drills in the same Promise.all as the other queries.
+  // Pre-compute drill IDs through the current week so repeated tutorial
+  // videos can be recognized without an extra sequential query.
   const programWeek = program
     ? Math.min(Math.max(profile.currentProgramWeek || 1, 1), program.durationWeeks)
     : 1
@@ -128,13 +128,22 @@ export default async function StudentDashboardPage() {
   const currentHomeDrillReferences = currentLesson
     ? programLessonHomeDrillsForEvent(currentLesson, profile.preferredEvent)
     : []
-  const lessonDrillIDs = Array.from(
+  const lessonsThroughCurrentWeek = programLessons.filter((lesson) => lesson.week <= programWeek)
+  const programDrillIDs = Array.from(
     new Set(
-      [
-        ...(lessonPractice?.drills || []),
-        ...currentSessionDrillReferences,
-        ...currentHomeDrillReferences,
-      ]
+      lessonsThroughCurrentWeek
+        .flatMap((lesson) => {
+          const practice =
+            typeof lesson.independentPractice === 'object'
+              ? (lesson.independentPractice as PracticeLibrary)
+              : null
+
+          return [
+            ...(practice?.drills || []),
+            ...programLessonDrillsForEvent(lesson, profile.preferredEvent),
+            ...programLessonHomeDrillsForEvent(lesson, profile.preferredEvent),
+          ]
+        })
         .map((drill) => (typeof drill === 'string' ? drill : drill.id))
         .filter(Boolean),
     ),
@@ -218,13 +227,13 @@ export default async function StudentDashboardPage() {
       overrideAccess: true,
       where: { and: [{ student: { equals: profile.id } }, { status: { equals: 'completed' } }] },
     }),
-    lessonDrillIDs.length
+    programDrillIDs.length
       ? payload.find({
           collection: 'drills',
           depth: 0,
-          limit: lessonDrillIDs.length,
+          limit: programDrillIDs.length,
           overrideAccess: true,
-          where: { id: { in: lessonDrillIDs } },
+          where: { id: { in: programDrillIDs } },
         })
       : Promise.resolve(null),
   ])
@@ -262,7 +271,35 @@ export default async function StudentDashboardPage() {
   const currentLessonDrills = [...currentSessionDrillReferences, ...currentHomeDrillReferences].map(
     (drill) => (typeof drill === 'string' ? drillsByID.get(drill) : drill),
   )
-  const videos = trainingVideosFromDrills([...currentLessonDrills, ...practiceDrills])
+  const videoDrillsBySession = lessonsThroughCurrentWeek.map((lesson) => {
+    const practice =
+      typeof lesson.independentPractice === 'object'
+        ? (lesson.independentPractice as PracticeLibrary)
+        : null
+    const drillReferences = [
+      ...programLessonDrillsForEvent(lesson, profile.preferredEvent),
+      ...programLessonHomeDrillsForEvent(lesson, profile.preferredEvent),
+      ...(practice?.drills || []),
+    ]
+
+    return drillReferences.map((drill): Drill | undefined =>
+      typeof drill === 'string' ? drillsByID.get(drill) : drill,
+    )
+  })
+  const currentVideoSessionIndex = currentLesson
+    ? lessonsThroughCurrentWeek.findIndex((lesson) => lesson.week === currentLesson.week)
+    : -1
+  if (currentVideoSessionIndex >= 0) {
+    videoDrillsBySession[currentVideoSessionIndex] = [
+      ...videoDrillsBySession[currentVideoSessionIndex],
+      ...currentLessonDrills,
+      ...practiceDrills,
+    ]
+  }
+  const videos =
+    currentVideoSessionIndex >= 0
+      ? trainingVideoIntroductionsBySession(videoDrillsBySession)[currentVideoSessionIndex] || []
+      : []
   const practiceDurationMinutes = practiceDrills.reduce(
     (total, drill) => total + drill.durationMinutes,
     0,

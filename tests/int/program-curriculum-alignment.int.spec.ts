@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
@@ -25,7 +27,10 @@ import {
   sessionDurationOptions,
   stripSessionTimePrefix,
 } from '@/utilities/sessionTiming'
-import { trainingVideosFromDrills } from '@/utilities/trainingVideos'
+import {
+  trainingVideoIntroductionsBySession,
+  trainingVideosFromDrills,
+} from '@/utilities/trainingVideos'
 
 describe('program curriculum alignment', () => {
   const drillByName = new Map(coachingDrills.map((drill) => [drill.name, drill]))
@@ -147,6 +152,34 @@ describe('program curriculum alignment', () => {
         },
       ]),
     ).toEqual([])
+  })
+
+  it('introduces a tutorial only in its earliest program session', () => {
+    const program = coachingPrograms.find((item) => item.name === 'Badminton Foundations')!
+    const lessons = program.phases.flatMap((phase) => phase.lessons).sort((a, b) => a.week - b.week)
+    const clearDrill = drillByName.get('Clear to Targets')!
+
+    for (const preference of ['singles', 'doubles'] as const) {
+      const sessions = lessons.map((lesson) => {
+        const selectedHomeDrills = programLessonHomeDrillsForEvent(lesson, preference)
+        const homeDrillNames = selectedHomeDrills.length
+          ? selectedHomeDrills
+          : homeDrillsForLesson(program.name, lesson, program.level)
+
+        return [...programLessonDrillsForEvent(lesson, preference), ...homeDrillNames].map(
+          (drillName) => drillByName.get(drillName),
+        )
+      })
+      const introductions = trainingVideoIntroductionsBySession(sessions)
+      const weekSixVideos = introductions[lessons.findIndex((lesson) => lesson.week === 6)]
+      const weekSevenVideos = introductions[lessons.findIndex((lesson) => lesson.week === 7)]
+
+      expect(weekSixVideos.map((video) => video.url)).toContain(clearDrill.videoURL)
+      expect(weekSevenVideos.map((video) => video.url)).not.toContain(clearDrill.videoURL)
+      expect(trainingVideosFromDrills([clearDrill]).map((video) => video.url)).toContain(
+        clearDrill.videoURL,
+      )
+    }
   })
 
   it('preserves third and later lesson drills in generated coach sessions', () => {
