@@ -2,12 +2,19 @@ import type { Metadata } from 'next'
 import configPromise from '@payload-config'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
-import { BookingForm, type AssessmentSlot, type ExistingAssessmentBooking } from './BookingForm'
+import {
+  BookingForm,
+  type AssessmentBookingOffer,
+  type AssessmentSlot,
+  type ExistingAssessmentBooking,
+} from './BookingForm'
 import { generateRecurringAssessmentSlots } from '@/utilities/assessmentAvailability'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export const metadata: Metadata = {
   title: 'Book an assessment',
-  description: 'Choose an available assessment time and confirm the court you booked.',
+  description:
+    'Review pricing, choose an assessment time, and confirm a court or request venue help.',
 }
 // Revalidate every 60 seconds instead of force-dynamic. Availability rarely
 // changes minute-to-minute, so ISR keeps the page fast while staying fresh.
@@ -40,7 +47,7 @@ export default async function BookAssessmentPage() {
     studentProfileID = profile?.id
   }
 
-  const [availability, rules, bookings, existingAssessments] = await Promise.all([
+  const [availability, rules, bookings, existingAssessments, coachingSettings] = await Promise.all([
     payload.find({
       collection: 'coach-availability',
       depth: 1,
@@ -76,6 +83,7 @@ export default async function BookAssessmentPage() {
           },
         })
       : Promise.resolve(null),
+    getCachedGlobal('coaching-settings')(),
   ])
   const booked = new Set(bookings.docs.map((booking) => booking.bookingKey))
   const oneOffSlots: AssessmentSlot[] = availability.docs.map((slot) => ({
@@ -98,6 +106,18 @@ export default async function BookAssessmentPage() {
         startsAt: existingAssessment.startsAt,
       }
     : undefined
+  const offer: AssessmentBookingOffer = {
+    cancellationNoticeHours: coachingSettings.cancellation.noticeHours,
+    healthDataNotice: coachingSettings.privacy.healthDataNotice,
+    pricing: coachingSettings.pricing,
+    privacyURL: coachingSettings.privacy.privacyURL,
+    reschedulePolicy: coachingSettings.cancellation.reschedulePolicy,
+    serviceArea: coachingSettings.service.area,
+    serviceDetails: coachingSettings.service.details,
+    termsURL: coachingSettings.privacy.termsURL,
+    travelPolicy: coachingSettings.service.travelPolicy,
+    venueOptions: (coachingSettings.service.venueOptions || []).map((item) => item.option),
+  }
 
   return (
     <main className="min-h-[70vh] bg-[#eaf3ff] px-5 py-20 text-[#071f42] md:px-10 md:py-28">
@@ -108,8 +128,8 @@ export default async function BookAssessmentPage() {
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-[#586d84]">
           {isAuthenticated
-            ? 'Choose an available time, then enter the court you coordinated or booked. Your profile details are already on file.'
-            : "Choose from the coach's live time availability, then enter the court you coordinated or booked. Only open, unbooked times are shown."}
+            ? 'Choose an available time, review the full expected cost, then confirm your court or ask for venue help. Your profile details are already on file.'
+            : "Choose from the coach's live availability, review pricing before you commit, then confirm a court or ask for help finding one."}
         </p>
         <div className="mt-12">
           <BookingForm
@@ -118,6 +138,7 @@ export default async function BookAssessmentPage() {
             displayName={displayName}
             existingBooking={existingBooking}
             googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+            offer={offer}
           />
         </div>
       </div>

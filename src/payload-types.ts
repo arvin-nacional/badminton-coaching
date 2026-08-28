@@ -148,10 +148,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'coaching-settings': CoachingSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'coaching-settings': CoachingSettingsSelect<false> | CoachingSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1310,6 +1312,14 @@ export interface StudentProfile {
    */
   injuryConsiderations?: string | null;
   /**
+   * When the student accepted the health-data use notice.
+   */
+  healthDataConsentAt?: string | null;
+  /**
+   * Policy version accepted with the health-data consent.
+   */
+  privacyPolicyVersion?: string | null;
+  /**
    * Student self-rating from 1 (beginner) to 10 (advanced). Captured during onboarding.
    */
   skillSelfRating?: number | null;
@@ -1391,6 +1401,16 @@ export interface TrainingSession {
    * Most recent time the student confirmed or changed the court booking.
    */
   courtBookingUpdatedAt?: string | null;
+  /**
+   * The student asked the coach for help finding a suitable venue.
+   */
+  courtHelpRequested?: boolean | null;
+  courtHelpRequestedAt?: string | null;
+  /**
+   * Preferred city or area supplied by the student.
+   */
+  courtHelpArea?: string | null;
+  courtHelpPreferredAt?: string | null;
   status: 'planned' | 'scheduled' | 'completed' | 'cancelled' | 'missed';
   completedAt?: string | null;
   attendance?: ('pending' | 'present' | 'late' | 'absent' | 'excused') | null;
@@ -1547,6 +1567,14 @@ export interface AssessmentBooking {
   startsAt: string;
   durationMinutes: number;
   location: string;
+  /**
+   * The player needs help coordinating a court before the assessment.
+   */
+  courtHelpRequested?: boolean | null;
+  /**
+   * Preferred city or area for court coordination.
+   */
+  courtHelpArea?: string | null;
   playerName: string;
   email: string;
   phone?: string | null;
@@ -1555,6 +1583,8 @@ export interface AssessmentBooking {
   goals?: string | null;
   trainingAvailability?: string | null;
   injuryConsiderations?: string | null;
+  healthDataConsentAt?: string | null;
+  privacyPolicyVersion?: string | null;
   /**
    * Additional information supplied by the player.
    */
@@ -2591,6 +2621,8 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   goals?: T;
   trainingAvailability?: T;
   injuryConsiderations?: T;
+  healthDataConsentAt?: T;
+  privacyPolicyVersion?: T;
   skillSelfRating?: T;
   trainingFrequencyPerWeek?: T;
   competitionGoal?: T;
@@ -2624,6 +2656,10 @@ export interface TrainingSessionsSelect<T extends boolean = true> {
   location?: T;
   courtBookedByStudent?: T;
   courtBookingUpdatedAt?: T;
+  courtHelpRequested?: T;
+  courtHelpRequestedAt?: T;
+  courtHelpArea?: T;
+  courtHelpPreferredAt?: T;
   status?: T;
   completedAt?: T;
   attendance?: T;
@@ -2792,6 +2828,8 @@ export interface AssessmentBookingsSelect<T extends boolean = true> {
   startsAt?: T;
   durationMinutes?: T;
   location?: T;
+  courtHelpRequested?: T;
+  courtHelpArea?: T;
   playerName?: T;
   email?: T;
   phone?: T;
@@ -2800,6 +2838,8 @@ export interface AssessmentBookingsSelect<T extends boolean = true> {
   goals?: T;
   trainingAvailability?: T;
   injuryConsiderations?: T;
+  healthDataConsentAt?: T;
+  privacyPolicyVersion?: T;
   notes?: T;
   assessmentResults?:
     | T
@@ -3230,6 +3270,85 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Public pricing, service area, policies, coach profile, verified player proof, and health-data notice.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coaching-settings".
+ */
+export interface CoachingSetting {
+  id: string;
+  pricing: {
+    label: string;
+    assessmentFeePHP: number;
+    session60PHP: number;
+    session90PHP: number;
+    session120PHP: number;
+    billingNote: string;
+    courtFeeMinPerHourPHP: number;
+    courtFeeMaxPerHourPHP: number;
+    courtFeeNote: string;
+  };
+  service: {
+    area: string;
+    details: string;
+    venueOptions?:
+      | {
+          option: string;
+          id?: string | null;
+        }[]
+      | null;
+    travelPolicy: string;
+  };
+  cancellation: {
+    noticeHours: number;
+    reschedulePolicy: string;
+    latePolicy: string;
+    coachCancellationPolicy: string;
+    venuePolicy: string;
+  };
+  /**
+   * This section stays hidden publicly until a name and biography are supplied. Only publish credentials you can verify.
+   */
+  coachProfile?: {
+    publicName?: string | null;
+    title?: string | null;
+    biography?: string | null;
+    credentials?:
+      | {
+          credential: string;
+          issuer?: string | null;
+          year?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Only entries with publication permission enabled appear publicly. Use the player’s exact approved wording.
+   */
+  testimonials?:
+    | {
+        quote: string;
+        displayName: string;
+        playerContext?: string | null;
+        outcome?: string | null;
+        publicationPermission: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  contact: {
+    label: string;
+    url: string;
+  };
+  privacy: {
+    policyVersion: string;
+    healthDataNotice: string;
+    privacyURL: string;
+    termsURL: string;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -3292,6 +3411,89 @@ export interface FooterSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coaching-settings_select".
+ */
+export interface CoachingSettingsSelect<T extends boolean = true> {
+  pricing?:
+    | T
+    | {
+        label?: T;
+        assessmentFeePHP?: T;
+        session60PHP?: T;
+        session90PHP?: T;
+        session120PHP?: T;
+        billingNote?: T;
+        courtFeeMinPerHourPHP?: T;
+        courtFeeMaxPerHourPHP?: T;
+        courtFeeNote?: T;
+      };
+  service?:
+    | T
+    | {
+        area?: T;
+        details?: T;
+        venueOptions?:
+          | T
+          | {
+              option?: T;
+              id?: T;
+            };
+        travelPolicy?: T;
+      };
+  cancellation?:
+    | T
+    | {
+        noticeHours?: T;
+        reschedulePolicy?: T;
+        latePolicy?: T;
+        coachCancellationPolicy?: T;
+        venuePolicy?: T;
+      };
+  coachProfile?:
+    | T
+    | {
+        publicName?: T;
+        title?: T;
+        biography?: T;
+        credentials?:
+          | T
+          | {
+              credential?: T;
+              issuer?: T;
+              year?: T;
+              id?: T;
+            };
+      };
+  testimonials?:
+    | T
+    | {
+        quote?: T;
+        displayName?: T;
+        playerContext?: T;
+        outcome?: T;
+        publicationPermission?: T;
+        id?: T;
+      };
+  contact?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  privacy?:
+    | T
+    | {
+        policyVersion?: T;
+        healthDataNotice?: T;
+        privacyURL?: T;
+        termsURL?: T;
       };
   updatedAt?: T;
   createdAt?: T;

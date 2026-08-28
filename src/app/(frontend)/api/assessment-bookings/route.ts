@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import type { User } from '@/payload-types'
 import { generateRecurringAssessmentSlots } from '@/utilities/assessmentAvailability'
 import { isCoach } from '@/utilities/dashboardAuth'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { sendAssessmentBookingEmails } from '@/utilities/sendAssessmentBookingEmails'
 import { scheduleAssessmentReminders } from '@/utilities/scheduleAssessmentReminders'
 import {
@@ -58,8 +59,11 @@ export async function POST(request: Request) {
   if (!validation.valid) return Response.json({ error: validation.error }, { status: 400 })
 
   const {
+    courtHelpArea,
+    courtHelpRequested,
     email: submittedEmail,
     goals: submittedGoals,
+    healthDataConsent,
     injuryConsiderations: submittedInjuryConsiderations,
     location: studentCourt,
     notes,
@@ -70,6 +74,11 @@ export async function POST(request: Request) {
     slot,
     trainingAvailability: submittedTrainingAvailability,
   } = validation.data
+  const coachingSettings = await getCachedGlobal('coaching-settings')()
+  const consentAt = healthDataConsent ? new Date().toISOString() : undefined
+  const bookingLocation = courtHelpRequested
+    ? `Court coordination requested — ${courtHelpArea}`
+    : studentCourt
 
   // Authenticated students: pull profile data from their student-profile so the
   // booking form only needs to collect a slot (+ optional notes).
@@ -140,6 +149,8 @@ export async function POST(request: Request) {
     startsAt: string
     durationMinutes: number
     location: string
+    courtHelpRequested: boolean
+    courtHelpArea?: string
   } | null = null
   if (slot.startsWith('slot:')) {
     const slotID = slot.slice(5)
@@ -161,7 +172,9 @@ export async function POST(request: Request) {
         coach,
         startsAt: availability.startsAt,
         durationMinutes: availability.durationMinutes,
-        location: studentCourt,
+        courtHelpArea: courtHelpArea || undefined,
+        courtHelpRequested,
+        location: bookingLocation,
       }
   } else if (slot.startsWith('rule:')) {
     const secondColon = slot.indexOf(':', 5)
@@ -186,7 +199,9 @@ export async function POST(request: Request) {
         coach: generated.coachID,
         startsAt: generated.startsAt,
         durationMinutes: generated.durationMinutes,
-        location: studentCourt,
+        courtHelpArea: courtHelpArea || undefined,
+        courtHelpRequested,
+        location: bookingLocation,
       }
   }
 
@@ -210,7 +225,9 @@ export async function POST(request: Request) {
         preferredEvent: validPreferredEvent,
         goals,
         trainingAvailability,
+        healthDataConsentAt: consentAt,
         injuryConsiderations: injuryConsiderations || undefined,
+        privacyPolicyVersion: coachingSettings.privacy.policyVersion,
         notes: notes || undefined,
         status: 'confirmed',
       },

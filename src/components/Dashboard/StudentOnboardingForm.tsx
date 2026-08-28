@@ -1,6 +1,14 @@
 'use client'
 
-import { ArrowRight, CheckCircle2, ClipboardList, LoaderCircle, Target } from 'lucide-react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  ClipboardList,
+  LoaderCircle,
+  ShieldCheck,
+  Target,
+} from 'lucide-react'
+import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 
 import type { StudentProfile } from '@/payload-types'
@@ -17,6 +25,8 @@ const programLabels: Record<Recommendation['level'], { name: string; weeks: numb
 }
 
 type OnboardingFormProps = {
+  healthDataNotice: string
+  privacyURL: string
   profile: StudentProfile
 }
 
@@ -41,7 +51,11 @@ const availabilityOptions = [
 
 const injuryOptions = ['None', 'Knee', 'Shoulder', 'Back', 'Ankle', 'Wrist'] as const
 
-export function StudentOnboardingForm({ profile }: OnboardingFormProps) {
+export function StudentOnboardingForm({
+  healthDataNotice,
+  privacyURL,
+  profile,
+}: OnboardingFormProps) {
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null)
@@ -125,6 +139,7 @@ export function StudentOnboardingForm({ profile }: OnboardingFormProps) {
         competitionGoal: data.get('competitionGoal'),
         displayName: data.get('displayName'),
         goals: finalGoals,
+        healthDataConsent: data.get('healthDataConsent') === 'true',
         injuryConsiderations: finalInjury || undefined,
         playingExperience: data.get('playingExperience'),
         preferredEvent: data.get('preferredEvent'),
@@ -179,12 +194,12 @@ export function StudentOnboardingForm({ profile }: OnboardingFormProps) {
             </p>
           </div>
 
-          <a
+          <Link
             href="/dashboard/student"
             className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white"
           >
             Go to dashboard <ArrowRight className="h-5 w-5" />
-          </a>
+          </Link>
         </div>
       </main>
     )
@@ -526,6 +541,31 @@ export function StudentOnboardingForm({ profile }: OnboardingFormProps) {
               />
             )}
             <input type="hidden" name="injuryConsiderations" value={injuryValue} />
+            <div className="rounded-xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4 text-xs leading-5 text-[#334b65]">
+              <p className="flex items-start gap-2">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1677ff]" />
+                <span>
+                  {healthDataNotice}{' '}
+                  <Link
+                    href={privacyURL}
+                    className="font-black text-[#1677ff] underline underline-offset-2"
+                  >
+                    Read the privacy notice
+                  </Link>
+                  .
+                </span>
+              </p>
+              <label className="mt-3 flex cursor-pointer items-start gap-2 font-bold text-[#092c59]">
+                <input
+                  required
+                  type="checkbox"
+                  name="healthDataConsent"
+                  value="true"
+                  className="mt-0.5 h-4 w-4 accent-[#1677ff]"
+                />
+                <span>I understand and consent to this use of my injury and health notes.</span>
+              </label>
+            </div>
           </div>
 
           {error && (

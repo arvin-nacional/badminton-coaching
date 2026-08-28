@@ -13,6 +13,7 @@ import { Users } from './collections/Users'
 import { coachingCollections } from './collections/Coaching'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { CoachingSettings } from './CoachingSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -82,7 +83,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users, ...coachingCollections],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, CoachingSettings],
   plugins: [
     ...plugins,
     s3Storage({

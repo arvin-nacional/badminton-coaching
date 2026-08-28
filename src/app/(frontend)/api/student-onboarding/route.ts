@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import type { User } from '@/payload-types'
 import { recommendProgram } from '@/utilities/recommendProgram'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { validateOnboardingInput } from '@/utilities/validateStudentSignup'
 
 type OnboardingBody = {
@@ -13,6 +14,7 @@ type OnboardingBody = {
   goals?: unknown
   trainingAvailability?: unknown
   injuryConsiderations?: unknown
+  healthDataConsent?: unknown
   skillSelfRating?: unknown
   trainingFrequencyPerWeek?: unknown
   competitionGoal?: unknown
@@ -44,23 +46,25 @@ export async function POST(request: Request) {
   // The beforeChange hook on student-profiles will recalculate all
   // program-derived fields (currentProgramWeek, currentPhase, weeklyFocus,
   // packageName, etc.) when the program relationship is set.
-  const programs = await payload.find({
-    collection: 'programs',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { level: { equals: recommendation.level } },
-  })
+  const [programs, profiles, coachingSettings] = await Promise.all([
+    payload.find({
+      collection: 'programs',
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      where: { level: { equals: recommendation.level } },
+    }),
+    payload.find({
+      collection: 'student-profiles',
+      depth: 0,
+      limit: 1,
+      overrideAccess: false,
+      user,
+      where: { user: { equals: user.id } },
+    }),
+    getCachedGlobal('coaching-settings')(),
+  ])
   const recommendedProgram = programs.docs[0]
-
-  const profiles = await payload.find({
-    collection: 'student-profiles',
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    user,
-    where: { user: { equals: user.id } },
-  })
   const profile = profiles.docs[0]
   if (!profile)
     return Response.json(
@@ -79,8 +83,10 @@ export async function POST(request: Request) {
       competitionGoal: validation.competitionGoal,
       displayName: validation.displayName,
       goals: validation.goals,
+      healthDataConsentAt: new Date().toISOString(),
       injuryConsiderations: validation.injuryConsiderations || undefined,
       onboardingCompletedAt: new Date().toISOString(),
+      privacyPolicyVersion: coachingSettings.privacy.policyVersion,
       playingExperience: validation.playingExperience,
       preferredEvent: validation.preferredEvent,
       program: recommendedProgram?.id ?? undefined,

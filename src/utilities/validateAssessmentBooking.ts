@@ -22,11 +22,13 @@ type AssessmentBookingInput = {
   goals: string
   trainingAvailability: string
   injuryConsiderations: string
+  healthDataConsent: boolean
+  courtHelpRequested: boolean
+  courtHelpArea: string
 }
 
 type ValidationResult =
-  | { valid: false; error: string }
-  | { valid: true; data: AssessmentBookingInput }
+  { valid: false; error: string } | { valid: true; data: AssessmentBookingInput }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -58,6 +60,10 @@ export function validateAssessmentBookingInput(
   const goals = authenticatedStudent ? '' : text(input.goals, 1000)
   const trainingAvailability = authenticatedStudent ? '' : text(input.trainingAvailability, 500)
   const injuryConsiderations = authenticatedStudent ? '' : text(input.injuryConsiderations, 1000)
+  const courtHelpRequested =
+    input.courtHelpRequested === true || input.courtHelpRequested === 'true'
+  const courtHelpArea = courtHelpRequested ? text(input.courtHelpArea, 200) : ''
+  const healthDataConsent = input.healthDataConsent === true || input.healthDataConsent === 'true'
 
   const playingExperience = assessmentPlayingExperienceOptions.includes(
     playingExperienceRaw as PlayingExperience,
@@ -73,7 +79,19 @@ export function validateAssessmentBookingInput(
   if (!slot) {
     return { valid: false, error: 'Please choose an available time.' }
   }
-  if (location.length < 3) {
+  if (!healthDataConsent) {
+    return {
+      valid: false,
+      error: 'Confirm that you understand how your injury and health notes will be used.',
+    }
+  }
+  if (courtHelpRequested && courtHelpArea.length < 3) {
+    return {
+      valid: false,
+      error: 'Enter the area where you would like help finding a court.',
+    }
+  }
+  if (!courtHelpRequested && location.length < 3) {
     return {
       valid: false,
       error: 'Enter the court name and branch or address that you booked.',
@@ -97,8 +115,11 @@ export function validateAssessmentBookingInput(
   return {
     valid: true,
     data: {
+      courtHelpArea,
+      courtHelpRequested,
       email,
       goals,
+      healthDataConsent,
       injuryConsiderations,
       location,
       notes,

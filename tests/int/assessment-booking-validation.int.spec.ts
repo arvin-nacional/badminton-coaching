@@ -15,6 +15,7 @@ const validVisitorBooking = {
   goals: '  Improve my backhand  ',
   trainingAvailability: '  Weekday evenings  ',
   injuryConsiderations: '  Previous ankle sprain  ',
+  healthDataConsent: 'true',
   notes: '  Please bring training shuttles  ',
 }
 
@@ -33,6 +34,9 @@ describe('assessment booking form validation', () => {
         goals: 'Improve my backhand',
         trainingAvailability: 'Weekday evenings',
         injuryConsiderations: 'Previous ankle sprain',
+        healthDataConsent: true,
+        courtHelpRequested: false,
+        courtHelpArea: '',
         notes: 'Please bring training shuttles',
       },
     })
@@ -59,6 +63,38 @@ describe('assessment booking form validation', () => {
     })
   })
 
+  it('accepts a court-help request without a booked venue', () => {
+    const result = validateAssessmentBookingInput(
+      {
+        ...validVisitorBooking,
+        courtHelpRequested: 'true',
+        courtHelpArea: '  Makati near Chino Roces  ',
+        location: '',
+      },
+      false,
+    )
+
+    expect(result.valid).toBe(true)
+    if (!result.valid) return
+    expect(result.data).toMatchObject({
+      courtHelpArea: 'Makati near Chino Roces',
+      courtHelpRequested: true,
+      location: '',
+    })
+  })
+
+  it('requires privacy consent before collecting visitor health information', () => {
+    expect(
+      validateAssessmentBookingInput(
+        { ...validVisitorBooking, healthDataConsent: undefined },
+        false,
+      ),
+    ).toEqual({
+      valid: false,
+      error: 'Confirm that you understand how your injury and health notes will be used.',
+    })
+  })
+
   it.each([
     ['player name', { playerName: ' ' }],
     ['valid email', { email: 'not-an-email' }],
@@ -67,17 +103,19 @@ describe('assessment booking form validation', () => {
     ['goals', { goals: '' }],
     ['training availability', { trainingAvailability: '' }],
   ])('requires a visitor %s', (_field, override) => {
-    expect(
-      validateAssessmentBookingInput({ ...validVisitorBooking, ...override }, false),
-    ).toEqual({
+    expect(validateAssessmentBookingInput({ ...validVisitorBooking, ...override }, false)).toEqual({
       valid: false,
       error: 'Choose a slot and complete the required player profile questions.',
     })
   })
 
   it('allows optional visitor fields to be omitted', () => {
-    const { phone: _phone, injuryConsiderations: _injury, notes: _notes, ...required } =
-      validVisitorBooking
+    const {
+      phone: _phone,
+      injuryConsiderations: _injury,
+      notes: _notes,
+      ...required
+    } = validVisitorBooking
 
     const result = validateAssessmentBookingInput(required, false)
     expect(result.valid).toBe(true)
@@ -91,6 +129,7 @@ describe('assessment booking form validation', () => {
         {
           slot: 'rule:rule-1:2026-08-20T10:00:00.000Z',
           location: 'Metro Badminton Center',
+          healthDataConsent: 'true',
           notes: 'Working around a shoulder issue',
         },
         true,
@@ -109,6 +148,9 @@ describe('assessment booking form validation', () => {
         goals: '',
         trainingAvailability: '',
         injuryConsiderations: '',
+        healthDataConsent: true,
+        courtHelpRequested: false,
+        courtHelpArea: '',
       },
     })
   })

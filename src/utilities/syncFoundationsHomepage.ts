@@ -2,9 +2,18 @@ import type { Payload } from 'payload'
 
 import { homeStatic } from '@/endpoints/seed/home-static'
 
+const signupButton = { label: 'Create your free account', url: '/signup' }
+
+const isAssessmentCTA = (button?: { label?: string | null; url?: string | null } | null) =>
+  Boolean(
+    button?.label?.toLowerCase().includes('assessment') ||
+    button?.url === '/book-assessment' ||
+    button?.url === '#contact' ||
+    button?.url?.startsWith('mailto:'),
+  )
+
 export async function syncFoundationsHomepage(payload: Payload) {
   const replacement = homeStatic.layout.find((block) => block.blockType === 'trainingCycle')
-  if (!replacement) return
 
   const pages = await payload.find({
     collection: 'pages',
@@ -19,15 +28,29 @@ export async function syncFoundationsHomepage(payload: Payload) {
   let changed = false
   const layout = home.layout.map((block) => {
     if (
-      block.blockType !== 'trainingCycle' ||
-      block.eyebrow !== 'Badminton Foundations' ||
-      (block.sessions?.length !== 8 && !block.heading?.toLowerCase().includes('first eight'))
+      replacement &&
+      block.blockType === 'trainingCycle' &&
+      block.eyebrow === 'Badminton Foundations' &&
+      (block.sessions?.length === 8 || block.heading?.toLowerCase().includes('first eight'))
     ) {
-      return block
+      changed = true
+      return { ...replacement, id: block.id }
     }
 
-    changed = true
-    return { ...replacement, id: block.id }
+    if (block.blockType === 'coachHero' && isAssessmentCTA(block.primaryButton)) {
+      changed = true
+      return { ...block, primaryButton: signupButton }
+    }
+
+    if (
+      (block.blockType === 'assessmentSteps' || block.blockType === 'coachingCTA') &&
+      isAssessmentCTA(block.button)
+    ) {
+      changed = true
+      return { ...block, button: signupButton }
+    }
+
+    return block
   })
 
   if (!changed) return
@@ -39,5 +62,5 @@ export async function syncFoundationsHomepage(payload: Payload) {
     depth: 0,
     overrideAccess: true,
   })
-  payload.logger.info('Updated the homepage Badminton Foundations cycle from 8 to 12 sessions')
+  payload.logger.info('Updated the homepage program cycle and account-first calls to action')
 }

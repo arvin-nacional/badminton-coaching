@@ -365,7 +365,10 @@ export default async function CoachDashboardPage() {
                   </dl>
                   <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#092c59]/10 pt-4">
                     <p className="text-sm text-[#607286]">
-                      {booking.location} · {booking.durationMinutes} minutes
+                      {booking.courtHelpRequested
+                        ? `Court help requested near ${booking.courtHelpArea || 'the player’s preferred area'}`
+                        : booking.location}{' '}
+                      · {booking.durationMinutes} minutes
                     </p>
                     <Link
                       href={`/dashboard/coach/assessments/${booking.id}`}

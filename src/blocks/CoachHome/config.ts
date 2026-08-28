@@ -28,7 +28,7 @@ export const CoachHero: Block = {
     {
       name: 'primaryButton',
       type: 'group',
-      fields: buttonFields('Book an assessment', '/book-assessment'),
+      fields: buttonFields('Create your free account', '/signup'),
     },
     {
       name: 'secondaryButton',
@@ -239,7 +239,7 @@ export const AssessmentSteps: Block = {
         'Every new player begins with a complete assessment. You will leave knowing your current level, your three main development priorities, and what your first four training sessions should cover.',
     },
     { name: 'stepLabel', type: 'text', required: true, defaultValue: 'Step' },
-    { name: 'button', type: 'group', fields: buttonFields('Book your assessment', '#contact') },
+    { name: 'button', type: 'group', fields: buttonFields('Create your free account', '/signup') },
     {
       name: 'steps',
       type: 'array',
@@ -434,7 +434,7 @@ export const ProgressProfile: Block = {
 export const CoachingQuote: Block = {
   slug: 'coachingQuote',
   interfaceName: 'CoachingQuoteBlock',
-  labels: { singular: 'Coaching Quote', plural: 'Coaching Quotes' },
+  labels: { singular: 'Pricing, Trust & Coaching Principle', plural: 'Pricing & Trust' },
   fields: [
     {
       name: 'quote',
@@ -468,10 +468,7 @@ export const CoachingCTA: Block = {
     {
       name: 'button',
       type: 'group',
-      fields: buttonFields(
-        'Book your assessment',
-        'mailto:coach@example.com?subject=Badminton%20Assessment',
-      ),
+      fields: buttonFields('Create your free account', '/signup'),
     },
   ],
 }

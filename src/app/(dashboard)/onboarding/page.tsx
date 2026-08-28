@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { StudentOnboardingForm } from '@/components/Dashboard/StudentOnboardingForm'
 import { requireDashboardUser } from '@/utilities/dashboardAuth'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,14 +12,17 @@ export default async function OnboardingPage() {
   // Only students need onboarding.
   if (!user.roles?.includes('student')) redirect('/dashboard')
 
-  const profiles = await payload.find({
-    collection: 'student-profiles',
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    user,
-    where: { user: { equals: user.id } },
-  })
+  const [profiles, coachingSettings] = await Promise.all([
+    payload.find({
+      collection: 'student-profiles',
+      depth: 0,
+      limit: 1,
+      overrideAccess: false,
+      user,
+      where: { user: { equals: user.id } },
+    }),
+    getCachedGlobal('coaching-settings')(),
+  ])
   const profile = profiles.docs[0]
 
   // If a profile does not exist yet, the provisioning hook should have created
@@ -40,5 +44,11 @@ export default async function OnboardingPage() {
   // Already onboarded — no need to repeat.
   if (profile.onboardingCompletedAt) redirect('/dashboard/student')
 
-  return <StudentOnboardingForm profile={profile} />
+  return (
+    <StudentOnboardingForm
+      healthDataNotice={coachingSettings.privacy.healthDataNotice}
+      privacyURL={coachingSettings.privacy.privacyURL}
+      profile={profile}
+    />
+  )
 }

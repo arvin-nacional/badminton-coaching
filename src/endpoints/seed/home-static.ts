@@ -14,7 +14,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       highlight: 'train next.',
       description:
         'Personal badminton coaching built around your current ability, goals, and playing style. Start with a complete assessment, follow a clear training plan, and see your progress after every session.',
-      primaryButton: { label: 'Book an assessment', url: '/book-assessment' },
+      primaryButton: { label: 'Create your free account', url: '/signup' },
       secondaryButton: { label: 'Explore programs', url: '#programs' },
       benefits: [
         { text: 'Personalized development roadmap' },
@@ -114,7 +114,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       description:
         'Every new player begins with a complete assessment. You will leave knowing your current level, your three main development priorities, and what your first four training sessions should cover.',
       stepLabel: 'Step',
-      button: { label: 'Book your assessment', url: '/book-assessment' },
+      button: { label: 'Create your free account', url: '/signup' },
       steps: [
         {
           title: 'Player Profile',
@@ -231,7 +231,7 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
       anchor: 'contact',
       eyebrow: 'Ready to improve with purpose?',
       heading: 'Let us find your\nnext step.',
-      button: { label: 'Book your assessment', url: '/book-assessment' },
+      button: { label: 'Create your free account', url: '/signup' },
     },
   ],
   meta: {

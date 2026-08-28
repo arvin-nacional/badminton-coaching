@@ -58,6 +58,7 @@ describe('student onboarding validation', () => {
     skillSelfRating: 5,
     trainingFrequencyPerWeek: '2',
     competitionGoal: 'club',
+    healthDataConsent: true,
   }
 
   it('accepts a complete onboarding payload', () => {
@@ -77,6 +78,13 @@ describe('student onboarding validation', () => {
     const result = validateOnboardingInput(validPayload)
     if (!result.valid) throw new Error('expected valid result')
     expect(result.injuryConsiderations).toBeUndefined()
+  })
+
+  it('requires consent for injury and health-data use', () => {
+    expect(validateOnboardingInput({ ...validPayload, healthDataConsent: false })).toEqual({
+      valid: false,
+      error: 'Confirm that you understand how your injury and health notes will be used.',
+    })
   })
 
   it('accepts skillSelfRating as a numeric string and rounds it', () => {

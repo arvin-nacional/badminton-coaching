@@ -44,6 +44,7 @@ export type OnboardingInput = {
   goals?: unknown
   trainingAvailability?: unknown
   injuryConsiderations?: unknown
+  healthDataConsent?: unknown
   skillSelfRating?: unknown
   trainingFrequencyPerWeek?: unknown
   competitionGoal?: unknown
@@ -62,6 +63,7 @@ export type OnboardingValidation =
       goals: string
       trainingAvailability: string
       injuryConsiderations?: string
+      healthDataConsent: true
       skillSelfRating: number
       trainingFrequencyPerWeek: '1' | '2' | '3' | '4+'
       competitionGoal: 'casual' | 'club' | 'tournament' | 'national'
@@ -82,6 +84,7 @@ export function validateOnboardingInput(input: OnboardingInput): OnboardingValid
   const goals = text(input.goals, 1000)
   const trainingAvailability = text(input.trainingAvailability, 500)
   const injuryConsiderations = text(input.injuryConsiderations, 1000)
+  const healthDataConsent = input.healthDataConsent === true || input.healthDataConsent === 'true'
   const skillSelfRatingRaw = input.skillSelfRating
   const trainingFrequencyRaw = text(input.trainingFrequencyPerWeek, 5)
   const competitionGoalRaw = text(input.competitionGoal, 30)
@@ -103,6 +106,11 @@ export function validateOnboardingInput(input: OnboardingInput): OnboardingValid
   if (!preferredEvent) return { valid: false, error: 'Choose your preferred event.' }
   if (!goals) return { valid: false, error: 'Tell us your main goals.' }
   if (!trainingAvailability) return { valid: false, error: 'Tell us when you can train.' }
+  if (!healthDataConsent)
+    return {
+      valid: false,
+      error: 'Confirm that you understand how your injury and health notes will be used.',
+    }
 
   // Skill self-rating must be a number between 1 and 10.
   const skillSelfRating =
@@ -133,6 +141,7 @@ export function validateOnboardingInput(input: OnboardingInput): OnboardingValid
     valid: true,
     displayName,
     goals,
+    healthDataConsent: true,
     injuryConsiderations: injuryConsiderations || undefined,
     playingExperience,
     preferredEvent,

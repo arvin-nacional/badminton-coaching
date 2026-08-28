@@ -27,6 +27,7 @@ import type { Drill, PracticeLibrary, Skill } from '@/payload-types'
 import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
 import { isCoach, requireDashboardUser } from '@/utilities/dashboardAuth'
 import { getCachedProgram } from '@/utilities/getCachedProgram'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import {
   programLessonDrillsForEvent,
   programLessonHomeDrillsForEvent,
@@ -105,7 +106,10 @@ export default async function StudentDashboardPage() {
   // parallel block to extract drill IDs through the current program week,
   // so the drills query can run in parallel with everything else instead
   // of sequentially after.
-  const program = programID ? await getCachedProgram(programID) : null
+  const [program, coachingSettings] = await Promise.all([
+    programID ? getCachedProgram(programID) : Promise.resolve(null),
+    getCachedGlobal('coaching-settings')(),
+  ])
 
   // Pre-compute drill IDs through the current week so repeated tutorial
   // videos can be recognized without an extra sequential query.
@@ -412,17 +416,25 @@ export default async function StudentDashboardPage() {
         ) : (
           <Panel
             className="lg:col-span-4"
-            title="Book your training court"
-            subtitle="You arrange the venue for this session"
+            title="Choose your training venue"
+            subtitle="Confirm your court or ask for help"
             icon={CalendarDays}
           >
             {bookingSession ? (
               <StudentCourtBooking
+                cancellationNoticeHours={coachingSettings.cancellation.noticeHours}
+                courtHelpArea={bookingSession.courtHelpArea}
+                courtHelpPreferredAt={bookingSession.courtHelpPreferredAt}
+                courtHelpRequested={bookingSession.courtHelpRequested}
                 durationMinutes={bookingSession.durationMinutes}
                 location={bookingSession.location}
+                pricing={coachingSettings.pricing}
                 scheduledAt={bookingSession.scheduledAt}
+                serviceArea={coachingSettings.service.area}
                 sessionID={bookingSession.id}
+                termsURL={coachingSettings.privacy.termsURL}
                 title={bookingSession.title}
+                travelPolicy={coachingSettings.service.travelPolicy}
               />
             ) : (
               <Empty text="No program session is currently ready for court booking." />

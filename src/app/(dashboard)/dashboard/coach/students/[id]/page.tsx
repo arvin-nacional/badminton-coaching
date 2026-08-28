@@ -329,13 +329,19 @@ export default async function CoachStudentWorkspace({
                 <div className="xl:text-right">
                   <p className="text-xs font-bold uppercase text-white/50">Student court booking</p>
                   <p className="mt-1 font-black">
-                    {currentSession.scheduledAt
-                      ? formatDate(currentSession.scheduledAt)
-                      : 'Waiting for the student'}
+                    {currentSession.courtHelpRequested
+                      ? currentSession.courtHelpPreferredAt
+                        ? `Preferred: ${formatDate(currentSession.courtHelpPreferredAt)}`
+                        : 'Court help requested'
+                      : currentSession.scheduledAt
+                        ? formatDate(currentSession.scheduledAt)
+                        : 'Waiting for the student'}
                   </p>
                   <p className="mt-2 flex max-w-sm items-start gap-1.5 text-sm font-bold text-white/65 xl:justify-end">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#4cc9ff]" />
-                    {currentSession.location || 'Court has not been confirmed yet'}
+                    {currentSession.courtHelpRequested
+                      ? `Preferred area: ${currentSession.courtHelpArea || 'Not provided'}`
+                      : currentSession.location || 'Court has not been confirmed yet'}
                   </p>
                 </div>
                 {currentSession.status !== 'completed' && currentSession.status !== 'cancelled' ? (
@@ -346,10 +352,18 @@ export default async function CoachStudentWorkspace({
                     programDurationMinutes={profile.trainingDurationMinutes}
                   />
                 ) : null}
-                <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black text-white/70">
-                  {currentSession.courtBookedByStudent
-                    ? 'Court confirmed by student'
-                    : 'Student is responsible for booking'}
+                <span
+                  className={`rounded-full px-4 py-2 text-xs font-black ${
+                    currentSession.courtHelpRequested
+                      ? 'bg-[#fff0d9] text-[#8b5600]'
+                      : 'bg-white/10 text-white/70'
+                  }`}
+                >
+                  {currentSession.courtHelpRequested
+                    ? 'Action needed: help find a court'
+                    : currentSession.courtBookedByStudent
+                      ? 'Court confirmed by student'
+                      : 'Waiting for court details'}
                 </span>
               </div>
             </div>

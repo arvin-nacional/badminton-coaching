@@ -720,6 +720,23 @@ export const StudentProfiles: CollectionConfig = {
       },
     },
     {
+      name: 'healthDataConsentAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime' },
+        description: 'When the student accepted the health-data use notice.',
+      },
+    },
+    {
+      name: 'privacyPolicyVersion',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Policy version accepted with the health-data consent.',
+      },
+    },
+    {
       name: 'skillSelfRating',
       type: 'number',
       min: 1,
@@ -936,6 +953,30 @@ export const TrainingSessions: CollectionConfig = {
         date: { pickerAppearance: 'dayAndTime' },
         description: 'Most recent time the student confirmed or changed the court booking.',
       },
+    },
+    {
+      name: 'courtHelpRequested',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        readOnly: true,
+        description: 'The student asked the coach for help finding a suitable venue.',
+      },
+    },
+    {
+      name: 'courtHelpRequestedAt',
+      type: 'date',
+      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+    },
+    {
+      name: 'courtHelpArea',
+      type: 'text',
+      admin: { readOnly: true, description: 'Preferred city or area supplied by the student.' },
+    },
+    {
+      name: 'courtHelpPreferredAt',
+      type: 'date',
+      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
     },
     {
       name: 'status',
@@ -1515,6 +1556,17 @@ export const AssessmentBookings: CollectionConfig = {
     },
     { name: 'durationMinutes', type: 'number', required: true, min: 15 },
     { name: 'location', type: 'text', required: true },
+    {
+      name: 'courtHelpRequested',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'The player needs help coordinating a court before the assessment.' },
+    },
+    {
+      name: 'courtHelpArea',
+      type: 'text',
+      admin: { description: 'Preferred city or area for court coordination.' },
+    },
     { name: 'playerName', type: 'text', required: true },
     { name: 'email', type: 'email', required: true, index: true },
     { name: 'phone', type: 'text' },
@@ -1532,6 +1584,16 @@ export const AssessmentBookings: CollectionConfig = {
     { name: 'goals', type: 'textarea' },
     { name: 'trainingAvailability', type: 'textarea' },
     { name: 'injuryConsiderations', type: 'textarea' },
+    {
+      name: 'healthDataConsentAt',
+      type: 'date',
+      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+    },
+    {
+      name: 'privacyPolicyVersion',
+      type: 'text',
+      admin: { readOnly: true },
+    },
     {
       name: 'notes',
       type: 'textarea',

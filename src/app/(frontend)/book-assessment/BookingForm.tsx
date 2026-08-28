@@ -1,8 +1,27 @@
 'use client'
 
-import { ArrowRight, CalendarDays, CheckCircle2, Clock3, MapPin, UserRound } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  Clock3,
+  HandHelping,
+  MapPin,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useState, type FormEvent } from 'react'
+
+import {
+  assessmentCoachingFee,
+  expectedCourtFeeRange,
+  expectedTotalRange,
+  formatPeso,
+  formatPesoRange,
+  type CoachingPricing,
+} from '@/utilities/coachingPricing'
 import { CourtPlaceField } from './CourtPlaceField'
 
 export type AssessmentSlot = {
@@ -18,8 +37,18 @@ export type ExistingAssessmentBooking = {
   startsAt: string
 }
 
-const logisticsFeeNote =
-  'Travel and logistics fees may apply for courts outside Metro Manila or venues requiring extended travel. Any additional charge will be discussed and confirmed before the session.'
+export type AssessmentBookingOffer = {
+  cancellationNoticeHours: number
+  healthDataNotice: string
+  pricing: CoachingPricing
+  privacyURL: string
+  reschedulePolicy: string
+  serviceArea: string
+  serviceDetails: string
+  termsURL: string
+  travelPolicy: string
+  venueOptions: string[]
+}
 
 const dateKey = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Manila',
@@ -48,12 +77,14 @@ export function BookingForm({
   displayName,
   existingBooking,
   googleMapsApiKey,
+  offer,
 }: {
   slots: AssessmentSlot[]
   isAuthenticated: boolean
   displayName?: string
   existingBooking?: ExistingAssessmentBooking
   googleMapsApiKey?: string
+  offer: AssessmentBookingOffer
 }) {
   const dates = Array.from(new Set(slots.map((slot) => dateKey.format(new Date(slot.startsAt)))))
   const [selectedDate, setSelectedDate] = useState(dates[0] || '')
@@ -62,16 +93,134 @@ export function BookingForm({
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const [courtLocation, setCourtLocation] = useState('')
+  const [courtHelpRequested, setCourtHelpRequested] = useState(false)
+  const [courtHelpArea, setCourtHelpArea] = useState('')
   const updateCourtLocation = useCallback((value: string) => setCourtLocation(value), [])
   const visibleSlots = slots.filter(
     (slot) => dateKey.format(new Date(slot.startsAt)) === selectedDate,
   )
   const selectedSlot = slots.find((slot) => slot.id === selected)
+  const durationMinutes = selectedSlot?.durationMinutes || 60
+  const coachingFee = assessmentCoachingFee(offer.pricing)
+  const courtFeeRange = expectedCourtFeeRange(durationMinutes, offer.pricing)
+  const totalRange = expectedTotalRange(coachingFee, durationMinutes, offer.pricing)
+  const courtDetailsValid = courtHelpRequested
+    ? courtHelpArea.trim().length >= 3
+    : courtLocation.trim().length >= 3
 
   function chooseDate(value: string) {
     setSelectedDate(value)
     setSelected(slots.find((slot) => dateKey.format(new Date(slot.startsAt)) === value)?.id || '')
   }
+
+  const courtChoice = (
+    <div className="grid gap-4">
+      <input type="hidden" name="courtHelpRequested" value={String(courtHelpRequested)} />
+      <div className="grid grid-cols-2 rounded-xl bg-[#eaf3ff] p-1">
+        <button
+          type="button"
+          aria-pressed={!courtHelpRequested}
+          onClick={() => setCourtHelpRequested(false)}
+          className={`rounded-lg px-3 py-2.5 text-xs font-black transition ${
+            !courtHelpRequested ? 'bg-white text-[#092c59] shadow-sm' : 'text-[#607286]'
+          }`}
+        >
+          I have a court
+        </button>
+        <button
+          type="button"
+          aria-pressed={courtHelpRequested}
+          onClick={() => setCourtHelpRequested(true)}
+          className={`rounded-lg px-3 py-2.5 text-xs font-black transition ${
+            courtHelpRequested ? 'bg-white text-[#092c59] shadow-sm' : 'text-[#607286]'
+          }`}
+        >
+          I need help finding a court
+        </button>
+      </div>
+      {courtHelpRequested ? (
+        <label className="grid gap-2 text-sm font-bold">
+          Preferred training area
+          <span className="flex items-center gap-2 text-xs font-normal leading-5 text-[#718399]">
+            <HandHelping className="h-4 w-4 text-[#1677ff]" /> Tell us where in {offer.serviceArea}{' '}
+            you would like to train. We will coordinate options before you pay a venue.
+          </span>
+          <input
+            required
+            name="courtHelpArea"
+            maxLength={200}
+            value={courtHelpArea}
+            onChange={(event) => setCourtHelpArea(event.target.value)}
+            placeholder="City, neighborhood, or landmark"
+            className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
+          />
+          <input name="location" type="hidden" value="" />
+        </label>
+      ) : (
+        <CourtPlaceField
+          apiKey={googleMapsApiKey}
+          onChange={updateCourtLocation}
+          value={courtLocation}
+        />
+      )}
+      <div className="rounded-xl bg-[#eef8f2] px-4 py-3 text-xs font-semibold leading-5 text-[#24513b]">
+        <p>{offer.serviceDetails}</p>
+        <ul className="mt-2 list-disc space-y-1 pl-4">
+          {offer.venueOptions.map((option) => (
+            <li key={option}>{option}</li>
+          ))}
+        </ul>
+        <p className="mt-2">{offer.travelPolicy}</p>
+      </div>
+    </div>
+  )
+
+  const healthDataConsentNotice = (
+    <div className="rounded-xl border border-[#1677ff]/15 bg-[#eaf3ff] p-4 text-xs leading-5 text-[#334b65]">
+      <p className="flex items-start gap-2">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1677ff]" />
+        <span>
+          {offer.healthDataNotice}{' '}
+          <Link
+            href={offer.privacyURL}
+            className="font-black text-[#1677ff] underline underline-offset-2"
+          >
+            Read the privacy notice
+          </Link>
+          .
+        </span>
+      </p>
+      <label className="mt-3 flex cursor-pointer items-start gap-2 font-bold text-[#092c59]">
+        <input
+          required
+          type="checkbox"
+          name="healthDataConsent"
+          value="true"
+          className="mt-0.5 h-4 w-4 accent-[#1677ff]"
+        />
+        <span>I understand and consent to this use of my injury and health notes.</span>
+      </label>
+    </div>
+  )
+
+  const bookingPolicy = (
+    <div className="rounded-xl border border-[#092c59]/10 bg-[#f6f9fd] p-4 text-xs leading-5 text-[#607286]">
+      <p className="flex items-start gap-2 font-semibold text-[#334b65]">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1677ff]" />
+        <span>{offer.reschedulePolicy}</span>
+      </p>
+      <p className="mt-2">
+        Court refunds follow the venue’s rules.{' '}
+        <Link
+          href={offer.termsURL}
+          className="font-black text-[#1677ff] underline underline-offset-2"
+        >
+          Read the full cancellation and reschedule policy
+        </Link>
+        .
+      </p>
+    </div>
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -92,11 +241,15 @@ export function BookingForm({
     return (
       <div className="rounded-[2rem] bg-white p-8 shadow-sm">
         <CheckCircle2 className="h-12 w-12 text-[#1677ff]" />
-        <h2 className="mt-5 text-3xl font-black">Your assessment is booked.</h2>
+        <h2 className="mt-5 text-3xl font-black">
+          {courtHelpRequested ? 'Your assessment time is held.' : 'Your assessment is booked.'}
+        </h2>
         <p className="mt-3 leading-7 text-[#586d84]">
-          {isAuthenticated
-            ? "We'll see you on court! Check your dashboard for the appointment details."
-            : "We'll use the contact details you provided if anything changes. See you on court!"}
+          {courtHelpRequested
+            ? `Your coach will help coordinate venue options near ${courtHelpArea} before you pay for a court.`
+            : isAuthenticated
+              ? "We'll see you on court! Check your dashboard for the appointment details."
+              : "We'll use the contact details you provided if anything changes. See you on court!"}
         </p>
         {isAuthenticated && (
           <Link
@@ -235,6 +388,26 @@ export function BookingForm({
             </div>
           )}
         </div>
+        <div className="mt-5 rounded-[2rem] bg-[#092c59] p-6 text-white shadow-sm md:p-8">
+          <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-[#4cc9ff]">
+            <CircleDollarSign className="h-4 w-4" /> Cost before you confirm
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-xs font-bold text-white/60">Assessment coaching</p>
+              <p className="mt-2 text-2xl font-black">{formatPeso(coachingFee)}</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-xs font-bold text-white/60">Estimated court</p>
+              <p className="mt-2 text-2xl font-black">{formatPesoRange(courtFeeRange)}</p>
+            </div>
+            <div className="rounded-2xl bg-[#4cc9ff] p-4 text-[#092c59]">
+              <p className="text-xs font-bold opacity-65">Expected total</p>
+              <p className="mt-2 text-2xl font-black">{formatPesoRange(totalRange)}</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs leading-5 text-white/65">{offer.pricing.courtFeeNote}</p>
+        </div>
       </section>
 
       {isAuthenticated ? (
@@ -252,14 +425,7 @@ export function BookingForm({
               : "We'll use the details from your profile."}
           </p>
           <div className="mt-6 grid gap-5">
-            <CourtPlaceField
-              apiKey={googleMapsApiKey}
-              onChange={updateCourtLocation}
-              value={courtLocation}
-            />
-            <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
-              {logisticsFeeNote}
-            </p>
+            {courtChoice}
             <label className="grid gap-2 text-sm font-bold">
               Notes for your coach (optional)
               <textarea
@@ -270,6 +436,8 @@ export function BookingForm({
                 className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
               />
             </label>
+            {healthDataConsentNotice}
+            {bookingPolicy}
             {error && (
               <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
                 {error}
@@ -277,7 +445,7 @@ export function BookingForm({
             )}
             <button
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white disabled:opacity-60"
-              disabled={pending || !selected || courtLocation.trim().length < 3}
+              disabled={pending || !selected || !courtDetailsValid}
               type="submit"
             >
               {pending ? 'Booking…' : 'Confirm assessment'}
@@ -297,14 +465,7 @@ export function BookingForm({
             Your answers help the coach prepare before you arrive.
           </p>
           <div className="mt-6 grid gap-5">
-            <CourtPlaceField
-              apiKey={googleMapsApiKey}
-              onChange={updateCourtLocation}
-              value={courtLocation}
-            />
-            <p className="rounded-xl bg-[#fff6e8] px-4 py-3 text-xs font-semibold leading-5 text-[#8b6a31]">
-              {logisticsFeeNote}
-            </p>
+            {courtChoice}
             <label className="grid gap-2 text-sm font-bold">
               Name
               <input
@@ -400,6 +561,8 @@ export function BookingForm({
                 className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
               />
             </label>
+            {healthDataConsentNotice}
+            {bookingPolicy}
             {error && (
               <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
                 {error}
@@ -407,7 +570,7 @@ export function BookingForm({
             )}
             <button
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white disabled:opacity-60"
-              disabled={pending || !selected || courtLocation.trim().length < 3}
+              disabled={pending || !selected || !courtDetailsValid}
               type="submit"
             >
               {pending ? 'Booking…' : 'Book assessment'}

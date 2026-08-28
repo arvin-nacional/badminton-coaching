@@ -17,8 +17,28 @@ describe('student court booking', () => {
       ),
     ).toEqual({
       data: {
+        mode: 'booked',
         location: 'Smash Plus, Quezon City - Court 4',
         scheduledAt: '2026-08-20T10:00:00.000Z',
+      },
+    })
+  })
+
+  it('accepts a future court-help request without requiring a booked venue', () => {
+    expect(
+      validateStudentCourtBooking(
+        {
+          mode: 'help',
+          preferredArea: '  Quezon City near Tomas Morato  ',
+          preferredAt: '2026-08-20T10:00:00.000Z',
+        },
+        now,
+      ),
+    ).toEqual({
+      data: {
+        mode: 'help',
+        preferredArea: 'Quezon City near Tomas Morato',
+        preferredAt: '2026-08-20T10:00:00.000Z',
       },
     })
   })
@@ -34,6 +54,12 @@ describe('student court booking', () => {
       validateStudentCourtBooking({ location: ' ', scheduledAt: '2026-08-20T10:00:00.000Z' }, now)
         .error,
     ).toBe('Enter the court name and branch or address.')
+    expect(
+      validateStudentCourtBooking(
+        { mode: 'help', preferredArea: ' ', preferredAt: '2026-08-20T10:00:00.000Z' },
+        now,
+      ).error,
+    ).toBe('Enter the area where you would like to train.')
   })
 
   it('uses recurring coach availability only for time and duration', () => {

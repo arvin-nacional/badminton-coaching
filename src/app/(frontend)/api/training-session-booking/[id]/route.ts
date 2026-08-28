@@ -57,23 +57,43 @@ export async function PATCH(
       )
     }
 
+    const now = new Date().toISOString()
     const updatedSession = await payload.update({
       collection: 'training-sessions',
       id: session.id,
       depth: 0,
       overrideAccess: true,
       context: { studentCourtBooking: true },
-      data: {
-        courtBookedByStudent: true,
-        courtBookingUpdatedAt: new Date().toISOString(),
-        location: booking.location,
-        scheduledAt: booking.scheduledAt,
-      },
+      data:
+        booking.mode === 'help'
+          ? {
+              courtBookedByStudent: false,
+              courtHelpArea: booking.preferredArea,
+              courtHelpPreferredAt: booking.preferredAt,
+              courtHelpRequested: true,
+              courtHelpRequestedAt: now,
+              location: null,
+              scheduledAt: null,
+            }
+          : {
+              courtBookedByStudent: true,
+              courtBookingUpdatedAt: now,
+              courtHelpArea: null,
+              courtHelpPreferredAt: null,
+              courtHelpRequested: false,
+              courtHelpRequestedAt: null,
+              location: booking.location,
+              scheduledAt: booking.scheduledAt,
+            },
     })
 
     return Response.json({
       courtBookedByStudent: updatedSession.courtBookedByStudent,
       courtBookingUpdatedAt: updatedSession.courtBookingUpdatedAt,
+      courtHelpArea: updatedSession.courtHelpArea,
+      courtHelpPreferredAt: updatedSession.courtHelpPreferredAt,
+      courtHelpRequested: updatedSession.courtHelpRequested,
+      courtHelpRequestedAt: updatedSession.courtHelpRequestedAt,
       location: updatedSession.location,
       scheduledAt: updatedSession.scheduledAt,
       status: updatedSession.status,
