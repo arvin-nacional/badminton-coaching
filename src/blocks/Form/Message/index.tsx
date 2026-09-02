@@ -6,8 +6,11 @@ import { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
 export const Message: React.FC<{ message: DefaultTypedEditorState }> = ({ message }) => {
   return (
-    <Width className="my-12" width="100">
-      {message && <RichText data={message} />}
+    <Width
+      className="rounded-xl bg-[#eaf3ff] px-4 py-3 text-sm leading-6 text-[#334b65]"
+      width="100"
+    >
+      {message && <RichText data={message} enableGutter={false} enableProse={false} />}
     </Width>
   )
 }

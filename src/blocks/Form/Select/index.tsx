@@ -1,7 +1,6 @@
 import type { SelectField } from '@payloadcms/plugin-form-builder/types'
 import type { Control, FieldErrorsImpl } from 'react-hook-form'
 
-import { Label } from '@/components/ui/label'
 import {
   Select as SelectComponent,
   SelectContent,
@@ -13,6 +12,7 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
+import { FieldLabel, formSelectTriggerClass } from '../FieldLabel'
 import { Width } from '../Width'
 
 export const Select: React.FC<
@@ -23,14 +23,9 @@ export const Select: React.FC<
 > = ({ name, control, errors, label, options, required, width, defaultValue }) => {
   return (
     <Width width={width}>
-      <Label htmlFor={name}>
+      <FieldLabel htmlFor={name} required={required}>
         {label}
-        {required && (
-          <span className="required">
-            * <span className="sr-only">(required)</span>
-          </span>
-        )}
-      </Label>
+      </FieldLabel>
       <Controller
         control={control}
         defaultValue={defaultValue}
@@ -40,17 +35,15 @@ export const Select: React.FC<
 
           return (
             <SelectComponent onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className="w-full" id={name}>
-                <SelectValue placeholder={label} />
+              <SelectTrigger className={formSelectTriggerClass} id={name}>
+                <SelectValue placeholder={label ? `Select ${label.toLowerCase()}` : 'Select'} />
               </SelectTrigger>
-              <SelectContent>
-                {options.map(({ label, value }) => {
-                  return (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  )
-                })}
+              <SelectContent className="rounded-xl border-[#092c59]/15">
+                {options.map(({ label, value }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </SelectComponent>
           )

@@ -55,12 +55,17 @@ export async function syncFoundationsHomepage(payload: Payload) {
 
   if (!changed) return
 
+  // This runs from Payload's onInit, which can be triggered during a page
+  // render. Next.js forbids revalidatePath() during render, so skip the
+  // revalidatePage hook here; the updated layout is read fresh on the next
+  // request anyway because this runs before the page query.
   await payload.update({
     collection: 'pages',
     id: home.id,
     data: { layout },
     depth: 0,
     overrideAccess: true,
+    context: { disableRevalidate: true },
   })
   payload.logger.info('Updated the homepage program cycle and account-first calls to action')
 }

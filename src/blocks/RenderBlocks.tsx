@@ -4,6 +4,7 @@ import type { Page } from '@/payload-types'
 
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { ContactSectionBlock } from '@/blocks/Contact/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
@@ -24,6 +25,7 @@ const blockComponents = {
   coachHero: CoachHeroBlock,
   coachingCTA: CoachingCTABlock,
   coachingQuote: CoachingQuoteBlock,
+  contactSection: ContactSectionBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
   developmentLoop: DevelopmentLoopBlock,
@@ -56,7 +58,9 @@ export const RenderBlocks: React.FC<{
                 'coachHero',
                 'coachingCTA',
                 'coachingQuote',
+                'contactSection',
                 'developmentLoop',
+                'formBlock',
                 'programsGrid',
                 'progressProfile',
                 'trainingCycle',
@@ -70,7 +74,9 @@ export const RenderBlocks: React.FC<{
               return isCoachBlock ? (
                 <React.Fragment key={index}>{renderedBlock}</React.Fragment>
               ) : (
-                <div className="my-16" key={index}>{renderedBlock}</div>
+                <div className="my-16" key={index}>
+                  {renderedBlock}
+                </div>
               )
             }
           }

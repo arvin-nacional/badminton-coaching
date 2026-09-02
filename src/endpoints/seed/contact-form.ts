@@ -1,29 +1,54 @@
 import { RequiredDataFromCollectionSlug } from 'payload'
 
+const paragraph = (text: string) => ({
+  type: 'paragraph' as const,
+  children: [
+    {
+      type: 'text' as const,
+      detail: 0,
+      format: 0,
+      mode: 'normal' as const,
+      style: '',
+      text,
+      version: 1,
+    },
+  ],
+  direction: 'ltr' as const,
+  format: '' as const,
+  indent: 0,
+  textFormat: 0,
+  version: 1,
+})
+
+const heading = (text: string) => ({
+  type: 'heading' as const,
+  children: [
+    {
+      type: 'text' as const,
+      detail: 0,
+      format: 0,
+      mode: 'normal' as const,
+      style: '',
+      text,
+      version: 1,
+    },
+  ],
+  direction: 'ltr' as const,
+  format: '' as const,
+  indent: 0,
+  tag: 'h2' as const,
+  version: 1,
+})
+
 export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
   confirmationMessage: {
     root: {
       type: 'root',
       children: [
-        {
-          type: 'heading',
-          children: [
-            {
-              type: 'text',
-              detail: 0,
-              format: 0,
-              mode: 'normal',
-              style: '',
-              text: 'The contact form has been submitted successfully.',
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          tag: 'h2',
-          version: 1,
-        },
+        heading('Thanks, your message is on its way.'),
+        paragraph(
+          'The coach will reply to the email you provided, usually within one working day. There is no obligation to book anything after asking.',
+        ),
       ],
       direction: 'ltr',
       format: '',
@@ -35,31 +60,15 @@ export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
   createdAt: '2023-01-12T21:47:41.374Z',
   emails: [
     {
-      emailFrom: '"Payload" \u003Cdemo@payloadcms.com\u003E',
+      emailFrom: '"Next Shot Badminton" \u003Cnoreply@nextshot.example\u003E',
       emailTo: '{{email}}',
       message: {
         root: {
           type: 'root',
           children: [
-            {
-              type: 'paragraph',
-              children: [
-                {
-                  type: 'text',
-                  detail: 0,
-                  format: 0,
-                  mode: 'normal',
-                  style: '',
-                  text: 'Your contact form submission was successfully received.',
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              textFormat: 0,
-              version: 1,
-            },
+            paragraph(
+              'Thanks for contacting Next Shot Badminton Coaching. We received your message and will reply as soon as we can.',
+            ),
           ],
           direction: 'ltr',
           format: '',
@@ -67,7 +76,7 @@ export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
           version: 1,
         },
       },
-      subject: "You've received a new message.",
+      subject: 'We received your message',
     },
   ],
   fields: [
@@ -75,9 +84,9 @@ export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
       name: 'full-name',
       blockName: 'full-name',
       blockType: 'text',
-      label: 'Full Name',
+      label: 'Full name',
       required: true,
-      width: 100,
+      width: 50,
     },
     {
       name: 'email',
@@ -85,15 +94,30 @@ export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
       blockType: 'email',
       label: 'Email',
       required: true,
-      width: 100,
+      width: 50,
     },
     {
       name: 'phone',
       blockName: 'phone',
-      blockType: 'number',
-      label: 'Phone',
+      blockType: 'text',
+      label: 'Mobile number',
       required: false,
-      width: 100,
+      width: 50,
+    },
+    {
+      name: 'topic',
+      blockName: 'topic',
+      blockType: 'select',
+      label: 'What is this about?',
+      required: true,
+      width: 50,
+      options: [
+        { label: 'Coaching or programs', value: 'coaching' },
+        { label: 'Pricing and payment', value: 'pricing' },
+        { label: 'Help finding a court', value: 'court' },
+        { label: 'Reschedule or cancellation', value: 'schedule' },
+        { label: 'Something else', value: 'other' },
+      ],
     },
     {
       name: 'message',
@@ -105,7 +129,7 @@ export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
     },
   ],
   redirect: undefined,
-  submitButtonLabel: 'Submit',
+  submitButtonLabel: 'Send message',
   title: 'Contact Form',
   updatedAt: '2023-01-12T21:47:41.374Z',
 }

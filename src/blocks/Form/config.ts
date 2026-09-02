@@ -17,6 +17,9 @@ export const FormBlock: Block = {
       relationTo: 'forms',
       required: true,
     },
+    { name: 'eyebrow', type: 'text', admin: { description: 'Small label above the heading.' } },
+    { name: 'heading', type: 'text' },
+    { name: 'description', type: 'textarea' },
     {
       name: 'enableIntro',
       type: 'checkbox',

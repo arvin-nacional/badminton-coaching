@@ -1,10 +1,6 @@
 import type { CheckboxField } from '@payloadcms/plugin-form-builder/types'
 import type { FieldErrorsImpl, FieldValues, UseFormRegister } from 'react-hook-form'
 
-import { useFormContext } from 'react-hook-form'
-
-import { Checkbox as CheckboxUi } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import React from 'react'
 
 import { Error } from '../Error'
@@ -16,29 +12,29 @@ export const Checkbox: React.FC<
     register: UseFormRegister<FieldValues>
   }
 > = ({ name, defaultValue, errors, label, register, required, width }) => {
-  const props = register(name, { required: required })
-  const { setValue } = useFormContext()
-
   return (
     <Width width={width}>
-      <div className="flex items-center gap-2">
-        <CheckboxUi
+      <label
+        htmlFor={name}
+        className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#092c59]/15 bg-[#f6f9fd] px-4 py-3 text-sm font-bold text-[#092c59]"
+      >
+        <input
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[#1677ff]"
           defaultChecked={defaultValue}
           id={name}
-          {...props}
-          onCheckedChange={(checked) => {
-            setValue(props.name, checked)
-          }}
+          type="checkbox"
+          {...register(name, { required })}
         />
-        <Label htmlFor={name}>
-          {required && (
-            <span className="required">
-              * <span className="sr-only">(required)</span>
-            </span>
-          )}
+        <span>
           {label}
-        </Label>
-      </div>
+          {required ? (
+            <span className="text-[#1677ff]">
+              {' '}
+              *<span className="sr-only">(required)</span>
+            </span>
+          ) : null}
+        </span>
+      </label>
       {errors[name] && <Error name={name} />}
     </Width>
   )

@@ -19,6 +19,7 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { dropLegacyBookingSlotIndex } from './utilities/dropLegacyBookingSlotIndex'
 import { syncFoundationsHomepage } from './utilities/syncFoundationsHomepage'
+import { syncContactPage } from './utilities/syncContactPage'
 import { sendAssessmentReminderTask } from './jobs/sendAssessmentReminder'
 
 const filename = fileURLToPath(import.meta.url)
@@ -34,6 +35,7 @@ export default buildConfig({
   onInit: async (payload) => {
     await dropLegacyBookingSlotIndex(payload)
     await syncFoundationsHomepage(payload)
+    await syncContactPage(payload)
   },
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || '',
