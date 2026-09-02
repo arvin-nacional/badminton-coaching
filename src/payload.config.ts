@@ -20,6 +20,7 @@ import { getServerSideURL } from './utilities/getURL'
 import { dropLegacyBookingSlotIndex } from './utilities/dropLegacyBookingSlotIndex'
 import { syncFoundationsHomepage } from './utilities/syncFoundationsHomepage'
 import { syncContactPage } from './utilities/syncContactPage'
+import { syncContactForm } from './utilities/syncContactForm'
 import { sendAssessmentReminderTask } from './jobs/sendAssessmentReminder'
 
 const filename = fileURLToPath(import.meta.url)
@@ -36,6 +37,7 @@ export default buildConfig({
     await dropLegacyBookingSlotIndex(payload)
     await syncFoundationsHomepage(payload)
     await syncContactPage(payload)
+    await syncContactForm(payload)
   },
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || '',

@@ -9,6 +9,7 @@ import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { wrapEmailHtml } from '@/utilities/emailTemplate'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -58,6 +59,12 @@ export const plugins: Plugin[] = [
     fields: {
       payment: false,
     },
+    beforeEmail: (emails) => {
+      return emails.map((email) => ({
+        ...email,
+        html: wrapEmailHtml(email.html),
+      }))
+    },
     formOverrides: {
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
@@ -72,6 +79,37 @@ export const plugins: Plugin[] = [
                     HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
                   ]
                 },
+              }),
+            }
+          }
+          // Add a "validation" select to the text block so admins can opt into
+          // phone-format validation on any text field from the form builder.
+          if ('name' in field && field.name === 'fields' && field.type === 'blocks') {
+            return {
+              ...field,
+              blocks: (field.blocks || []).map((block) => {
+                if (block.slug === 'text') {
+                  return {
+                    ...block,
+                    fields: [
+                      ...(block.fields || []),
+                      {
+                        name: 'validation',
+                        type: 'select',
+                        label: 'Client-side validation',
+                        admin: {
+                          description:
+                            'Applies a built-in validation rule when the form is rendered. "Phone" requires 11–12 digits, optionally prefixed with + (e.g. 09123456789 or +639123456789).',
+                        },
+                        options: [
+                          { label: 'None', value: 'none' },
+                          { label: 'Phone number', value: 'phone' },
+                        ],
+                      },
+                    ],
+                  }
+                }
+                return block
               }),
             }
           }

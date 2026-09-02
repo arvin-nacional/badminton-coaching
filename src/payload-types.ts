@@ -833,6 +833,10 @@ export interface Form {
             width?: number | null;
             defaultValue?: string | null;
             required?: boolean | null;
+            /**
+             * Applies a built-in validation rule when the form is rendered. "Phone" requires 11–12 digits, optionally prefixed with + (e.g. 09123456789 or +639123456789).
+             */
+            validation?: ('none' | 'phone') | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'text';
@@ -3097,6 +3101,7 @@ export interface FormsSelect<T extends boolean = true> {
               width?: T;
               defaultValue?: T;
               required?: T;
+              validation?: T;
               id?: T;
               blockName?: T;
             };
