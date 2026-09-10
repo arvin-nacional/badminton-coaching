@@ -23,9 +23,12 @@ import { syncContactPage } from './utilities/syncContactPage'
 import { syncContactForm } from './utilities/syncContactForm'
 import { jobs } from './jobs/config'
 import { cmsWriteAccess, cmsStaffOnly } from './access/cms'
+import { isTestRuntime } from './testing/environment'
+import { isolatedTestDatabase, testEmailAdapter } from './testing/adapters'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const testing = isTestRuntime()
 const resendFrom = process.env.RESEND_FROM_EMAIL || ''
 const resendFromMatch = resendFrom.match(/^(.+?)\s*<([^>]+)>$/)
 const defaultFromName =
@@ -35,16 +38,19 @@ const defaultFromAddress =
 
 export default buildConfig({
   onInit: async (payload) => {
+    if (testing) return
     await dropLegacyBookingSlotIndex(payload)
     await syncFoundationsHomepage(payload)
     await syncContactPage(payload)
     await syncContactForm(payload)
   },
-  email: resendAdapter({
-    apiKey: process.env.RESEND_API_KEY || '',
-    defaultFromAddress,
-    defaultFromName,
-  }),
+  email: testing
+    ? testEmailAdapter
+    : resendAdapter({
+        apiKey: process.env.RESEND_API_KEY || '',
+        defaultFromAddress,
+        defaultFromName,
+      }),
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
@@ -83,9 +89,11 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: mongooseAdapter({
-    url: process.env.DATABASE_URL || '',
-  }),
+  db: testing
+    ? isolatedTestDatabase()
+    : mongooseAdapter({
+        url: process.env.DATABASE_URL || '',
+      }),
   collections: [Pages, Posts, Media, Categories, Users, ...coachingCollections],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, CoachingSettings],
@@ -99,29 +107,33 @@ export default buildConfig({
   },
   plugins: [
     ...plugins,
-    s3Storage({
-      collections: {
-        media: {
-          // Enable direct uploads to S3
-          // This bypasses the Vercel serverless function size limits
-          disableLocalStorage: true,
-          // Enable signed downloads for better performance with large files
-          signedDownloads: true,
-        },
-      },
-      // Enable client uploads directly to S3
-      // This is configured at the plugin level
-      clientUploads: true,
-      bucket: process.env.S3_BUCKET || '',
-      config: {
-        credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
-        },
-        region: process.env.S3_REGION || '',
-        forcePathStyle: true,
-      },
-    }),
+    ...(!testing
+      ? [
+          s3Storage({
+            collections: {
+              media: {
+                // Enable direct uploads to S3
+                // This bypasses the Vercel serverless function size limits
+                disableLocalStorage: true,
+                // Enable signed downloads for better performance with large files
+                signedDownloads: true,
+              },
+            },
+            // Enable client uploads directly to S3
+            // This is configured at the plugin level
+            clientUploads: true,
+            bucket: process.env.S3_BUCKET || '',
+            config: {
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+              },
+              region: process.env.S3_REGION || '',
+              forcePathStyle: true,
+            },
+          }),
+        ]
+      : []),
     // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,
@@ -129,5 +141,5 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  jobs,
+  jobs: testing ? { ...jobs, autoRun: [] } : jobs,
 })

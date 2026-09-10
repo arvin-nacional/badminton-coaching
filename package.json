@@ -21,8 +21,10 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "sync:home-practice": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/sync-home-practice-steps.ts",
     "sync:technique-videos": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/sync-technique-videos.ts",
-    "test": "pnpm run test:int && pnpm run test:e2e",
-    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
+    "test": "pnpm run test:int",
+    "test:all": "pnpm run test:int && pnpm run test:db && pnpm run test:e2e",
+    "test:db": "tsx tests/run-isolated.ts db",
+    "test:e2e": "tsx tests/run-isolated.ts e2e",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {

@@ -38,6 +38,27 @@ const evaluate = (access: Access | undefined, req: PayloadRequest) => {
 }
 
 describe('configured CMS permissions', () => {
+  it('disables production integrations and startup mutations in test configuration', async () => {
+    const config = await configPromise
+    const emailAdapter = await config.email
+    expect(emailAdapter({ payload: {} as import('payload').Payload }).name).toBe('test-no-delivery')
+    expect(config.jobs.autoRun).toEqual([])
+    const payload = new Proxy(
+      {},
+      {
+        get: () => {
+          throw new Error('Startup must not touch Payload in tests')
+        },
+      },
+    )
+    await expect(config.onInit!(payload as import('payload').Payload)).resolves.toBeUndefined()
+    const media = config.collections.find((entry) => entry.slug === 'media')!
+    expect(media.upload && media.upload.disableLocalStorage).toBe(true)
+    expect(media.endpoints || []).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: expect.stringContaining('s3') })]),
+    )
+  })
+
   it('resolves web first-user registration to the disabled handler before Payload defaults', async () => {
     const config = await configPromise
     const collection = config.collections.find((entry) => entry.slug === 'users')!

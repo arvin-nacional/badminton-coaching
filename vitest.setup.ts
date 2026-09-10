@@ -1,4 +1,3 @@
-// Any setup scripts you might need go here
+import { configureTestEnvironment } from './src/testing/environment'
 
-// Load .env files
-import 'dotenv/config'
+configureTestEnvironment('unit')

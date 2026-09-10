@@ -301,3 +301,8 @@ You can also deploy your app manually, check out the [deployment documentation](
 ## Questions
 
 If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+
+## Test safety
+
+Run `pnpm test` for database-free tests. Database and E2E tests use disposable
+MongoDB through `pnpm test:db` and `pnpm test:e2e`; see [test isolation](docs/test-isolation.md).
