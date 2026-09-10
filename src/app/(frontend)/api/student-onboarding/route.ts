@@ -42,10 +42,8 @@ export async function POST(request: Request) {
     trainingFrequencyPerWeek: validation.trainingFrequencyPerWeek,
   })
 
-  // Look up the program matching the recommended level so we can assign it.
-  // The beforeChange hook on student-profiles will recalculate all
-  // program-derived fields (currentProgramWeek, currentPhase, weeklyFocus,
-  // packageName, etc.) when the program relationship is set.
+  // Match the questionnaire result to the corresponding program so the
+  // student's roadmap is immediately available after onboarding.
   const [programs, profiles, coachingSettings] = await Promise.all([
     payload.find({
       collection: 'programs',
@@ -76,7 +74,7 @@ export async function POST(request: Request) {
   // verified the authenticated user is a student and the profile belongs to
   // them via the ownStudentProfile read access above, so we safely override
   // here to allow self-onboarding without weakening collection access control.
-  await payload.update({
+  const updatedProfile = await payload.update({
     collection: 'student-profiles',
     id: profile.id,
     data: {
@@ -101,6 +99,7 @@ export async function POST(request: Request) {
 
   return Response.json({
     message: 'Onboarding complete.',
+    hasAssignedProgram: Boolean(updatedProfile.program),
     recommendation: {
       level: recommendation.level,
       rationale: recommendation.rationale,

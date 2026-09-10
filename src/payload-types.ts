@@ -1348,9 +1348,13 @@ export interface StudentProfile {
    */
   playingExperience?: ('new' | 'under-1-year' | '1-3-years' | 'over-3-years') | null;
   /**
-   * Captured during student onboarding.
+   * Event used by the active program. Coaches review onboarding preferences before changing it.
    */
   preferredEvent?: ('singles' | 'doubles' | 'both' | 'not-sure') | null;
+  /**
+   * Latest questionnaire preference. Does not switch an already assigned program branch.
+   */
+  onboardingPreferredEvent?: ('singles' | 'doubles' | 'both' | 'not-sure') | null;
   /**
    * Applies to every planned and scheduled lesson in this player’s current program.
    */
@@ -2709,6 +2713,7 @@ export interface StudentProfilesSelect<T extends boolean = true> {
   lastTrainingAt?: T;
   playingExperience?: T;
   preferredEvent?: T;
+  onboardingPreferredEvent?: T;
   trainingDurationMinutes?: T;
   goals?: T;
   trainingAvailability?: T;

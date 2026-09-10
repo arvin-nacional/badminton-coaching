@@ -38,6 +38,9 @@ describe('training video links', () => {
     expect(markup).toContain('stays on this page')
     expect(markup).not.toContain('<iframe')
     expect(markup).not.toContain('role="dialog"')
+    // Adapt to the component's available width, not the outer desktop viewport.
+    expect(markup).toContain('grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]')
+    expect(markup).not.toContain('sm:grid-cols-2')
   })
 
   it('creates privacy-enhanced embeds only for exact supported YouTube hosts and IDs', () => {

@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { DashboardShell, Empty, Panel } from '@/components/Dashboard/UI'
 import { RoadmapLessonCard } from './RoadmapLessonCard'
+import { OnboardingRecommendation } from '@/components/Dashboard/OnboardingRecommendation'
 import type { Drill } from '@/payload-types'
 import { requireDashboardUser } from '@/utilities/dashboardAuth'
 import { getCachedProgram } from '@/utilities/getCachedProgram'
@@ -59,11 +60,14 @@ export default async function StudentRoadmapPage() {
       <DashboardShell
         eyebrow="Student roadmap"
         title="Your roadmap"
-        description="Your program journey will appear here once your coach assigns it."
+        description="Your program journey will appear here after onboarding selects your starting track."
         actions={dashboardLink}
       >
         <Panel title="No program assigned" icon={BookOpen}>
-          <Empty text="Your coach has not assigned a training program yet." />
+          <OnboardingRecommendation
+            level={profile.recommendedProgramLevel}
+            assessmentStatus={profile.assessmentStatus}
+          />
         </Panel>
       </DashboardShell>
     )

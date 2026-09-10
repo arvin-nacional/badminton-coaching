@@ -74,7 +74,7 @@ export function TrainingVideoLinks({ videos, tone = 'light' }: TrainingVideoLink
 
   return (
     <div onClick={stopPropagation}>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3">
         {videos.map((video) => {
           const embedURL = youtubeNoCookieEmbedURL(video.url)
           const isActive = activeVideo?.url === video.url && Boolean(activeEmbedURL)

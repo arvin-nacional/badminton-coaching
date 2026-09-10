@@ -3,6 +3,7 @@ import type { CollectionAfterChangeHook } from 'payload'
 import type { Drill, Program, StudentProfile } from '@/payload-types'
 import { programLessonDrillsForEvent } from '@/utilities/programEventBranches'
 import { normalizeSessionDuration } from '@/utilities/sessionTiming'
+import { onboardingAnswersOnly } from '@/utilities/studentOnboarding'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
@@ -34,6 +35,7 @@ export const syncProgramTrainingSessions: CollectionAfterChangeHook<StudentProfi
   previousDoc,
   req,
 }) => {
+  if (Reflect.get(req.context, onboardingAnswersOnly) === true) return doc
   const programID = relationshipID(doc.program)
   const coachID = relationshipID(doc.coach)
 

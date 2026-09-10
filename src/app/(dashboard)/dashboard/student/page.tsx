@@ -22,6 +22,9 @@ import {
 import { IndependentPracticeCheck } from '@/components/Dashboard/IndependentPracticeCheck'
 import { IndependentPracticeDrills } from '@/components/Dashboard/IndependentPracticeDrills'
 import { StudentCourtBooking } from '@/components/Dashboard/StudentCourtBooking'
+import { OnboardingRecommendation } from '@/components/Dashboard/OnboardingRecommendation'
+import { StarterPractice } from '@/components/Dashboard/StarterPractice'
+import { starterPracticeNames, starterPracticeWhere } from '@/utilities/studentOnboarding'
 import { TrainingVideoLinks } from '@/components/Dashboard/TrainingVideoLinks'
 import type { Drill, PracticeLibrary, Skill } from '@/payload-types'
 import { resolveAssessmentStatus } from '@/utilities/assessmentStatus'
@@ -55,6 +58,12 @@ const categoryLabels: Record<string, string> = {
   'match-performance': 'Match performance',
   'physical-readiness': 'Physical readiness',
   'training-habits': 'Training habits',
+}
+
+const roadmapLabels: Record<string, string> = {
+  foundations: 'Foundation',
+  development: 'Development',
+  competitive: 'Competitive',
 }
 
 export default async function StudentDashboardPage() {
@@ -239,8 +248,26 @@ export default async function StudentDashboardPage() {
           overrideAccess: true,
           where: { id: { in: programDrillIDs } },
         })
-      : Promise.resolve(null),
+      : !programID
+        ? payload.find({
+            collection: 'drills',
+            depth: 0,
+            limit: 2,
+            sort: 'name',
+            overrideAccess: false,
+            user,
+            where: starterPracticeWhere,
+          })
+        : Promise.resolve(null),
   ])
+
+  const starterPracticeDrills = drillResult?.docs?.slice().sort((left, right) => {
+    const leftOrder = starterPracticeNames.indexOf(left.name as (typeof starterPracticeNames)[number])
+    const rightOrder = starterPracticeNames.indexOf(
+      right.name as (typeof starterPracticeNames)[number],
+    )
+    return leftOrder - rightOrder
+  })
 
   // programWeek, phases, programLessons, currentLesson, and lessonPractice
   // were already computed above from the cached program, before the parallel
@@ -352,18 +379,36 @@ export default async function StudentDashboardPage() {
     >
       <div className="grid gap-5 lg:grid-cols-12">
         <Panel
-          tone="dark"
+          tone={program ? 'dark' : undefined}
           className="lg:col-span-8"
-          title="This week's focus"
-          subtitle="Your coaching priority"
+          title={
+            program
+              ? "This week's focus"
+              : assessmentStatus === 'current'
+                ? 'Your next coaching step'
+                : 'Your starting point'
+          }
+          subtitle={
+            program ? 'Your coaching priority' : 'Your onboarding starting track'
+          }
           icon={Target}
         >
-          <p className="text-3xl font-black tracking-tight text-[#4cc9ff]">
-            {currentLesson?.title || profile.weeklyFocus}
-          </p>
-          <p className="mt-3 max-w-3xl leading-7 text-white/75">
-            {currentLesson?.objective || profile.focusExplanation}
-          </p>
+          {!program ? (
+            <OnboardingRecommendation
+              level={profile.recommendedProgramLevel}
+              assessmentStatus={assessmentStatus}
+              showActions={false}
+            />
+          ) : (
+            <>
+              <p className="text-3xl font-black tracking-tight text-[#4cc9ff]">
+                {currentLesson?.title || profile.weeklyFocus}
+              </p>
+              <p className="mt-3 max-w-3xl leading-7 text-white/75">
+                {currentLesson?.objective || profile.focusExplanation}
+              </p>
+            </>
+          )}
           {program ? (
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <p className="inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white/80">
@@ -373,7 +418,7 @@ export default async function StudentDashboardPage() {
                 href="/dashboard/student/roadmap"
                 className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#092c59] transition hover:bg-[#4cc9ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9ff]"
               >
-                View roadmap
+                View {roadmapLabels[program.level] || 'your'} roadmap
               </Link>
             </div>
           ) : null}
@@ -444,15 +489,19 @@ export default async function StudentDashboardPage() {
 
         <Panel
           className="lg:col-span-12"
-          title="Home practice"
+          title={program ? 'Home practice' : 'Starter practice'}
           subtitle={
-            currentPractice?.status === 'completed'
-              ? 'Completed for this program week'
-              : 'Complete this before your next session'
+            !program
+              ? 'Explore introductory material — no booking required'
+              : currentPractice?.status === 'completed'
+                ? 'Completed for this program week'
+                : 'Complete this before your next session'
           }
           icon={ClipboardList}
         >
-          {currentLesson ? (
+          {!program ? (
+            <StarterPractice drills={starterPracticeDrills || []} />
+          ) : currentLesson ? (
             <div>
               <div className="flex flex-col gap-3 rounded-2xl bg-[#f6f9fd] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                 <div className="min-w-0">
@@ -536,41 +585,60 @@ export default async function StudentDashboardPage() {
         <Panel
           className={latestFeedback ? 'lg:col-span-8' : 'lg:col-span-12'}
           title="Your development"
-          subtitle={`${developingSkills.length} in progress · ${completedSkills.length} completed`}
+          subtitle={
+            skillProgress.docs.length
+              ? `${developingSkills.length} in progress · ${completedSkills.length} completed`
+              : assessmentStatus === 'current'
+                ? 'Awaiting your recorded skill baseline'
+                : 'Not assessed yet'
+          }
           icon={Trophy}
         >
-          <div className="grid gap-6 xl:grid-cols-2">
-            <div>
-              <h3 className="text-sm font-black text-[#092c59]">Development areas</h3>
-              <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
-                {priorityCategoryProgress.map((category) => (
-                  <ProgressBar key={category.label} label={category.label} value={category.value} />
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-[#092c59]/10 pt-6 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
-              <h3 className="text-sm font-black text-[#092c59]">Current skills</h3>
-              {prioritySkills.length ? (
+          {!skillProgress.docs.length ? (
+            <p className="text-sm leading-7 text-[#607286]">
+              Your coach will record your skill baseline and progress after observing your play.
+              Questionnaire answers are not skill scores.
+            </p>
+          ) : (
+            <div className="grid gap-6 xl:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-black text-[#092c59]">Development areas</h3>
                 <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
-                  {prioritySkills.map((item) => (
+                  {priorityCategoryProgress.map((category) => (
                     <ProgressBar
-                      key={item.id}
-                      label={relationName(item.skill as Skill)}
-                      value={item.progress}
-                      trailing={stageLabels[displayedStage(item.progress, item.stage)]}
+                      key={category.label}
+                      label={category.label}
+                      value={category.value}
                     />
                   ))}
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-[#718399]">No skills are currently in progress.</p>
-              )}
-              <div className="mt-5 flex items-center gap-2 rounded-2xl bg-[#f3f7fc] p-4 text-sm font-bold text-[#607286]">
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-[#1677ff]" />
-                {completedSkills.length} {completedSkills.length === 1 ? 'skill' : 'skills'}{' '}
-                completed
+              </div>
+              <div className="border-t border-[#092c59]/10 pt-6 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
+                <h3 className="text-sm font-black text-[#092c59]">Current skills</h3>
+                {prioritySkills.length ? (
+                  <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
+                    {prioritySkills.map((item) => (
+                      <ProgressBar
+                        key={item.id}
+                        label={relationName(item.skill as Skill)}
+                        value={item.progress}
+                        trailing={stageLabels[displayedStage(item.progress, item.stage)]}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-[#718399]">
+                    No skills are currently in progress.
+                  </p>
+                )}
+                <div className="mt-5 flex items-center gap-2 rounded-2xl bg-[#f3f7fc] p-4 text-sm font-bold text-[#607286]">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[#1677ff]" />
+                  {completedSkills.length} {completedSkills.length === 1 ? 'skill' : 'skills'}{' '}
+                  completed
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </Panel>
 
         <Panel
@@ -601,7 +669,13 @@ export default async function StudentDashboardPage() {
               </Link>
             </div>
           ) : (
-            <Empty text="Your program roadmap will appear after a program is assigned." />
+            <Empty
+              text={
+                program
+                  ? 'Your coach is preparing your program roadmap.'
+                  : 'Your starting program is being prepared. Check back soon for the full roadmap.'
+              }
+            />
           )}
         </Panel>
 

@@ -146,9 +146,10 @@ export function HomePracticeTimer({
   initialExerciseLogs,
   initialCompleted = false,
   launchToken = 0,
+  launchDrillIndex = 0,
   onStatusChange,
 }: {
-  practiceID: string
+  practiceID?: string
   drills: WorkoutDrill[]
   initialStatus?: TimerStatus | null
   initialStartedAt?: string | null
@@ -161,6 +162,7 @@ export function HomePracticeTimer({
   initialExerciseLogs?: IndependentPractice['exerciseLogs']
   initialCompleted?: boolean
   launchToken?: number
+  launchDrillIndex?: number
   onStatusChange?: (status: TimerStatus) => void
 }) {
   const router = useRouter()
@@ -514,10 +516,15 @@ export function HomePracticeTimer({
 
   useEffect(() => {
     if (launchToken > 0) {
-      setViewedDrillIndex(currentDrillIndex)
+      const nextDrillIndex = Math.min(
+        Math.max(0, Math.floor(launchDrillIndex)),
+        Math.max(0, drills.length - 1),
+      )
+      setCurrentDrillIndex(nextDrillIndex)
+      setViewedDrillIndex(nextDrillIndex)
       setIsOpen(true)
     }
-  }, [currentDrillIndex, launchToken])
+  }, [drills.length, launchDrillIndex, launchToken])
 
   useEffect(() => {
     if (!isOpen) return
@@ -632,6 +639,26 @@ export function HomePracticeTimer({
         setElapsedSeconds(0)
         setStartedAt(null)
         setStatus('not-started')
+      }
+
+      // Starter practice is intentionally local-only. It uses the same guided
+      // timer, but must not create an assignment or write progress to Payload.
+      if (!practiceID) {
+        const localStatus: TimerStatus =
+          action === 'start' || action === 'resume'
+            ? 'running'
+            : action === 'pause'
+              ? 'paused'
+              : action === 'finish'
+                ? 'finished'
+                : action === 'reset'
+                  ? 'not-started'
+                  : status
+        setStatus(localStatus)
+        onStatusChange?.(localStatus)
+        actionInFlightRef.current = false
+        setIsSaving(false)
+        return
       }
 
       const response = await fetch(`/api/independent-practice/${practiceID}`, {
@@ -807,6 +834,11 @@ export function HomePracticeTimer({
 
     setCompletionError('')
     setIsMarkingComplete(true)
+    if (!practiceID) {
+      setPracticeCompleted(true)
+      setIsMarkingComplete(false)
+      return
+    }
     const response = await fetch(`/api/independent-practice/${practiceID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -887,6 +919,7 @@ export function HomePracticeTimer({
                     exerciseLogs={exerciseLogs}
                     elapsedSeconds={displayedSeconds}
                     practiceCompleted={practiceCompleted}
+                    localOnly={!practiceID}
                     isMarkingComplete={isMarkingComplete}
                     completionError={completionError}
                     primaryButtonRef={summaryPrimaryButtonRef}
@@ -1219,6 +1252,7 @@ function WorkoutSummary({
   exerciseLogs,
   elapsedSeconds,
   practiceCompleted,
+  localOnly,
   isMarkingComplete,
   completionError,
   primaryButtonRef,
@@ -1231,6 +1265,7 @@ function WorkoutSummary({
   exerciseLogs: ExerciseLog[]
   elapsedSeconds: number
   practiceCompleted: boolean
+  localOnly: boolean
   isMarkingComplete: boolean
   completionError: string
   primaryButtonRef: RefObject<HTMLButtonElement | null>
@@ -1262,7 +1297,9 @@ function WorkoutSummary({
               Nice work!
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#607286] sm:text-base">
-              You finished every part of this home workout. Here is your practice summary.
+              {localOnly
+                ? 'You finished every part of this starter workout. Here is your practice summary.'
+                : 'You finished every part of this home workout. Here is your practice summary.'}
             </p>
           </div>
 
@@ -1329,13 +1366,21 @@ function WorkoutSummary({
               <div>
                 <h2 className="font-black text-[#092c59]">
                   {practiceCompleted
-                    ? 'Home practice marked as done'
-                    : 'Mark this home practice as done?'}
+                    ? localOnly
+                      ? 'Starter practice complete'
+                      : 'Home practice marked as done'
+                    : localOnly
+                      ? 'Finish this starter practice?'
+                      : 'Mark this home practice as done?'}
                 </h2>
                 <p className="mt-1 text-sm font-semibold leading-6 text-[#4f647b]">
                   {practiceCompleted
-                    ? 'Your completion and workout results are now visible to your coach.'
-                    : 'This is the final step. Your coach will see that you completed the assigned home practice.'}
+                    ? localOnly
+                      ? 'This starter session is for your own reference and does not update assessed progress.'
+                      : 'Your completion and workout results are now visible to your coach.'
+                    : localOnly
+                      ? 'This session is not attached to a coaching assignment or progress record.'
+                      : 'This is the final step. Your coach will see that you completed the assigned home practice.'}
                 </p>
               </div>
             </div>
@@ -1362,8 +1407,12 @@ function WorkoutSummary({
             {isMarkingComplete
               ? 'Saving…'
               : practiceCompleted
-                ? 'Done — back to dashboard'
-                : 'Mark home practice as done'}
+                ? localOnly
+                  ? 'Done — close starter practice'
+                  : 'Done — back to dashboard'
+                : localOnly
+                  ? 'Finish starter practice'
+                  : 'Mark home practice as done'}
           </button>
           <button
             type="button"

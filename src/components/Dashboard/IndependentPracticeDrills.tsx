@@ -67,6 +67,7 @@ export function IndependentPracticeDrills({
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [workoutLaunchToken, setWorkoutLaunchToken] = useState(0)
+  const [workoutStartIndex, setWorkoutStartIndex] = useState(0)
   const [workoutStatus, setWorkoutStatus] = useState<
     'not-started' | 'running' | 'paused' | 'finished'
   >(
@@ -142,8 +143,9 @@ export function IndependentPracticeDrills({
     [drills.length],
   )
 
-  const launchWorkout = () => {
+  const launchWorkout = (startIndex = 0) => {
     setSelectedIndex(null)
+    setWorkoutStartIndex(Math.max(0, Math.min(startIndex, drills.length - 1)))
     setWorkoutLaunchToken((token) => token + 1)
   }
 
@@ -260,27 +262,26 @@ export function IndependentPracticeDrills({
         ))}
       </div>
 
-      {practiceID ? (
-        <HomePracticeTimer
-          practiceID={practiceID}
-          drills={drills.map((drill) => ({
-            ...drill,
-            illustrationURL: drillIllustrationFor(drill),
-          }))}
-          initialStatus={initialTimerStatus}
-          initialStartedAt={initialTimerStartedAt}
-          initialElapsedSeconds={initialElapsedSeconds}
-          initialCurrentDrillIndex={initialCurrentDrillIndex}
-          initialCurrentDrillElapsedSeconds={initialCurrentDrillElapsedSeconds}
-          initialCurrentStepIndex={initialCurrentStepIndex}
-          initialCurrentRound={initialCurrentRound}
-          initialCurrentStepElapsedSeconds={initialCurrentStepElapsedSeconds}
-          initialExerciseLogs={initialExerciseLogs}
-          initialCompleted={initialCompleted}
-          launchToken={workoutLaunchToken}
-          onStatusChange={setWorkoutStatus}
-        />
-      ) : null}
+      <HomePracticeTimer
+        practiceID={practiceID}
+        drills={drills.map((drill) => ({
+          ...drill,
+          illustrationURL: drillIllustrationFor(drill),
+        }))}
+        initialStatus={initialTimerStatus}
+        initialStartedAt={initialTimerStartedAt}
+        initialElapsedSeconds={initialElapsedSeconds}
+        initialCurrentDrillIndex={initialCurrentDrillIndex}
+        initialCurrentDrillElapsedSeconds={initialCurrentDrillElapsedSeconds}
+        initialCurrentStepIndex={initialCurrentStepIndex}
+        initialCurrentRound={initialCurrentRound}
+        initialCurrentStepElapsedSeconds={initialCurrentStepElapsedSeconds}
+        initialExerciseLogs={initialExerciseLogs}
+        initialCompleted={initialCompleted}
+        launchToken={workoutLaunchToken}
+        launchDrillIndex={workoutStartIndex}
+        onStatusChange={setWorkoutStatus}
+      />
 
       {selectedDrill && selectedIndex !== null
         ? createPortal(
@@ -295,9 +296,9 @@ export function IndependentPracticeDrills({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={`drill-modal-${selectedDrill.id}`}
-                className="flex max-h-[94dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-[2rem]"
+                className="flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:max-h-[90dvh] sm:rounded-[2rem]"
               >
-                <div className="border-b border-[#092c59]/10 bg-[#f8fbff] px-5 pb-4 pt-5 sm:px-7">
+                <div className="shrink-0 border-b border-[#092c59]/10 bg-[#f8fbff] px-5 pb-4 pt-5 sm:px-7">
                   <div className="flex items-center justify-between gap-4">
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#1677ff]">
                       Drill {selectedIndex + 1} of {drills.length}
@@ -352,16 +353,16 @@ export function IndependentPracticeDrills({
                   </div>
                 </div>
 
-                <div ref={modalContentRef} className="overflow-y-auto">
-                  <div className="grid md:grid-cols-[260px_minmax(0,1fr)]">
-                    <div className="relative aspect-[4/3] bg-[#eef3f8] md:aspect-auto md:min-h-[330px]">
+                <div ref={modalContentRef} className="min-h-0 overflow-y-auto overscroll-contain">
+                  <div className="grid items-start md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+                    <div className="relative aspect-[4/3] bg-[#eef3f8] md:aspect-square">
                       {drillIllustrationFor(selectedDrill) ? (
                         <Image
                           src={drillIllustrationFor(selectedDrill)!}
                           alt={`${selectedDrill.name} exercise illustration`}
                           fill
-                          sizes="(max-width: 768px) 100vw, 260px"
-                          className="object-cover"
+                          sizes="(max-width: 767px) 100vw, (max-width: 1072px) 33vw, 342px"
+                          className="object-contain"
                           priority
                         />
                       ) : (
@@ -373,7 +374,7 @@ export function IndependentPracticeDrills({
                         </div>
                       )}
                     </div>
-                    <div className="p-5 sm:p-7">
+                    <div className="min-w-0 p-5 sm:p-7">
                       <div className="flex flex-wrap gap-2 text-xs font-bold text-[#607286]">
                         <span className="rounded-full bg-[#eaf3ff] px-3 py-1.5 text-[#1677ff]">
                           {selectedDrill.durationMinutes} min
@@ -504,12 +505,12 @@ export function IndependentPracticeDrills({
                   </div>
                 </div>
 
-                <div className="border-t border-[#092c59]/10 bg-white p-4 sm:px-7">
+                <div className="shrink-0 border-t border-[#092c59]/10 bg-white p-4 sm:px-7">
                   {practiceID ? (
                     <div className="grid gap-2 sm:grid-cols-[1.35fr_1fr]">
                       <button
                         type="button"
-                        onClick={launchWorkout}
+                        onClick={() => launchWorkout()}
                         className="flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full bg-[#15191f] px-5 py-3.5 font-black text-white transition hover:bg-[#1677ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
                       >
                         <Play className="h-5 w-5 fill-current" />
@@ -526,10 +527,10 @@ export function IndependentPracticeDrills({
                   ) : (
                     <button
                       type="button"
-                      onClick={closeModal}
+                      onClick={() => launchWorkout(selectedIndex)}
                       className="w-full rounded-full bg-[#092c59] px-5 py-3.5 font-black text-white transition hover:bg-[#1677ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1677ff]"
                     >
-                      Back to practice
+                      Start practice
                     </button>
                   )}
                   {practiceID ? (

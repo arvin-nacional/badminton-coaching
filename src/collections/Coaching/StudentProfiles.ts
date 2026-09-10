@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { ownStudentProfile, staffOnly } from '@/access/coaching'
 import { isSessionDuration } from '@/utilities/sessionTiming'
+import { onboardingAnswersOnly } from '@/utilities/studentOnboarding'
 import { relationshipID } from './shared'
 import { syncIndependentPractice } from './syncIndependentPractice'
 import { syncProgramTrainingSessions } from './syncProgramTrainingSessions'
@@ -23,6 +24,7 @@ export const StudentProfiles: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, operation, originalDoc, req }) => {
+        if (Reflect.get(req.context, onboardingAnswersOnly) === true) return data
         const programWasProvided = Object.prototype.hasOwnProperty.call(data, 'program')
         const selectedProgramID = programWasProvided ? relationshipID(data.program) : null
         const previousProgramID = relationshipID(originalDoc?.program)
@@ -215,7 +217,20 @@ export const StudentProfiles: CollectionConfig = {
       options: ['singles', 'doubles', 'both', 'not-sure'],
       admin: {
         position: 'sidebar',
-        description: 'Captured during student onboarding.',
+        description:
+          'Event used by the active program. Coaches review onboarding preferences before changing it.',
+      },
+    },
+    {
+      name: 'onboardingPreferredEvent',
+      label: 'Requested event from onboarding',
+      type: 'select',
+      options: ['singles', 'doubles', 'both', 'not-sure'],
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'Latest questionnaire preference. Does not switch an already assigned program branch.',
       },
     },
     {
@@ -319,7 +334,7 @@ export const StudentProfiles: CollectionConfig = {
         position: 'sidebar',
         readOnly: true,
         description:
-          'Automatically derived from onboarding answers. The coach confirms the final program assignment.',
+          'Automatically derived from onboarding answers and used to select the starting program.',
       },
     },
     {

@@ -66,7 +66,9 @@ export function StudentOnboardingForm({
     profile.skillSelfRating ?? null,
   )
   const [competitionGoal, setCompetitionGoal] = useState(profile.competitionGoal ?? '')
-  const [preferredEvent, setPreferredEvent] = useState(profile.preferredEvent ?? '')
+  const [preferredEvent, setPreferredEvent] = useState(
+    profile.preferredEvent ?? '',
+  )
   const [trainingFrequencyPerWeek, setTrainingFrequencyPerWeek] = useState(
     profile.trainingFrequencyPerWeek ?? '',
   )
@@ -164,6 +166,12 @@ export function StudentOnboardingForm({
 
   if (recommendation) {
     const program = programLabels[recommendation.level]
+    const roadmapLabel =
+      recommendation.level === 'foundations'
+        ? 'Foundation'
+        : recommendation.level === 'development'
+          ? 'Development'
+          : 'Competitive'
     return (
       <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-5 py-12">
         <div className="w-full max-w-xl rounded-[2rem] border border-[#092c59]/10 bg-white p-7 shadow-[0_30px_80px_-45px_rgba(9,44,89,.5)] md:p-9">
@@ -190,15 +198,15 @@ export function StudentOnboardingForm({
             </div>
             <p className="mt-4 text-sm leading-6 text-[#607286]">{recommendation.rationale}</p>
             <p className="mt-3 text-xs font-bold text-[#718399]">
-              {program.weeks} weeks · Your coach will confirm this after your initial assessment.
+              {program.weeks} weeks · Your roadmap is ready to explore.
             </p>
           </div>
 
           <Link
-            href="/dashboard/student"
+            href="/dashboard/student/roadmap"
             className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-[#092c59] px-6 py-3.5 font-bold text-white"
           >
-            Go to dashboard <ArrowRight className="h-5 w-5" />
+            View {roadmapLabel} roadmap <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </main>
@@ -216,8 +224,9 @@ export function StudentOnboardingForm({
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-.04em]">Tell us about your game</h1>
         <p className="mt-3 text-sm leading-6 text-[#607286]">
-          These questions help your coach understand your level and recommend the right training
-          program. Answer honestly — there are no wrong answers.
+          These questions help your coach understand your experience, goals, and availability. Your
+          answers select the starting program and roadmap. Answer honestly — there are no wrong
+          answers.
         </p>
         <form onSubmit={submit} className="mt-7 space-y-5">
           <label className="block text-sm font-bold">

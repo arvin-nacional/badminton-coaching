@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook } from 'payload'
 
 import type { PracticeLibrary, Program, StudentProfile } from '@/payload-types'
 import { programLessonHomeDrillsForEvent } from '@/utilities/programEventBranches'
+import { onboardingAnswersOnly } from '@/utilities/studentOnboarding'
 
 const relationshipID = (value: unknown): string | null => {
   if (typeof value === 'string') return value
@@ -15,6 +16,7 @@ export const syncIndependentPractice: CollectionAfterChangeHook<StudentProfile> 
   previousDoc,
   req,
 }) => {
+  if (Reflect.get(req.context, onboardingAnswersOnly) === true) return doc
   const programID = relationshipID(doc.program)
   if (!programID) return doc
 
