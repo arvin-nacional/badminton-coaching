@@ -4,6 +4,13 @@ import { getPayload } from 'payload'
 
 import { sendStudentVerification } from '@/utilities/sendStudentVerification'
 import { validateSignupInput } from '@/utilities/validateStudentSignup'
+import {
+  checkPublicForm,
+  limitPublicEmail,
+  limitPublicRequest,
+  publicErrorResponse,
+  requestIdentity,
+} from '@/utilities/publicRequestProtection'
 
 type SignupBody = {
   email?: unknown
@@ -11,17 +18,34 @@ type SignupBody = {
 }
 
 const GENERIC_SUCCESS =
-  'If an account does not already exist for that email, you will receive a verification link shortly.'
+  'If this email can be registered, you will receive a verification link shortly.'
 
 export async function POST(request: Request) {
   const payload = await getPayload({ config })
 
+  try {
+    await limitPublicRequest(payload, 'public-email-ip', requestIdentity(request), 10, 3600)
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
+
   const body = (await request.json().catch(() => null)) as SignupBody | null
+  try {
+    checkPublicForm(request, body)
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
   const validation = validateSignupInput(body || {})
 
   if (!validation.valid) return Response.json({ error: validation.error }, { status: 400 })
 
   const { name, email } = validation
+
+  try {
+    await limitPublicEmail(payload, email)
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
 
   const existing = await payload.find({
     collection: 'users',
@@ -34,7 +58,11 @@ export async function POST(request: Request) {
   if (existing.docs.length) {
     // Generic message to avoid email enumeration. If the account is pending,
     // we still send a fresh verification email so the user can recover.
-    if (existing.docs[0].accountStatus === 'pending') {
+    if (
+      existing.docs[0].accountStatus === 'pending' &&
+      existing.docs[0].roles?.includes('student') &&
+      !existing.docs[0].roles.some((role) => role === 'admin' || role === 'coach')
+    ) {
       try {
         await sendStudentVerification(payload, existing.docs[0])
       } catch (error) {
@@ -90,8 +118,5 @@ export async function POST(request: Request) {
     )
   }
 
-  return Response.json(
-    { message: `Check your email at ${email} for a verification link.` },
-    { status: 201 },
-  )
+  return Response.json({ message: GENERIC_SUCCESS }, { status: 201 })
 }

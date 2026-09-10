@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { cmsStaffOnly } from '@/access/cms'
 
 import { link } from '@/fields/link'
 import { defaultHeaderActions, defaultHeaderNavItems } from './defaultNavItems'
@@ -8,6 +9,8 @@ export const Header: GlobalConfig = {
   slug: 'header',
   access: {
     read: () => true,
+    update: cmsStaffOnly,
+    readVersions: cmsStaffOnly,
   },
   fields: [
     {

@@ -1,7 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import sharp from 'sharp'
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { resendAdapter } from '@payloadcms/email-resend'
@@ -21,7 +21,8 @@ import { dropLegacyBookingSlotIndex } from './utilities/dropLegacyBookingSlotInd
 import { syncFoundationsHomepage } from './utilities/syncFoundationsHomepage'
 import { syncContactPage } from './utilities/syncContactPage'
 import { syncContactForm } from './utilities/syncContactForm'
-import { sendAssessmentReminderTask } from './jobs/sendAssessmentReminder'
+import { jobs } from './jobs/config'
+import { cmsWriteAccess, cmsStaffOnly } from './access/cms'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -88,6 +89,14 @@ export default buildConfig({
   collections: [Pages, Posts, Media, Categories, Users, ...coachingCollections],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, CoachingSettings],
+  folders: {
+    collectionOverrides: [
+      ({ collection }) => ({
+        ...collection,
+        access: { ...collection.access, ...cmsWriteAccess, read: cmsStaffOnly },
+      }),
+    ],
+  },
   plugins: [
     ...plugins,
     s3Storage({
@@ -120,23 +129,5 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  jobs: {
-    autoRun: [{ cron: '* * * * *', limit: 50, queue: 'assessment-reminders' }],
-    access: {
-      run: ({ req }: { req: PayloadRequest }): boolean => {
-        // Allow logged in users to execute this endpoint (default)
-        if (req.user) return true
-
-        const secret = process.env.CRON_SECRET
-        if (!secret) return false
-
-        // If there is no logged in user, then check
-        // for the Vercel Cron secret to be present as an
-        // Authorization header:
-        const authHeader = req.headers.get('authorization')
-        return authHeader === `Bearer ${secret}`
-      },
-    },
-    tasks: [sendAssessmentReminderTask],
-  },
+  jobs,
 })

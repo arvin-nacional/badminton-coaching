@@ -5,8 +5,12 @@ import { createLocalReq, getFieldsToSign, getPayload, jwtSign, type PayloadReque
 import { addSessionToUser, generatePayloadCookie } from 'payload/shared'
 
 import { GoogleIdentityError, verifyGoogleIDToken } from '@/utilities/googleIdentity'
-
-type GoogleAuthIntent = 'signin' | 'signup'
+import {
+  limitPublicRequest,
+  publicErrorResponse,
+  PublicRequestError,
+  requestIdentity,
+} from '@/utilities/publicRequestProtection'
 
 class GoogleAuthError extends Error {
   constructor(
@@ -22,7 +26,13 @@ function isStudentOnly(roles: string[] | null | undefined) {
 }
 
 function fallbackName(email: string) {
-  return email.split('@')[0].replace(/[._-]+/g, ' ').trim().slice(0, 120) || 'Student'
+  return (
+    email
+      .split('@')[0]
+      .replace(/[._-]+/g, ' ')
+      .trim()
+      .slice(0, 120) || 'Student'
+  )
 }
 
 function isSameOrigin(request: Request) {
@@ -79,8 +89,13 @@ export async function POST(request: Request) {
       throw new GoogleAuthError('Google did not return a credential.', 400)
     }
 
-    const identity = await verifyGoogleIDToken(body.credential, clientID)
     const payload = await getPayload({ config })
+    try {
+      await limitPublicRequest(payload, 'google-auth-ip', requestIdentity(request), 20, 3600)
+    } catch (error) {
+      return publicErrorResponse(error)
+    }
+    const identity = await verifyGoogleIDToken(body.credential, clientID)
     const req = await createLocalReq({ req: { headers: request.headers } }, payload)
     let user = await findGoogleUser(payload, req, identity.subject, identity.email)
 
@@ -92,7 +107,10 @@ export async function POST(request: Request) {
     }
 
     if (user && !isStudentOnly(user.roles)) {
-      throw new GoogleAuthError('Coach and administrator accounts must sign in with a password.', 403)
+      throw new GoogleAuthError(
+        'Coach and administrator accounts must sign in with a password.',
+        403,
+      )
     }
 
     if (user?.googleSubject && user.googleSubject !== identity.subject) {
@@ -161,6 +179,7 @@ export async function POST(request: Request) {
       { headers: { 'Set-Cookie': cookie } },
     )
   } catch (error) {
+    if (error instanceof PublicRequestError) return publicErrorResponse(error)
     if (error instanceof GoogleAuthError) {
       return Response.json({ error: error.message }, { status: error.status })
     }

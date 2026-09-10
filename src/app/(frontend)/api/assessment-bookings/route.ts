@@ -8,6 +8,16 @@ import { getCachedGlobal } from '@/utilities/getGlobals'
 import { sendAssessmentBookingEmails } from '@/utilities/sendAssessmentBookingEmails'
 import { scheduleAssessmentReminders } from '@/utilities/scheduleAssessmentReminders'
 import {
+  checkPublicForm,
+  limitPublicRequest,
+  publicErrorResponse,
+  requestIdentity,
+} from '@/utilities/publicRequestProtection'
+import {
+  claimAssessmentEmailCode,
+  verifyAssessmentEmailCode,
+} from '@/utilities/assessmentEmailVerification'
+import {
   assessmentPlayingExperienceOptions,
   assessmentPreferredEventOptions,
   validateAssessmentBookingInput,
@@ -44,6 +54,12 @@ export async function DELETE(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const payload = await getPayload({ config: configPromise })
+  try {
+    await limitPublicRequest(payload, 'assessment-booking-ip', requestIdentity(request), 20, 3600)
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
   let body: unknown
   try {
     body = await request.json()
@@ -51,10 +67,22 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Please submit a valid booking.' }, { status: 400 })
   }
 
-  const payload = await getPayload({ config: configPromise })
+  try {
+    checkPublicForm(request, body)
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
   const { user: authenticatedUser } = await payload.auth({ headers: await headers() })
   const user = authenticatedUser as User | null
-  const authenticatedStudent = Boolean(user?.roles?.includes('student'))
+  const authenticatedStudent = Boolean(
+    user?.roles?.includes('student') && user.accountStatus === 'active',
+  )
+  if (user?.roles?.includes('student') && !authenticatedStudent) {
+    return Response.json(
+      { error: 'Verify and activate your account before booking.' },
+      { status: 403 },
+    )
+  }
   const validation = validateAssessmentBookingInput(body, authenticatedStudent)
   if (!validation.valid) return Response.json({ error: validation.error }, { status: 400 })
 
@@ -74,6 +102,28 @@ export async function POST(request: Request) {
     slot,
     trainingAvailability: submittedTrainingAvailability,
   } = validation.data
+  let emailProof: Awaited<ReturnType<typeof verifyAssessmentEmailCode>> | undefined
+  try {
+    const bookingEmail = authenticatedStudent ? user!.email : submittedEmail
+    await limitPublicRequest(
+      payload,
+      'assessment-booking-email',
+      bookingEmail.toLowerCase(),
+      10,
+      3600,
+    )
+    if (!authenticatedStudent) {
+      const proof = body as Record<string, unknown>
+      emailProof = await verifyAssessmentEmailCode(
+        payload,
+        submittedEmail,
+        proof.verificationToken,
+        proof.verificationCode,
+      )
+    }
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
   const coachingSettings = await getCachedGlobal('coaching-settings')()
   const consentAt = healthDataConsent ? new Date().toISOString() : undefined
   const bookingLocation = courtHelpRequested
@@ -212,6 +262,30 @@ export async function POST(request: Request) {
     )
 
   try {
+    if (emailProof) await claimAssessmentEmailCode(payload, emailProof, bookingData.bookingKey)
+    // A retry of an already successful request must not send notifications again.
+    const previous = await payload.find({
+      collection: 'assessment-bookings',
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      where: {
+        and: [{ bookingKey: { equals: bookingData.bookingKey } }, { email: { equals: email } }],
+      },
+    })
+    if (previous.docs[0]) return Response.json({ id: previous.docs[0].id }, { status: 200 })
+    await limitPublicRequest(
+      payload,
+      'assessment-reservations-email',
+      email.toLowerCase(),
+      2,
+      86400,
+    )
+  } catch (error) {
+    return publicErrorResponse(error)
+  }
+
+  try {
     const booking = await payload.create({
       collection: 'assessment-bookings',
       overrideAccess: true,
@@ -274,11 +348,24 @@ export async function POST(request: Request) {
     payload.logger.warn({ err: error, msg: 'Assessment booking could not be created' })
     const duplicateKey =
       error && typeof error === 'object' && 'code' in error && error.code === 11000
-    if (duplicateKey)
+    if (duplicateKey) {
+      const previous = await payload
+        .find({
+          collection: 'assessment-bookings',
+          depth: 0,
+          limit: 1,
+          overrideAccess: true,
+          where: {
+            and: [{ bookingKey: { equals: bookingData.bookingKey } }, { email: { equals: email } }],
+          },
+        })
+        .catch(() => null)
+      if (previous?.docs[0]) return Response.json({ id: previous.docs[0].id }, { status: 200 })
       return Response.json(
         { error: 'That time was just booked. Please choose another slot.' },
         { status: 409 },
       )
+    }
     return Response.json(
       { error: 'We could not save your booking. Please try again.' },
       { status: 500 },

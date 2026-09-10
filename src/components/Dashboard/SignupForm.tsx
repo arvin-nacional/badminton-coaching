@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 
 import { GoogleAuthButton } from './GoogleAuthButton'
+import { SpamTrap } from '@/components/SpamTrap'
 
 export function SignupForm({ googleClientID }: { googleClientID: string }) {
   const [error, setError] = useState('')
@@ -14,6 +15,7 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
 
   async function signup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (pending) return
     setError('')
     const data = new FormData(event.currentTarget)
     const name = String(data.get('name') || '')
@@ -23,7 +25,7 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
     const response = await fetch('/api/student-signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify({ name, email, website: data.get('website') }),
     }).catch(() => null)
     const result = (await response?.json().catch(() => null)) as {
       error?: string
@@ -31,7 +33,10 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
     } | null
 
     if (!response?.ok) {
-      setError(result?.error || 'We could not create your account.')
+      const wait = response?.headers.get('Retry-After')
+      setError(
+        `${result?.error || 'We could not create your account.'}${wait ? ` Try again in ${wait} seconds.` : ''}`,
+      )
       setPending(false)
       return
     }
@@ -51,7 +56,7 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
             </div>
             <h1 className="mt-7 text-3xl font-black tracking-[-.04em]">Check your email</h1>
             <p className="mt-3 text-sm leading-6 text-[#607286]">
-              We sent a verification link to{' '}
+              If this email can be registered, a verification link will arrive at{' '}
               <strong className="text-[#092c59]">{submittedEmail}</strong>. Open it to confirm your
               email and set your password. The link expires in 48 hours.
             </p>
@@ -93,6 +98,7 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
               </>
             )}
             <form onSubmit={signup} className={googleClientID ? 'space-y-5' : 'mt-7 space-y-5'}>
+              <SpamTrap />
               <label className="block text-sm font-bold">
                 Full name
                 <input
@@ -115,7 +121,10 @@ export function SignupForm({ googleClientID }: { googleClientID: string }) {
                 />
               </label>
               {error && (
-                <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
+                <p
+                  role="alert"
+                  className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]"
+                >
                   {error}
                 </p>
               )}

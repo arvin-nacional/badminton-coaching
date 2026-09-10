@@ -1,14 +1,15 @@
 import { revalidateTag } from 'next/cache'
 import type { GlobalConfig } from 'payload'
 
-import { staffOnly } from '@/access/coaching'
+import { cmsStaffOnly } from '@/access/cms'
 
 export const CoachingSettings: GlobalConfig = {
   slug: 'coaching-settings',
   label: 'Coaching Offer & Trust',
   access: {
     read: () => true,
-    update: staffOnly,
+    update: cmsStaffOnly,
+    readVersions: cmsStaffOnly,
   },
   admin: {
     description:

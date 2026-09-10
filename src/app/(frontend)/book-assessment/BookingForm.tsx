@@ -23,6 +23,7 @@ import {
   type CoachingPricing,
 } from '@/utilities/coachingPricing'
 import { CourtPlaceField } from './CourtPlaceField'
+import { SpamTrap } from '@/components/SpamTrap'
 
 export type AssessmentSlot = {
   id: string
@@ -92,6 +93,9 @@ export function BookingForm({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
+  const [verificationToken, setVerificationToken] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verificationMessage, setVerificationMessage] = useState('')
   const [courtLocation, setCourtLocation] = useState('')
   const [courtHelpRequested, setCourtHelpRequested] = useState(false)
   const [courtHelpArea, setCourtHelpArea] = useState('')
@@ -224,17 +228,44 @@ export function BookingForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (pending) return
+    const data = Object.fromEntries(new FormData(event.currentTarget))
     setPending(true)
     setError('')
-    const response = await fetch('/api/assessment-bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget))),
-    })
-    const result = await response.json().catch(() => ({}))
-    setPending(false)
-    if (!response.ok) return setError(result.error || 'We could not complete your booking.')
-    setConfirmed(true)
+    try {
+      const sendingCode = !isAuthenticated && !verificationToken
+      const response = await fetch(
+        sendingCode ? '/api/assessment-bookings/verification' : '/api/assessment-bookings',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(
+            sendingCode
+              ? { email: data.email, website: data.website }
+              : { ...data, verificationToken, verificationCode },
+          ),
+        },
+      )
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        const wait = response.headers.get('Retry-After')
+        throw new Error(
+          `${result.error || 'We could not complete your booking.'}${wait ? ` Try again in ${wait} seconds.` : ''}`,
+        )
+      }
+      if (sendingCode) {
+        if (!result.token) throw new Error('We could not send your code. Please try again.')
+        setVerificationToken(result.token)
+        setVerificationCode('')
+        setVerificationMessage(result.message)
+      } else {
+        setConfirmed(true)
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Check your connection and try again.')
+    } finally {
+      setPending(false)
+    }
   }
 
   if (confirmed)
@@ -304,6 +335,7 @@ export function BookingForm({
 
   return (
     <form onSubmit={submit} className="grid items-start gap-8 lg:grid-cols-[1.15fr_.85fr]">
+      <SpamTrap />
       <section aria-labelledby="choose-time-heading" className="min-w-0">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -439,7 +471,10 @@ export function BookingForm({
             {healthDataConsentNotice}
             {bookingPolicy}
             {error && (
-              <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
+              <p
+                role="alert"
+                className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]"
+              >
                 {error}
               </p>
             )}
@@ -481,6 +516,12 @@ export function BookingForm({
                 required
                 name="email"
                 type="email"
+                disabled={pending}
+                onChange={() => {
+                  setVerificationToken('')
+                  setVerificationCode('')
+                  setVerificationMessage('')
+                }}
                 maxLength={254}
                 className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
               />
@@ -564,8 +605,50 @@ export function BookingForm({
             {healthDataConsentNotice}
             {bookingPolicy}
             {error && (
-              <p className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]">
+              <p
+                role="alert"
+                className="rounded-xl bg-[#fff0f0] p-3 text-sm font-semibold text-[#a53d3d]"
+              >
                 {error}
+              </p>
+            )}
+            {verificationToken && (
+              <div className="grid gap-3 rounded-xl border border-[#1677ff]/20 bg-[#eaf3ff] p-4">
+                <p role="status" className="text-sm leading-6 text-[#334b65]">
+                  {verificationMessage}
+                </p>
+                <label className="grid gap-2 text-sm font-bold">
+                  Email confirmation code
+                  <input
+                    autoFocus
+                    required
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={verificationCode}
+                    onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, ''))}
+                    className="rounded-xl border border-[#092c59]/20 px-4 py-3 font-normal"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={pending}
+                  className="text-left text-sm font-bold text-[#1677ff] underline"
+                  onClick={() => {
+                    setVerificationToken('')
+                    setVerificationCode('')
+                    setVerificationMessage('')
+                  }}
+                >
+                  Use a new code
+                </button>
+              </div>
+            )}
+            {!verificationToken && (
+              <p className="text-sm leading-6 text-[#607286]">
+                We’ll email you a confirmation code first. Your time is reserved only after you
+                enter the code and confirm.
               </p>
             )}
             <button
@@ -573,7 +656,13 @@ export function BookingForm({
               disabled={pending || !selected || !courtDetailsValid}
               type="submit"
             >
-              {pending ? 'Booking…' : 'Book assessment'}
+              {pending
+                ? verificationToken
+                  ? 'Booking…'
+                  : 'Sending code…'
+                : verificationToken
+                  ? 'Confirm assessment'
+                  : 'Email confirmation code'}
             </button>
             <p className="text-center text-sm text-[#607286]">
               Already have an account?{' '}

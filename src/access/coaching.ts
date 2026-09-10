@@ -1,4 +1,5 @@
-import type { Access, PayloadRequest } from 'payload'
+import type { Access } from 'payload'
+import { hasCMSStaffRole } from './cms'
 
 type CoachingUser = {
   id: string | number
@@ -6,40 +7,16 @@ type CoachingUser = {
 }
 
 export const isStaffUser = (user: CoachingUser | null | undefined) => {
+  return hasCMSStaffRole(user)
+}
+
+export const staffOnly: Access = ({ req }) => isStaffUser(req.user)
+
+export const adminOrSelf: Access = ({ req: { user } }) => {
   if (!user) return false
-  // Existing users created before roles were introduced remain coaching staff.
-  if (!user.roles?.length) return true
-  return user.roles.includes('admin') || user.roles.includes('coach')
+  if (user.roles?.includes('admin')) return true
+  return { id: { equals: user.id } }
 }
-
-export async function isStaffOrBootstrap(req: PayloadRequest) {
-  if (!req.user) return false
-  if (isStaffUser(req.user as CoachingUser)) return true
-
-  // Cache the bootstrap-admin check on the request context so it runs at most
-  // once per request. Without this, every access-controlled query (find/findByID)
-  // re-runs the users collection lookup, adding a MongoDB round-trip per query.
-  if (req.context.isBootstrapAdminChecked) {
-    return req.context.isBootstrapAdmin === true
-  }
-
-  const firstUser = await req.payload.find({
-    collection: 'users',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    req,
-    sort: 'createdAt',
-  })
-
-  const isBootstrap = firstUser.docs[0]?.id === req.user.id
-  req.context.isBootstrapAdminChecked = true
-  req.context.isBootstrapAdmin = isBootstrap
-
-  return isBootstrap
-}
-
-export const staffOnly: Access = ({ req }) => isStaffOrBootstrap(req)
 
 export const staffOrSelf: Access = ({ req: { user } }) => {
   if (!user) return false
@@ -52,13 +29,13 @@ export const authenticatedCoachingUser: Access = ({ req: { user } }) => Boolean(
 export const ownStudentProfile: Access = async ({ req }) => {
   const { user } = req
   if (!user) return false
-  if (await isStaffOrBootstrap(req)) return true
+  if (isStaffUser(user)) return true
   return { user: { equals: user.id } }
 }
 
 export const ownStudentData: Access = async ({ req }) => {
   const { user } = req
   if (!user) return false
-  if (await isStaffOrBootstrap(req)) return true
+  if (isStaffUser(user)) return true
   return { 'student.user': { equals: user.id } }
 }

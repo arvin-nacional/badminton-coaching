@@ -13,6 +13,7 @@ import { wrapEmailHtml } from '@/utilities/emailTemplate'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { cmsStaffOnly, cmsWriteAccess } from '@/access/cms'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
@@ -28,6 +29,7 @@ export const plugins: Plugin[] = [
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
+      access: { ...cmsWriteAccess, read: () => true },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
@@ -56,6 +58,15 @@ export const plugins: Plugin[] = [
     generateURL,
   }),
   formBuilderPlugin({
+    formSubmissionOverrides: {
+      access: {
+        admin: cmsStaffOnly,
+        create: () => true,
+        read: cmsStaffOnly,
+        update: () => false,
+        delete: cmsStaffOnly,
+      },
+    },
     fields: {
       payment: false,
     },
@@ -66,6 +77,7 @@ export const plugins: Plugin[] = [
       }))
     },
     formOverrides: {
+      access: { ...cmsWriteAccess, read: () => true },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'confirmationMessage') {
@@ -122,6 +134,12 @@ export const plugins: Plugin[] = [
     collections: ['posts'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      access: {
+        admin: cmsStaffOnly,
+        read: () => true,
+        update: cmsStaffOnly,
+        delete: cmsStaffOnly,
+      },
       fields: ({ defaultFields }) => {
         return [...defaultFields, ...searchFields]
       },

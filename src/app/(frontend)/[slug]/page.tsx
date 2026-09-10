@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
-import { draftMode } from 'next/headers'
+import { draftMode, headers } from 'next/headers'
 import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
@@ -96,12 +96,15 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
 
   const payload = await getPayload({ config: configPromise })
 
+  const user = draft ? (await payload.auth({ headers: await headers() })).user : null
+
   const result = await payload.find({
     collection: 'pages',
     draft,
     limit: 1,
     pagination: false,
-    overrideAccess: draft,
+    overrideAccess: false,
+    user,
     where: {
       slug: {
         equals: slug,

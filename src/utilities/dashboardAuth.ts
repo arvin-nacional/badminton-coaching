@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import type { User } from '@/payload-types'
+import { hasCMSStaffRole } from '@/access/cms'
 
 /**
  * Resolves the authenticated user (or null) without redirecting.
@@ -31,7 +32,6 @@ export async function requireDashboardUser() {
   return { payload, user }
 }
 
-export const isCoach = (user: User) =>
-  !user.roles?.length || user.roles.includes('admin') || user.roles.includes('coach')
+export const isCoach = (user: User) => hasCMSStaffRole(user)
 
-export const isAdmin = (user: User) => !user.roles?.length || user.roles.includes('admin')
+export const isAdmin = (user: User) => Boolean(user.roles?.includes('admin'))

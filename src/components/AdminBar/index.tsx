@@ -54,7 +54,7 @@ export const AdminBar: React.FC<{
       const roles = authUser?.roles
 
       setAuthUser(authUser?.id ? { id: String(authUser.id), roles } : null)
-      setShow(Boolean(authUser?.id && (!roles?.length || roles.includes('admin'))))
+      setShow(Boolean(authUser?.id && roles?.includes('admin')))
     },
     [setAuthUser],
   )

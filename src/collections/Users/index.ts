@@ -1,24 +1,36 @@
 import { APIError, type CollectionConfig } from 'payload'
 
-import { isStaffOrBootstrap, staffOnly, staffOrSelf } from '../../access/coaching'
+import { adminOrSelf, staffOnly, staffOrSelf } from '../../access/coaching'
+import { adminsOnly, cmsStaffOnly } from '@/access/cms'
 import { provisionStudentProfile } from './provisionStudentProfile'
-import { promoteBootstrapAdmin } from './promoteBootstrapAdmin'
+import { protectRoles } from './protectRoles'
+import { limitPasswordReset } from './limitPasswordReset'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    admin: ({ req }) => isStaffOrBootstrap(req),
+    admin: cmsStaffOnly,
     create: staffOnly,
-    delete: staffOnly,
+    delete: adminsOnly,
     read: staffOrSelf,
-    update: staffOrSelf,
+    update: adminOrSelf,
   },
   admin: {
     defaultColumns: ['name', 'email'],
     useAsTitle: 'name',
   },
   auth: true,
+  endpoints: [
+    {
+      path: '/first-register',
+      method: 'post',
+      handler: () =>
+        Response.json({ error: 'Web administrator registration is disabled.' }, { status: 403 }),
+    },
+  ],
   hooks: {
+    beforeOperation: [limitPasswordReset],
+    beforeChange: [protectRoles],
     beforeLogin: [
       ({ context, user }) => {
         if (user.accountStatus === 'pending' && !context.activatingStudent) {
@@ -35,12 +47,11 @@ export const Users: CollectionConfig = {
     ],
     afterLogin: [
       async ({ req, user }) => {
-        const promotedUser = await promoteBootstrapAdmin(user, req)
-        await provisionStudentProfile(promotedUser, req)
-        if (req.context.activatingStudent && promotedUser.accountStatus === 'pending') {
+        await provisionStudentProfile(user, req)
+        if (req.context.activatingStudent && user.accountStatus === 'pending') {
           return req.payload.update({
             collection: 'users',
-            id: promotedUser.id,
+            id: user.id,
             context: { ...req.context, activatingStudent: false },
             data: {
               accountStatus: 'active',
@@ -50,11 +61,18 @@ export const Users: CollectionConfig = {
             req,
           })
         }
-        return promotedUser
+        return user
       },
     ],
   },
   fields: [
+    {
+      // Until email-change verification exists, a student cannot replace a
+      // verified email and keep the verified-booking shortcut.
+      name: 'email',
+      type: 'email',
+      access: { update: adminsOnly },
+    },
     {
       name: 'name',
       type: 'text',
@@ -86,7 +104,10 @@ export const Users: CollectionConfig = {
         { label: 'Student', value: 'student' },
       ],
       access: {
-        update: ({ req }) => isStaffOrBootstrap(req),
+        create: ({ req, data }) =>
+          adminsOnly({ req }) ||
+          (Array.isArray(data?.roles) && data.roles.every((role: string) => role === 'student')),
+        update: adminsOnly,
       },
     },
     {
@@ -102,8 +123,8 @@ export const Users: CollectionConfig = {
         readOnly: true,
       },
       access: {
-        read: ({ req }) => isStaffOrBootstrap(req),
-        update: ({ req }) => isStaffOrBootstrap(req),
+        read: cmsStaffOnly,
+        update: adminsOnly,
       },
     },
     {
@@ -114,8 +135,8 @@ export const Users: CollectionConfig = {
         readOnly: true,
       },
       access: {
-        read: ({ req }) => isStaffOrBootstrap(req),
-        update: ({ req }) => isStaffOrBootstrap(req),
+        read: cmsStaffOnly,
+        update: adminsOnly,
       },
     },
   ],

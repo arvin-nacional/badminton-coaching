@@ -10,6 +10,7 @@ import {
 } from './BookingForm'
 import { generateRecurringAssessmentSlots } from '@/utilities/assessmentAvailability'
 import { getCachedGlobal } from '@/utilities/getGlobals'
+import type { User } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: 'Book an assessment',
@@ -25,13 +26,16 @@ export default async function BookAssessmentPage() {
   const payload = await getPayload({ config: configPromise })
   const now = new Date().toISOString()
   const { user: authenticatedUser } = await payload.auth({ headers: await headers() })
-  const user = authenticatedUser as { id: string; email: string; name?: string } | null
+  const user = authenticatedUser as User | null
+  const isAuthenticated = Boolean(
+    user?.roles?.includes('student') && user.accountStatus === 'active',
+  )
 
   // If the visitor is an authenticated student, pull their display name so the
   // simplified booking form can greet them.
   let displayName: string | undefined
   let studentProfileID: string | undefined
-  if (user?.email) {
+  if (isAuthenticated && user) {
     const profileResult = await payload
       .find({
         collection: 'student-profiles',
@@ -43,7 +47,7 @@ export default async function BookAssessmentPage() {
       })
       .catch(() => null)
     const profile = profileResult?.docs[0]
-    displayName = profile?.displayName || user.name
+    displayName = profile?.displayName || user.name || undefined
     studentProfileID = profile?.id
   }
 
@@ -97,7 +101,6 @@ export default async function BookAssessmentPage() {
     .filter((slot) => !booked.has(slot.id))
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
 
-  const isAuthenticated = Boolean(displayName)
   const existingAssessment = existingAssessments?.docs[0]
   const existingBooking: ExistingAssessmentBooking | undefined = existingAssessment
     ? {

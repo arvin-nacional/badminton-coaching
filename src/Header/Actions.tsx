@@ -27,7 +27,7 @@ export function HeaderActions({ data, mobile = false }: { data: Header; mobile?:
     // /dashboard → /dashboard/student (or /dashboard/coach) redirect hop.
     const roles = user.roles || []
     const dashboardHref =
-      !roles.length || roles.includes('admin') || roles.includes('coach')
+      roles.includes('admin') || roles.includes('coach')
         ? '/dashboard/coach'
         : '/dashboard/student'
 

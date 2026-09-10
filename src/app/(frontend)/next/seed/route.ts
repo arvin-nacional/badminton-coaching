@@ -1,11 +1,19 @@
 import { createLocalReq, getPayload } from 'payload'
 import { seed } from '@/endpoints/seed'
+import type { User } from '@/payload-types'
 import config from '@payload-config'
 import { headers } from 'next/headers'
 
 export const maxDuration = 60 // This function can run for a maximum of 60 seconds
 
 export async function POST(): Promise<Response> {
+  // The full seed is destructive and must never be reachable from a deployed build.
+  // Keep this check before Payload initialization so a production request cannot
+  // connect to, inspect, or mutate the configured database.
+  if (process.env.NODE_ENV === 'production') {
+    return Response.json({ error: 'Not found.' }, { status: 404 })
+  }
+
   const payload = await getPayload({ config })
   const requestHeaders = await headers()
 
@@ -13,7 +21,15 @@ export async function POST(): Promise<Response> {
   const { user } = await payload.auth({ headers: requestHeaders })
 
   if (!user) {
-    return new Response('Action forbidden.', { status: 403 })
+    return Response.json({ error: 'Authentication required.' }, { status: 401 })
+  }
+
+  const roles = (user as User).roles ?? []
+
+  // Do not use the legacy staff/bootstrap helpers here: destructive seeding
+  // requires an explicitly assigned administrator role.
+  if (!roles.includes('admin')) {
+    return Response.json({ error: 'Administrator access is required.' }, { status: 403 })
   }
 
   try {

@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRight, LoaderCircle, LockKeyhole } from 'lucide-react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 
@@ -19,7 +20,7 @@ export function LoginForm({ googleClientID }: { googleClientID: string }) {
 
   function finishLogin(roles: string[] = []) {
     const roleHome =
-      !roles.length || roles.includes('admin') || roles.includes('coach')
+      roles.includes('admin') || roles.includes('coach')
         ? '/dashboard/coach'
         : '/dashboard/student'
     window.location.assign(safeRedirect(searchParams.get('redirect'), roleHome))
@@ -119,9 +120,9 @@ export function LoginForm({ googleClientID }: { googleClientID: string }) {
         </form>
         <p className="mt-6 text-center text-sm text-[#607286]">
           New student?{' '}
-          <a href="/signup" className="font-bold text-[#1677ff]">
+          <Link href="/signup" className="font-bold text-[#1677ff]">
             Create an account
-          </a>
+          </Link>
         </p>
       </div>
     </main>
